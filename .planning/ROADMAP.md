@@ -35,6 +35,7 @@ Plans:
 ## Phase 3: Android Mobile APK
 **Goal:** Capacitor-based Android app for viewing stock on mobile
 **Mode:** mvp
+**Plans:** 3 plans
 **Success Criteria:**
 1. Capacitor project created in `mobile/` directory
 2. PIN entry screen works on first launch
@@ -42,3 +43,8 @@ Plans:
 4. Each item shows name, category, qty, rate
 5. Only available items displayed
 6. APK builds and installs on Android device
+
+Plans:
+- [ ] 03-01-PLAN.md — Project scaffold, server IP setup, PIN screen, lifecycle, API services (Wave 1)
+- [ ] 03-02-PLAN.md — Stock list grouped by category, search, pull-to-refresh, error states (Wave 1)
+- [ ] 03-03-PLAN.md — APK signing & build, test infrastructure, edge case polish, accessibility (Wave 2)
