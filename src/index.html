@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock Management</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <h1>Stock Management</h1>
+        </div>
+        <div class="status-pill" id="todaySummary">Ready</div>
+      </header>
+
+      <nav class="tabs" aria-label="Primary">
+        <button class="tab active" data-tab="dashboard" type="button">Dashboard</button>
+        <button class="tab" data-tab="entry" type="button">Entry</button>
+        <button class="tab" data-tab="report" type="button">Report</button>
+      </nav>
+
+      <main>
+        <section class="view active" id="dashboard">
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Total Items</span>
+              <strong id="totalItems">0</strong>
+            </article>
+            <article class="metric-card">
+              <span>Total Balance Qty</span>
+              <strong id="totalBalance">0</strong>
+            </article>
+            <article class="metric-card">
+              <span>Stock Value</span>
+              <strong id="stockValue">Rs 0</strong>
+            </article>
+            <article class="metric-card">
+              <span>Today's Movement</span>
+              <strong id="todayMovement">0</strong>
+            </article>
+          </div>
+
+          <div class="content-grid">
+            <section class="panel wide">
+              <div class="panel-title">
+                <h2>Current Stock Balance</h2>
+                <input id="dashboardSearch" type="search" placeholder="Search item..." />
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Category</th>
+                      <th>In</th>
+                      <th>Out</th>
+                      <th>Balance</th>
+                      <th>Rate</th>
+                      <th>Value</th>
+                    </tr>
+                  </thead>
+                  <tbody id="balanceRows"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-title">
+                <h2>Quick Rate Check</h2>
+              </div>
+              <label class="field">
+                <span>Item Name</span>
+                <input id="rateSearch" list="itemOptions" placeholder="Type item name" />
+              </label>
+              <div class="rate-card">
+                <span>Latest Rate</span>
+                <strong id="latestRate">Rs 0</strong>
+                <small id="rateMeta">No item selected</small>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="entry">
+          <section class="panel entry-panel">
+            <div class="panel-title">
+              <h2>Stock Entry</h2>
+              <p>Add stock in/out transactions</p>
+            </div>
+
+            <form id="entryForm" class="entry-form">
+              <label class="field">
+                <span>Date</span>
+                <input id="date" name="date" type="date" required />
+              </label>
+              <label class="field">
+                <span>Type</span>
+                <select id="type" name="type" required>
+                  <option value="in">Stock In</option>
+                  <option value="out">Stock Out</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Item Name</span>
+                <input id="item" name="item" list="itemOptions" placeholder="e.g. Rice 25kg" required />
+              </label>
+              <label class="field">
+                <span>Category</span>
+                <input id="category" name="category" list="categoryOptions" placeholder="e.g. Grocery" required />
+              </label>
+              <label class="field">
+                <span>Quantity</span>
+                <input id="quantity" name="quantity" type="number" min="0.01" step="0.01" required />
+              </label>
+              <label class="field">
+                <span>Rate</span>
+                <input id="rate" name="rate" type="number" min="0" step="0.01" required />
+              </label>
+              <label class="field full">
+                <span>Note</span>
+                <input id="note" name="note" placeholder="Optional detail" required />
+              </label>
+              <div class="form-actions">
+                <button class="secondary-btn" id="resetForm" type="button">Clear</button>
+                <button class="primary-btn" type="submit">Save Entry</button>
+              </div>
+            </form>
+          </section>
+        </section>
+
+        <section class="view" id="report">
+          <section class="panel">
+            <div class="panel-title report-title">
+              <div>
+                <h2 id="reportHeading">Transaction Report</h2>
+                <p id="reportSubtitle">Filter and review all stock movement</p>
+              </div>
+              <div class="report-tools">
+                <input id="reportSearch" type="search" placeholder="Search item/category..." />
+                <select id="reportType">
+                  <option value="all">All</option>
+                  <option value="in">Stock In</option>
+                  <option value="out">Stock Out</option>
+                </select>
+                <button class="secondary-btn" id="exportCsv" type="button">Export CSV</button>
+                <button class="secondary-btn" id="exportPdf" type="button">Export PDF</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>Amount</th>
+                    <th>Note</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="reportRows"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <datalist id="itemOptions"></datalist>
+      <datalist id="categoryOptions"></datalist>
+
+      <footer>
+        <span>Build by Usama</span>
+        <span>For Any Query Contact # 0314-2958627</span>
+      </footer>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>
