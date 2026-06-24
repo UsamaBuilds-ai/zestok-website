@@ -7,6 +7,8 @@
     "start": "electron .",
     "build": "electron-builder --win",
     "pack": "electron-builder --dir",
+    "test": "node --test",
+    "migrate": "node src/db/migrate.js",
     "generate-icon": "node scripts/generate-icon.js"
   },
   "keywords": [
@@ -20,7 +22,8 @@
     "electron": "^31.7.7",
     "electron-builder": "^24.13.3",
     "jimp": "^1.6.1",
-    "png-to-ico": "^3.0.1"
+    "png-to-ico": "^3.0.1",
+    "supertest": "^7.2.2"
   },
   "build": {
     "appId": "com.usama.stockmanagement",
@@ -47,8 +50,12 @@
     }
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "icojs": "^1.0.0"
+    "express-rate-limit": "^8.5.2",
+    "icojs": "^1.0.0",
+    "pg": "^8.22.0"
   }
 }
