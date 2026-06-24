@@ -83,12 +83,23 @@ app.get('/api/pin/verify', pinVerifyLimiter, verifyPin, (req, res) => {
   res.json({ valid: true });
 });
 
-// (Temporary) GET /api/stock — returns placeholder data until Plan 01-03, protected by PIN
-app.get('/api/stock', verifyPin, (req, res) => {
-  res.json([
-    { name: "Item A", qty: 100, amount: 5000 },
-    { name: "Item B", qty: 50, amount: 2000 },
-  ]);
+// GET /api/stock — returns stock balance grouped by category, filtered to available items
+app.get('/api/stock', verifyPin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT item, category, in_qty, out_qty, balance, latest_rate, value
+       FROM stock_balance
+       WHERE balance > 0
+       ORDER BY category, item`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Stock query error:', err.message);
+    res.status(503).json({
+      error: 'database_unreachable',
+      message: 'Database is not available.'
+    });
+  }
 });
 
 // Global error handler
