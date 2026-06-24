@@ -19,12 +19,18 @@ Plans:
 ## Phase 2: Desktop PostgreSQL Integration + PIN Management
 **Goal:** Desktop app reads/writes from PostgreSQL, add PIN settings page
 **Mode:** mvp
+**Plans:** 3 plans
 **Success Criteria:**
 1. Desktop app loads data from PostgreSQL on startup
 2. Desktop app saves new entries to PostgreSQL
 3. Desktop has PIN settings tab (set/change PIN)
 4. Desktop shows local IP for mobile connection
 5. Express server auto-starts with the desktop app
+
+Plans:
+- [ ] 02-01-PLAN.md — Express lifecycle + PG pool + server status footer + JSON auto-export (Wave 1)
+- [ ] 02-02-PLAN.md — Desktop PG read/write operations with JSON fallback (Wave 2)
+- [ ] 02-03-PLAN.md — PIN settings modal + local IP display (Wave 2)
 
 ## Phase 3: Android Mobile APK
 **Goal:** Capacitor-based Android app for viewing stock on mobile
