@@ -3,12 +3,18 @@
 ## Phase 1: PostgreSQL + API Foundation
 **Goal:** Setup PostgreSQL database, migrate Express API from mock data to real queries
 **Mode:** mvp
+**Plans:** 3 plans
 **Success Criteria:**
 1. PostgreSQL 16+ installed, database created, schema applied
 2. Express `/api/stock` returns real stock data from PostgreSQL
 3. API returns stock grouped by category, only available items
 4. PIN verification endpoint works with configurable PIN
 5. Existing JSON data migrated to PostgreSQL
+
+Plans:
+- [ ] 01-01-PLAN.md — Database schema + connection pool + PIN status endpoint (Wave 1)
+- [ ] 01-02-PLAN.md — PIN verification with bcrypt + rate limiting (Wave 2)
+- [ ] 01-03-PLAN.md — Real stock API from stock_balance view + data migration script (Wave 3)
 
 ## Phase 2: Desktop PostgreSQL Integration + PIN Management
 **Goal:** Desktop app reads/writes from PostgreSQL, add PIN settings page
