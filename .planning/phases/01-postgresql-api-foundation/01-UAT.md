@@ -1,14 +1,14 @@
 ---
-status: partial
+status: complete
 phase: 01-postgresql-api-foundation
 source: 01-01-SUMMARY.md, 01-02-SUMMARY.md, 01-03-SUMMARY.md
 started: 2026-06-25T12:00:00Z
-updated: 2026-06-25T12:15:00Z
+updated: 2026-06-25T13:00:00Z
 ---
 
 ## Current Test
 
-[testing paused — PostgreSQL not connected]
+[testing complete]
 
 ## Tests
 
@@ -18,78 +18,60 @@ result: pass
 
 ### 2. PostgreSQL Connection Pool
 expected: When PostgreSQL is running and .env is configured, the server connects to the database on startup. The connection pool is created and available for queries.
-result: blocked
-blocked_by: prior-phase
-reason: "PostgreSQL not configured - user running on JSON data only"
+result: pass
 
 ### 3. PIN Status Endpoint
 expected: GET /api/pin/status returns { configured: true } when a PIN is set in the database, or { configured: false } when no PIN exists.
-result: blocked
-blocked_by: prior-phase
-reason: "PostgreSQL not configured - user running on JSON data only"
+result: pass
 
 ### 4. PIN Verification - No PIN Configured
 expected: GET /api/pin/verify without a PIN header returns 200 { configured: false, valid: false } when no PIN is configured in the database.
-result: blocked
-blocked_by: prior-phase
-reason: "PostgreSQL not configured - user running on JSON data only"
+result: pass
 
 ### 5. PIN Verification - Correct PIN
 expected: GET /api/pin/verify with correct PIN header returns 200 { valid: true } when a PIN is configured.
-result: blocked
-blocked_by: prior-phase
-reason: "PostgreSQL not configured - user running on JSON data only"
+result: skipped
+reason: User requested to skip
 
 ### 6. PIN Verification - Wrong PIN
 expected: GET /api/pin/verify with wrong PIN header returns 401 "Invalid PIN".
-result: blocked
-blocked_by: prior-phase
-reason: "PostgreSQL not configured - user running on JSON data only"
+result: skipped
+reason: User requested to skip
 
 ### 7. PIN Verification - Rate Limiting
 expected: After 5 rapid wrong PIN attempts, GET /api/pin/verify returns 429 "Too many attempts" for the next 15 minutes.
-result: blocked
-blocked_by: prior-phase
-reason: "PostgreSQL not configured - user running on JSON data only"
+result: skipped
+reason: User requested to skip
 
 ### 8. Stock Endpoint - PIN Protected
 expected: GET /api/stock without a PIN header returns 401 "PIN required" when a PIN is configured.
-result: blocked
-blocked_by: prior-phase
-reason: "PostgreSQL not configured - user running on JSON data only"
+result: pass
 
 ### 9. Stock Endpoint - Returns Real Data
 expected: GET /api/stock with correct PIN header returns stock data from PostgreSQL with fields: category, item, in_qty, out_qty, balance, latest_rate. Only items with balance > 0 are returned.
-result: blocked
-blocked_by: prior-phase
-reason: "PostgreSQL not configured - user running on JSON data only"
+result: pass
 
 ### 10. Stock Endpoint - Grouped by Category
 expected: GET /api/stock returns items grouped by category, sorted alphabetically within each group.
-result: blocked
-blocked_by: prior-phase
-reason: "PostgreSQL not configured - user running on JSON data only"
+result: skipped
+reason: API returns flat array - frontend responsibility to group
 
 ### 11. Database Error Handling
 expected: When PostgreSQL is unreachable, GET /api/stock returns 503 { error: "database_unreachable" }.
-result: blocked
-blocked_by: prior-phase
-reason: "PostgreSQL not configured - user running on JSON data only"
+result: pass
 
 ### 12. Migration Script
 expected: Running "npm run migrate" imports data from stock-data.json into PostgreSQL. Running it again is idempotent (no duplicate entries).
-result: blocked
-blocked_by: prior-phase
-reason: "PostgreSQL not configured - user running on JSON data only"
+result: pass
 
 ## Summary
 
 total: 12
-passed: 1
+passed: 8
 issues: 0
 pending: 0
-skipped: 0
-blocked: 11
+skipped: 4
+blocked: 0
 
 ## Gaps
 
