@@ -16,9 +16,9 @@
 
 Plans:
 
-- [ ] 01-01-PLAN.md — Express lifecycle management + pool integration + server status footer + JSON auto-export
-- [ ] 01-02-PLAN.md — Desktop PG read/write operations with JSON fallback
-- [ ] 01-03-PLAN.md — Footer IP display + QR code generation (click to show server IP QR)
+- [x] 01-01-PLAN.md — Express lifecycle management + pool integration + server status footer + JSON auto-export *(Wave 1)*
+- [x] 01-02-PLAN.md — Desktop PG read/write operations with JSON fallback *(Wave 2, depends on 01-01)*
+- [x] 01-03-PLAN.md — Footer IP display + QR code generation *(Wave 3, depends on 01-01, file conflict with 01-02)*
 
 ## Phase 2: PIN Settings Window
 
