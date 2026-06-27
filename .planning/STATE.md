@@ -11,6 +11,8 @@ progress:
   total_plans: 7
   completed_plans: 0
   percent: 0
+planned_phase: 1
+planned_plans: 3
 ---
 
 # Project State: Stock Management
@@ -29,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-27)
 
 | Phase | Name | Status | Plans | Coverage |
 |-------|------|--------|-------|----------|
-| 1 | Web App Completion | Pending | 0/3 | — |
+| 1 | Web App Completion | Planned | 3/3 | ✓ Plans ready |
 | 2 | PIN Settings Window | Pending | 0/1 | — |
 | 3 | Mobile Application | Pending | 0/1 | — |
 | 4 | GitHub Deploy + Auto-Updates | Pending | 0/2 | — |
