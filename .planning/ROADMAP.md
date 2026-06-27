@@ -1,50 +1,76 @@
 # Roadmap: Stock Management
 
-## Phase 1: PostgreSQL + API Foundation
-**Goal:** Setup PostgreSQL database, migrate Express API from mock data to real queries
+## Phase 1: Web App Completion
+
+**Goal:** Complete desktop Electron app — PostgreSQL read/write, auto-start Express, IP display + QR code in footer
 **Mode:** mvp
 **Plans:** 3 plans
 **Success Criteria:**
-1. PostgreSQL 16+ installed, database created, schema applied
-2. Express `/api/stock` returns real stock data from PostgreSQL
-3. API returns stock grouped by category, only available items
-4. PIN verification endpoint works with configurable PIN
-5. Existing JSON data migrated to PostgreSQL
+
+1. Desktop loads stock data from PostgreSQL on startup (JSON fallback when PG unreachable)
+2. Desktop saves new stock entries to PostgreSQL with JSON mirror
+3. Express server auto-starts when desktop app launches
+4. Footer displays local IP address for mobile connection
+5. Footer has QR code button — click shows QR code of server IP for mobile to scan
+6. Mobile can scan QR code to auto-configure server IP
 
 Plans:
-- [ ] 01-01-PLAN.md — Database schema + connection pool + PIN status endpoint (Wave 1)
-- [ ] 01-02-PLAN.md — PIN verification with bcrypt + rate limiting (Wave 2)
-- [ ] 01-03-PLAN.md — Real stock API from stock_balance view + data migration script (Wave 3)
 
-## Phase 2: Desktop PostgreSQL Integration + PIN Management
-**Goal:** Desktop app reads/writes from PostgreSQL, add PIN settings page
+- [ ] 01-01-PLAN.md — Express lifecycle management + pool integration + server status footer + JSON auto-export
+- [ ] 01-02-PLAN.md — Desktop PG read/write operations with JSON fallback
+- [ ] 01-03-PLAN.md — Footer IP display + QR code generation (click to show server IP QR)
+
+## Phase 2: PIN Settings Window
+
+**Goal:** Desktop PIN settings modal — set/change access PIN for mobile
 **Mode:** mvp
-**Plans:** 3 plans
+**Plans:** 1 plan
 **Success Criteria:**
-1. Desktop app loads data from PostgreSQL on startup
-2. Desktop app saves new entries to PostgreSQL
-3. Desktop has PIN settings tab (set/change PIN)
-4. Desktop shows local IP for mobile connection
-5. Express server auto-starts with the desktop app
+
+1. Gear icon in footer opens PIN settings modal
+2. Set PIN flow: enter PIN + confirm PIN (4-6 digits)
+3. Change PIN flow: enter current PIN + new PIN + confirm
+4. Validation in both renderer and main process
+5. Inline error messages on validation failures
+6. PIN stored in PostgreSQL app_settings table
 
 Plans:
-- [ ] 02-01-PLAN.md — Express lifecycle + PG pool + server status footer + JSON auto-export (Wave 1)
-- [ ] 02-02-PLAN.md — Desktop PG read/write operations with JSON fallback (Wave 2)
-- [ ] 02-03-PLAN.md — PIN settings modal + local IP display (Wave 2)
 
-## Phase 3: Android Mobile APK
-**Goal:** Capacitor-based Android app for viewing stock on mobile
+- [ ] 02-01-PLAN.md — PIN settings modal UI + IPC handlers + PG persistence
+
+## Phase 3: Mobile Application
+
+**Goal:** Verify mobile app works end-to-end with the desktop API
 **Mode:** mvp
-**Plans:** 3 plans
+**Plans:** 1 plan
 **Success Criteria:**
-1. Capacitor project created in `mobile/` directory
-2. PIN entry screen works on first launch
-3. Stock list grouped by category, searchable
-4. Each item shows name, category, qty, rate
-5. Only available items displayed
+
+1. Mobile app connects to desktop via IP (manual or QR scan from Phase 1)
+2. PIN authentication works end-to-end with new PIN from Phase 2
+3. Stock list displays correctly grouped by category
+4. Search filters items by name
+5. Pull-to-refresh updates stock data
 6. APK builds and installs on Android device
 
 Plans:
-- [ ] 03-01-PLAN.md — Project scaffold, server IP setup, PIN screen, lifecycle, API services (Wave 1)
-- [ ] 03-02-PLAN.md — Stock list grouped by category, search, pull-to-refresh, error states (Wave 1)
-- [ ] 03-03-PLAN.md — APK signing & build, test infrastructure, edge case polish, accessibility (Wave 2)
+
+- [ ] 03-01-PLAN.md — End-to-end verification of mobile app with live API
+
+## Phase 4: GitHub Deploy + Auto-Updates
+
+**Goal:** Push to private GitHub repo, set up auto-updates for desktop and mobile
+**Mode:** mvp
+**Plans:** 2 plans
+**Success Criteria:**
+
+1. Private GitHub repository created on GitHub.com
+2. Full project pushed to GitHub (excluding secrets, keystore, node_modules)
+3. `.gitignore` properly configured for secrets and build artifacts
+4. Desktop app auto-updates when new release is published (electron-updater)
+5. Mobile APK distributed via GitHub Releases for download
+6. Version management for tracking updates
+
+Plans:
+
+- [ ] 04-01-PLAN.md — GitHub private repo setup + .gitignore + push
+- [ ] 04-02-PLAN.md — Desktop auto-update (electron-updater) + mobile APK release workflow

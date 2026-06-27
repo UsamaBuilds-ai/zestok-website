@@ -12,42 +12,49 @@ Users can track stock inventory on their desktop and view real-time stock availa
 
 ### Validated
 
-- ✓ Desktop stock entry (in/out) — existing
-- ✓ Desktop stock balance dashboard with search — existing
-- ✓ Desktop transaction reports with CSV/PDF export — existing
-- ✓ Express API server (port 3000) — existing
-- ✓ PIN-based API authentication — existing (hardcoded mock)
+- ✓ PostgreSQL schema with stock_entries + app_settings tables — existing
+- ✓ Stock balance view (computed from entries) — existing
+- ✓ Express API with PG connection pool — existing
+- ✓ GET /api/stock returns grouped by category, only available items — existing
+- ✓ GET /api/pin/verify with bcrypt + rate limiting — existing
+- ✓ GET /api/pin/status endpoint — existing
+- ✓ JSON data migrated to PostgreSQL — existing
+- ✓ Mobile Capacitor project scaffold — existing
+- ✓ Mobile PIN entry screen (numeric keypad, shake animation, lockout) — existing
+- ✓ Mobile stock list grouped by category with search — existing
+- ✓ Mobile pull-to-refresh — existing
+- ✓ Mobile error states (server unreachable, wrong PIN) — existing
+- ✓ Mobile APK build with keystore — existing
+- ✓ Mobile barcode scanner plugin configured — existing
 
 ### Active
 
-- [ ] **DB-01**: PostgreSQL database with stock entries table
-- [ ] **DB-02**: PostgreSQL setup instructions (Windows)
-- [ ] **SVR-01**: Express API serves real PostgreSQL data (not mock)
-- [ ] **SVR-02**: Express API returns stock grouped by category with balance calculation
-- [ ] **SVR-03**: Express API returns only available items (qty > 0)
-- [ ] **PIN-01**: Desktop has a PIN configuration page to set/manage the mobile access PIN
-- [ ] **PIN-02**: API uses the configurable PIN for auth (not hardcoded)
-- [ ] **MOB-01**: Android APK via Capacitor/Ionic
-- [ ] **MOB-02**: Mobile app shows stock list grouped by category
-- [ ] **MOB-03**: Mobile app has search bar for items
-- [ ] **MOB-04**: Mobile app only shows items with available stock (qty > 0)
-- [ ] **MOB-05**: Mobile app displays item name, category, total qty, new rate
-- [ ] **MOB-06**: Mobile app has PIN entry screen on launch
-- [ ] **MOB-07**: Desktop-to-mobile data sync via Express API
+- [ ] **DKT-01**: Desktop reads stock data from PostgreSQL (JSON fallback)
+- [ ] **DKT-02**: Desktop saves new stock entries to PostgreSQL
+- [ ] **DKT-04**: Desktop displays local IP address for mobile connection
+- [ ] **DKT-05**: Express server auto-starts with desktop app
+- [ ] **DKT-06**: Desktop generates QR code in footer (click shows server IP QR)
+- [ ] **DKT-03**: Desktop PIN settings page (set/change access PIN)
+- [ ] **MOB-01–10**: End-to-end verification of mobile app with live API
+- [ ] **DEP-01**: Private GitHub repository created
+- [ ] **DEP-02**: Desktop auto-update via GitHub Releases
+- [ ] **DEP-03**: Mobile APK distributed via GitHub Releases
 
 ### Out of Scope
 
 - Play Store distribution — direct APK file only
 - Mobile stock entry (in/out) — view-only for v1
 - Multi-user authentication — single PIN shared across devices
-- Offline support — requires network connection to the desktop API
+- Offline support — requires network connection to desktop API
+- iOS support — Android-only for v1
 
 ## Context
 
 - Current desktop app uses JSON file storage (`stock-data.json`)
-- Express server exists with mock data for prototyping
-- No PostgreSQL setup exists yet
-- Target Android devices are on the same local network as the desktop
+- Express server uses real PostgreSQL queries (not mock data)
+- Mobile app built with Capacitor/Ionic — APK signed and ready
+- Mobile has QR scanning via barcode-scanner plugin
+- Target Android devices are on same local network as desktop
 
 ## Constraints
 
@@ -61,12 +68,15 @@ Users can track stock inventory on their desktop and view real-time stock availa
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Capacitor/Ionic | Reuses web skills, wraps to APK easily | — Pending |
+| Capacitor/Ionic | Reuses web skills, wraps to APK easily | ✓ Good |
 | Desktop sets PIN | Admin controls access centrally | — Pending |
-| Both use PostgreSQL | Single source of truth, no sync issues | — Pending |
-| View-only mobile | Simpler MVP, reduces attack surface | — Pending |
-| Direct APK | No Play Store account needed | — Pending |
+| Both use PostgreSQL | Single source of truth, no sync issues | ✓ Good |
+| View-only mobile | Simpler MVP, reduces attack surface | ✓ Good |
+| Direct APK | No Play Store account needed | ✓ Good |
+| QR code in footer | Mobile scans server IP for zero-config setup | — Pending |
+| GitHub private repo | Version control + auto-update delivery | — Pending |
+| electron-updater | Auto-update desktop via GitHub Releases | — Pending |
 
 ---
 
-*Last updated: 2026-06-24 after initialization*
+*Last updated: 2026-06-27 after roadmap restructure*

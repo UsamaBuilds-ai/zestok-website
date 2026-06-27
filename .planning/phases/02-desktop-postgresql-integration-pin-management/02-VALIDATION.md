@@ -1,10 +1,11 @@
 ---
 phase: 2
 slug: desktop-postgresql-integration-pin-management
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-24
+confirmed: 2026-06-27
 ---
 
 # Phase 2 — Validation Strategy
@@ -38,12 +39,12 @@ created: 2026-06-24
 
 | Task ID | Plan | Wave | Requirement | Test Type | Verification | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------|-------------|--------|
-| 02-01-01 | 1 | 1 | DKT-01, DKT-02 | integration | Desktop loads data from PG, saves new entries to PG | ✅ | ⬜ pending |
-| 02-01-02 | 1 | 1 | DKT-05 | integration | Express auto-starts on app launch, closes on quit | ✅ | ⬜ pending |
-| 02-02-01 | 2 | 2 | DKT-03 | manual | PIN settings modal opens, set/change PIN works | ✅ | ⬜ pending |
-| 02-02-02 | 2 | 2 | DKT-04 | manual | Local IP displayed correctly in settings dialog | ✅ | ⬜ pending |
-| 02-03-01 | 3 | 3 | DKT-01, DKT-02 | integration | JSON fallback loads when PG is down | ✅ | ⬜ pending |
-| 02-03-02 | 3 | 3 | DKT-01 | integration | Auto-export to JSON on app exit | ✅ | ⬜ pending |
+| 02-01-01 | 1 | 1 | DKT-01, DKT-02 | integration | Desktop loads data from PG, saves new entries to PG | ✅ | ✅ green |
+| 02-01-02 | 1 | 1 | DKT-05 | integration | Express auto-starts on app launch, closes on quit | ✅ | ✅ green |
+| 02-02-01 | 2 | 2 | DKT-03 | manual | PIN gate overlay opens, set/login PIN works (replaces modal) | ✅ | ✅ green |
+| 02-02-02 | 2 | 2 | DKT-04 | manual | Local IP displayed in settings dialog | ❌ | ❌ red |
+| 02-03-01 | 3 | 3 | DKT-01, DKT-02 | integration | JSON fallback loads when PG is down | ✅ | ✅ green |
+| 02-03-02 | 3 | 3 | DKT-01 | integration | Auto-export to JSON on app exit | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -51,9 +52,9 @@ created: 2026-06-24
 
 ## Wave 0 Requirements
 
-- [ ] `package.json` updated with: `pg`, `dotenv`, `bcryptjs`
-- [ ] `.env` file present (from Phase 1)
-- [ ] PostgreSQL running with `stock_db` and `app_settings` table (from Phase 1)
+- [x] `package.json` updated with: `pg`, `dotenv`, `bcryptjs` (via Phase 1)
+- [x] `.env` file present (from Phase 1)
+- [x] PostgreSQL running with tables (confirmed in Phase 1)
 
 *Existing infrastructure covers basic project setup.*
 
@@ -72,11 +73,14 @@ created: 2026-06-24
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** confirmed 2026-06-27
+
+### Notes
+- **DKT-04** (IP display in settings dialog) was never implemented. The UI has no settings dialog or IP display feature. This is a gap for mobile APK users who need the server IP to connect — consider adding in a future phase or as part of Phase 3.

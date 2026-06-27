@@ -38,6 +38,124 @@ button {
   cursor: pointer;
 }
 
+.pin-gate {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at top left, rgba(64, 177, 255, 0.55), transparent 34rem),
+    linear-gradient(135deg, var(--bg-deep) 0%, #083a86 46%, var(--bg-blue) 100%);
+  z-index: 1000;
+}
+
+.pin-gate-card {
+  width: 380px;
+  padding: 40px 32px;
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.pin-gate-card h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+  color: var(--brand-dark);
+}
+
+.pin-gate-subtitle {
+  margin: 0 0 24px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pin-gate-desc {
+  margin: 0 0 16px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.pin-gate-mode input {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 6px;
+}
+
+.pin-gate-btn {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 4px;
+  font-size: 15px;
+}
+
+.pin-gate-msg {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 18px;
+}
+
+.pin-gate-msg.success { color: var(--good); }
+.pin-gate-msg.error { color: var(--bad); }
+
+.pin-gate-link {
+  display: block;
+  margin: 12px auto 0;
+  border: none;
+  background: none;
+  color: var(--brand);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.pin-gate-link:hover {
+  color: var(--brand-dark);
+}
+
+.hidden { display: none; }
+
+.pin-animated-splash {
+  display: none;
+  min-height: 110px;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 8px 24px;
+}
+
+.pin-animated-splash.active {
+  display: flex;
+}
+
+.pin-splash-text {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text);
+  font-weight: 600;
+  white-space: pre-wrap;
+  text-align: center;
+  margin: 0;
+}
+
+.pin-splash-text::after {
+  content: "|";
+  animation: blink 0.6s infinite;
+  color: var(--brand);
+  font-weight: 400;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
 .app-shell {
   min-height: 100vh;
   display: grid;
@@ -75,6 +193,74 @@ button {
   color: #fff;
   text-align: center;
   font-weight: 700;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.status-indicators {
+  display: flex;
+  gap: 12px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.status-dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+  position: relative;
+}
+
+.status-dot .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #888;
+  transition: background 0.3s;
+}
+
+.status-dot .status-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-dot.connected .dot {
+  background: #0b8f66;
+  box-shadow: 0 0 6px rgba(11, 143, 102, 0.6);
+}
+
+.status-dot.stopped .dot {
+  background: #c44242;
+  box-shadow: 0 0 6px rgba(196, 66, 66, 0.6);
+}
+
+.status-dot.warning .dot {
+  background: #f5a623;
+  box-shadow: 0 0 6px rgba(245, 166, 35, 0.6);
+}
+
+.status-dot:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #1a2a3a;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 10;
 }
 
 .tabs {

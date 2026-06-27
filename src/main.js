@@ -3,17 +3,37 @@ const path = require("path");
 const fs = require("fs/promises");
 require("./server.js");
 
-const createStore = async () => {
-  const filePath = path.join(app.getPath("userData"), "stock-data.json");
+const PIN_FILE = "stock-pin.json";
+const DATA_FILE = "stock-data.json";
+
+const createPinStore = () => {
+  const filePath = path.join(app.getPath("userData"), PIN_FILE);
 
   const read = async () => {
     try {
       const content = await fs.readFile(filePath, "utf8");
       return JSON.parse(content);
-    } catch (error) {
-      if (error.code !== "ENOENT") {
-        console.error("Failed to read stock data:", error);
-      }
+    } catch {
+      return null;
+    }
+  };
+
+  const write = async (data) => {
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, JSON.stringify(data), "utf8");
+  };
+
+  return { read, write };
+};
+
+const createDataFile = () => {
+  const filePath = path.join(app.getPath("userData"), DATA_FILE);
+
+  const read = async () => {
+    try {
+      const content = await fs.readFile(filePath, "utf8");
+      return JSON.parse(content);
+    } catch {
       return { entries: [] };
     }
   };
@@ -26,17 +46,19 @@ const createStore = async () => {
   return { read, write };
 };
 
-let store;
+let pinStore;
+let dataStore;
+let mainWindow;
 
 const createWindow = () => {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1220,
     height: 820,
     minWidth: 980,
     minHeight: 680,
     title: "Stock Management",
     backgroundColor: "#07172e",
-    icon: path.join(__dirname, "..", "Icons", "ico.ico"),
+    icon: path.join(__dirname, "..", "Icons", "stock.ico"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -44,11 +66,19 @@ const createWindow = () => {
     }
   });
 
-  win.loadFile(path.join(__dirname, "index.html"));
+  mainWindow.loadFile(path.join(__dirname, "index.html"));
 };
 
+app.on('second-instance', () => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+  }
+});
+
 app.whenReady().then(async () => {
-  store = await createStore();
+  pinStore = createPinStore();
+  dataStore = createDataFile();
   createWindow();
 
   app.on("activate", () => {
@@ -64,11 +94,45 @@ app.on("window-all-closed", () => {
   }
 });
 
-ipcMain.handle("stock:load", async () => store.read());
+ipcMain.handle("pin:save-local", async (_event, data) => {
+  await pinStore.write({ pin: data.pin, tenant_id: data.tenant_id });
+  return true;
+});
 
-ipcMain.handle("stock:save", async (_event, payload) => {
-  await store.write(payload);
-  return payload;
+ipcMain.handle("pin:load-local", async () => {
+  return await pinStore.read();
+});
+
+ipcMain.handle("pin:clear-local", async () => {
+  await pinStore.write(null);
+  return true;
+});
+
+ipcMain.handle("pin:status", async () => {
+  try {
+    const response = await fetch("http://localhost:3000/api/pin/status");
+    const data = await response.json();
+    return { configured: data.configured, error: null };
+  } catch (error) {
+    return { configured: false, error: error.message };
+  }
+});
+
+ipcMain.handle("data:load-local", async () => {
+  return await dataStore.read();
+});
+
+ipcMain.handle("data:save-local", async (_event, data) => {
+  await dataStore.write(data);
+  return true;
+});
+
+app.on("before-quit", async () => {
+  if (mainWindow) {
+    try {
+      await mainWindow.webContents.executeJavaScript("window.__saveBeforeQuit && window.__saveBeforeQuit()");
+    } catch {}
+  }
 });
 
 ipcMain.handle("stock:export-report-pdf", async (_event, payload) => {

@@ -1,0 +1,4 @@
+
+◇ injected env (5) from .env // tip: ⌘ override existing { override: true }
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+Stock Management API running on port 3000.
