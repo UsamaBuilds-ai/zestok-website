@@ -1,8 +1,8 @@
 const { Pool } = require('pg');
 const crypto = require('crypto');
 const pool = new Pool({
-  host: 'localhost', port: 5454, database: 'stockdb',
-  user: 'postgres', password: '03333739195'
+  host: 'localhost', port: 5454, database: 'stock_mgmt',
+  user: process.env.DB_USER, password: process.env.DB_PASSWORD
 });
 (async () => {
   const r = await pool.query("SELECT value FROM app_settings WHERE key = 'pin'");

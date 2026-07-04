@@ -8,33 +8,53 @@
   </head>
   <body>
     <div class="pin-gate" id="pinGate" style="display:none">
-      <div class="pin-gate-card">
-        <h1>Stock Management</h1>
-        <p class="pin-gate-subtitle" id="pinGateTitle">Set up your PIN</p>
-        <div class="pin-animated-splash" id="pinAnimatedSplash">
-          <p class="pin-splash-text" id="pinSplashText"></p>
+      <div class="pin-gate-cards">
+        <div class="pin-card pin-card-splash">
+          <div class="pin-card-header">
+            <h1>Stock Management</h1>
+            <p class="pin-splash-company" id="pinSplashCompany"></p>
+            <p class="pin-card-subtitle">Welcome</p>
+          </div>
+          <div class="pin-splash-content">
+            <p class="pin-splash-text" id="pinSplashText"></p>
+          </div>
         </div>
-        <div class="pin-gate-mode" id="pinSetup">
-          <p class="pin-gate-desc">Create a new PIN for this PC</p>
-          <input id="setupPin" type="password" placeholder="New PIN (min 4 digits)" minlength="4" maxlength="10" pattern="[0-9]*" inputmode="numeric" />
-          <input id="setupPinConfirm" type="password" placeholder="Confirm PIN" minlength="4" maxlength="10" pattern="[0-9]*" inputmode="numeric" />
-          <button class="primary-btn pin-gate-btn" id="pinSetupBtn">Set PIN &amp; Continue</button>
-          <p class="pin-gate-msg" id="pinSetupMsg"></p>
-          <button class="link-btn pin-gate-link" id="showLoginLink">Already have a PIN? Sign in</button>
-        </div>
-        <div class="pin-gate-mode hidden" id="pinLogin">
-          <p class="pin-gate-desc">Enter your existing PIN</p>
-          <input id="loginPin" type="password" placeholder="Enter PIN" minlength="4" maxlength="10" pattern="[0-9]*" inputmode="numeric" />
-          <button class="primary-btn pin-gate-btn" id="pinLoginBtn">Unlock</button>
-          <p class="pin-gate-msg" id="pinLoginMsg"></p>
-          <button class="link-btn pin-gate-link" id="showSetupLink">Create a new PIN instead</button>
+        <div class="pin-card pin-card-auth">
+          <div class="pin-card-header">
+            <h1>Stock Management</h1>
+            <p class="pin-card-subtitle" id="pinGateTitle">Set up your PIN</p>
+          </div>
+          <div class="pin-auth-mode" id="pinSetup">
+            <p class="pin-auth-desc">Create a new PIN for this PC</p>
+            <input id="setupPin" type="password" placeholder="New PIN (min 4 digits)" minlength="4" maxlength="6" pattern="[0-9]*" inputmode="numeric" />
+            <input id="setupPinConfirm" type="password" placeholder="Confirm PIN" minlength="4" maxlength="6" pattern="[0-9]*" inputmode="numeric" />
+            <button class="primary-btn pin-auth-btn" id="pinSetupBtn">Set PIN &amp; Continue</button>
+            <p class="pin-auth-msg" id="pinSetupMsg"></p>
+            
+          </div>
+          <div class="pin-auth-mode hidden" id="pinLogin">
+            <p class="pin-auth-desc">Enter your existing PIN</p>
+            <input id="loginPin" type="password" placeholder="Enter PIN" minlength="4" maxlength="10" pattern="[0-9]*" inputmode="numeric" />
+            <button class="primary-btn pin-auth-btn" id="pinLoginBtn">Unlock</button>
+            <p class="pin-auth-msg" id="pinLoginMsg"></p>
+            
+          </div>
+          <div class="pin-auth-mode hidden" id="totpSetup">
+            <p class="pin-auth-desc" id="totpDesc">Enter the 6-digit code from Google Authenticator</p>
+            <img id="totpQrCode" style="display:none;width:200px;height:200px;margin:0 auto 12px;border-radius:8px;" />
+            <div id="totpManual" style="display:none;font-size:12px;color:#64748b;margin-bottom:12px;"></div>
+            <input id="totpCode" type="text" placeholder="000000" maxlength="6" pattern="[0-9]*" inputmode="numeric" style="letter-spacing:8px;font-size:24px;" />
+            <button class="primary-btn pin-auth-btn" id="totpVerifyBtn">Verify &amp; Continue</button>
+            <p class="pin-auth-msg" id="totpMsg"></p>
+            <button class="pin-auth-link" id="totpCancelBtn" type="button">Cancel</button>
+          </div>
         </div>
       </div>
     </div>
     <div class="app-shell" id="appShell" style="display:none">
       <header class="topbar">
         <div>
-          <h1>Stock Management</h1>
+          <h1>Stock Management <span class="header-separator" id="headerCompanyName"></span></h1>
         </div>
         <div class="topbar-right">
           <div class="status-indicators">
@@ -212,6 +232,15 @@
       <datalist id="itemOptions"></datalist>
       <datalist id="categoryOptions"></datalist>
 
+        <div id="updateBanner" class="update-banner hidden">
+          <span id="updateMessage">A new version is available</span>
+          <span id="updateProgress" class="update-progress hidden"></span>
+          <div class="update-actions">
+            <button id="updateDownloadBtn" class="primary-btn" type="button" style="padding:4px 14px;font-size:13px;">Download</button>
+            <button id="updateInstallBtn" class="primary-btn" type="button" style="padding:4px 14px;font-size:13px;display:none;">Install &amp; Restart</button>
+            <button id="updateDismissBtn" class="secondary-btn" type="button" style="padding:4px 10px;font-size:13px;">Dismiss</button>
+          </div>
+        </div>
         <footer>
           <span>Build by Usama | v<span id="appVersion"></span></span>
           <span>For Any Query Contact # 0314-2958627</span>

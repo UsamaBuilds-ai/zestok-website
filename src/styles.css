@@ -50,88 +50,42 @@ button {
   z-index: 1000;
 }
 
-.pin-gate-card {
+.pin-gate-cards {
+  display: flex;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.pin-card {
   width: 380px;
   padding: 40px 32px;
   border-radius: 12px;
   background: var(--panel);
   box-shadow: var(--shadow);
   text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
-.pin-gate-card h1 {
+.pin-card-header h1 {
   margin: 0 0 4px;
   font-size: 28px;
   color: var(--brand-dark);
 }
 
-.pin-gate-subtitle {
+.pin-card-subtitle {
   margin: 0 0 24px;
   color: var(--muted);
   font-size: 14px;
   font-weight: 700;
 }
 
-.pin-gate-desc {
-  margin: 0 0 16px;
-  color: var(--text);
-  font-size: 14px;
-}
-
-.pin-gate-mode input {
-  display: block;
-  width: 100%;
-  margin-bottom: 12px;
-  text-align: center;
-  font-size: 18px;
-  letter-spacing: 6px;
-}
-
-.pin-gate-btn {
-  width: 100%;
-  min-height: 44px;
-  margin-top: 4px;
-  font-size: 15px;
-}
-
-.pin-gate-msg {
-  margin: 10px 0 0;
-  font-size: 13px;
-  font-weight: 700;
-  min-height: 18px;
-}
-
-.pin-gate-msg.success { color: var(--good); }
-.pin-gate-msg.error { color: var(--bad); }
-
-.pin-gate-link {
-  display: block;
-  margin: 12px auto 0;
-  border: none;
-  background: none;
-  color: var(--brand);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.pin-gate-link:hover {
-  color: var(--brand-dark);
-}
-
-.hidden { display: none; }
-
-.pin-animated-splash {
-  display: none;
-  min-height: 110px;
+.pin-splash-content {
+  flex: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px 8px 24px;
-}
-
-.pin-animated-splash.active {
-  display: flex;
 }
 
 .pin-splash-text {
@@ -146,14 +100,99 @@ button {
 
 .pin-splash-text::after {
   content: "|";
-  animation: blink 0.6s infinite;
   color: var(--brand);
   font-weight: 400;
+  animation: blink 0.6s infinite;
 }
 
 @keyframes blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
+}
+
+.pin-splash-company {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--brand-dark);
+  margin: 0 0 4px;
+  text-align: center;
+  min-height: 28px;
+}
+
+.pin-auth-desc {
+  margin: 0 0 16px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.pin-auth-mode input {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 4px;
+}
+
+.pin-auth-mode input:not([type="password"]) {
+  letter-spacing: 2px;
+}
+
+.pin-auth-btn {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 4px;
+  font-size: 15px;
+}
+
+.pin-auth-msg {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 18px;
+}
+
+.pin-auth-msg.success { color: var(--good); }
+.pin-auth-msg.error { color: var(--bad); }
+
+.pin-auth-link {
+  display: block;
+  margin: 12px auto 0;
+  border: none;
+  background: none;
+  color: var(--brand);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.pin-auth-link:hover {
+  color: var(--brand-dark);
+}
+
+.hidden { display: none !important; }
+
+#totpQrCode {
+  display: none;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+#totpCode {
+  font-size: 24px;
+  letter-spacing: 8px;
+  text-align: center;
+  font-weight: 700;
+}
+
+#totpSetup .pin-auth-link {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #64748b;
 }
 
 .app-shell {
@@ -176,6 +215,12 @@ button {
   font-size: 38px;
   font-weight: 800;
   letter-spacing: 0;
+}
+
+.header-separator {
+  font-weight: 400;
+  font-size: 38px;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .topbar p {
@@ -532,6 +577,31 @@ tbody tr:last-child td {
   grid-template-columns: minmax(220px, 1fr) 130px 116px 116px;
   gap: 10px;
   width: min(100%, 680px);
+}
+
+.update-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1a4b8c, #2d7dd2);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.update-banner.hidden { display: none; }
+
+.update-progress {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.update-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
 }
 
 footer {

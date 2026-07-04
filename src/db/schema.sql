@@ -31,8 +31,12 @@ CREATE TABLE IF NOT EXISTS app_settings (
 CREATE TABLE IF NOT EXISTS tenants (
   tenant_id UUID PRIMARY KEY,
   pin_hash TEXT NOT NULL,
+  company_name VARCHAR(255) NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Add company_name column if upgrading from old schema
+ALTER TABLE tenants ADD COLUMN IF NOT EXISTS company_name VARCHAR(255) NOT NULL DEFAULT '';
 
 -- stock_balance view (computed from stock_entries per DB-04, mirrors renderer.js getBalances() lines 22-51)
 CREATE OR REPLACE VIEW stock_balance AS

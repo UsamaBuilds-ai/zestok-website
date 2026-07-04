@@ -1,10 +1,18 @@
+const crypto = require("crypto");
 const { app, BrowserWindow, ipcMain } = require("electron");
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
+});
+
 const path = require("path");
 const fs = require("fs/promises");
-require("./server.js");
+const { autoUpdater } = require("electron-updater");
+const { API_URL } = require("./config.js");
 
 const PIN_FILE = "stock-pin.json";
 const DATA_FILE = "stock-data.json";
+const CONFIG_FILE = "app-config.json";
 
 const createPinStore = () => {
   const filePath = path.join(app.getPath("userData"), PIN_FILE);
@@ -46,9 +54,36 @@ const createDataFile = () => {
   return { read, write };
 };
 
+const createConfigStore = () => {
+  const filePath = path.join(app.getPath("userData"), CONFIG_FILE);
+
+  const read = async () => {
+    try {
+      const content = await fs.readFile(filePath, "utf8");
+      return JSON.parse(content);
+    } catch {
+      return { apiUrl: API_URL, deviceToken: null, companyName: "" };
+    }
+  };
+
+  const write = async (data) => {
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf8");
+  };
+
+  return { read, write };
+};
+
 let pinStore;
 let dataStore;
+let configStore;
 let mainWindow;
+
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) app.quit();
+
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -69,6 +104,30 @@ const createWindow = () => {
   mainWindow.loadFile(path.join(__dirname, "index.html"));
 };
 
+autoUpdater.on("checking-for-update", () => {
+  mainWindow?.webContents.send("update:checking");
+});
+
+autoUpdater.on("update-available", (info) => {
+  mainWindow?.webContents.send("update:available", info);
+});
+
+autoUpdater.on("update-not-available", (info) => {
+  mainWindow?.webContents.send("update:not-available", info);
+});
+
+autoUpdater.on("download-progress", (progress) => {
+  mainWindow?.webContents.send("update:download-progress", progress);
+});
+
+autoUpdater.on("update-downloaded", (info) => {
+  mainWindow?.webContents.send("update:downloaded", info);
+});
+
+autoUpdater.on("error", (error) => {
+  mainWindow?.webContents.send("update:error", error?.message || "Unknown error");
+});
+
 app.on('second-instance', () => {
   if (mainWindow) {
     if (mainWindow.isMinimized()) mainWindow.restore();
@@ -79,6 +138,23 @@ app.on('second-instance', () => {
 app.whenReady().then(async () => {
   pinStore = createPinStore();
   dataStore = createDataFile();
+  configStore = createConfigStore();
+
+  ipcMain.handle("config:get-api-url", () => API_URL);
+  ipcMain.handle("config:get", async () => {
+    return await configStore.read();
+  });
+  ipcMain.handle("config:save", async (_event, data) => {
+    const current = await configStore.read();
+    await configStore.write({ ...current, ...data });
+    return true;
+  });
+
+  ipcMain.handle("app:version", () => app.getVersion());
+  ipcMain.handle("update:check", () => autoUpdater.checkForUpdates());
+  ipcMain.handle("update:download", () => autoUpdater.downloadUpdate());
+  ipcMain.handle("update:install", () => autoUpdater.quitAndInstall());
+
   createWindow();
 
   app.on("activate", () => {
@@ -95,12 +171,22 @@ app.on("window-all-closed", () => {
 });
 
 ipcMain.handle("pin:save-local", async (_event, data) => {
-  await pinStore.write({ pin: data.pin, tenant_id: data.tenant_id });
-  return true;
+  try {
+    await pinStore.write({ pin: data.pin, tenant_id: data.tenant_id, company_name: data.company_name || "" });
+    return true;
+  } catch (err) {
+    console.error("pin:save-local failed:", err);
+    throw err;
+  }
 });
 
 ipcMain.handle("pin:load-local", async () => {
-  return await pinStore.read();
+  try {
+    return await pinStore.read();
+  } catch (err) {
+    console.error("pin:load-local failed:", err);
+    return null;
+  }
 });
 
 ipcMain.handle("pin:clear-local", async () => {
@@ -109,13 +195,22 @@ ipcMain.handle("pin:clear-local", async () => {
 });
 
 ipcMain.handle("pin:status", async () => {
-  try {
-    const response = await fetch("http://localhost:3000/api/pin/status");
-    const data = await response.json();
-    return { configured: data.configured, error: null };
-  } catch (error) {
-    return { configured: false, error: error.message };
+  const localPin = await pinStore.read();
+  return { configured: !!(localPin && (localPin.pin || localPin.configured)) };
+});
+
+ipcMain.handle("pin:mark-configured", async () => {
+  const existing = await pinStore.read();
+  if (!existing || !existing.pin) {
+    await pinStore.write({ configured: true, company_name: existing?.company_name || '' });
   }
+  return true;
+});
+
+ipcMain.handle("pin:verify", async (_event, pin) => {
+  if (!pin) return { valid: false };
+  const stored = await pinStore.read();
+  return { valid: !!(stored && stored.pin === pin) };
 });
 
 ipcMain.handle("data:load-local", async () => {
@@ -136,11 +231,20 @@ app.on("before-quit", async () => {
 });
 
 ipcMain.handle("stock:export-report-pdf", async (_event, payload) => {
+  const escapeHtml = (value) => {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  };
+
   const htmlTemplate = `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>${payload.title}</title>
+    <title>${escapeHtml(payload.title)}</title>
     <style>
       body { font-family: Arial, sans-serif; margin: 24px; color: #1f2937; }
       h1 { font-size: 24px; margin-bottom: 4px; }
@@ -152,8 +256,8 @@ ipcMain.handle("stock:export-report-pdf", async (_event, payload) => {
     </style>
   </head>
   <body>
-    <h1>${payload.title}</h1>
-    <p>${payload.subtitle}</p>
+    <h1>${escapeHtml(payload.title)}</h1>
+    <p>${escapeHtml(payload.subtitle)}</p>
     <table>
       <thead>
         <tr>
@@ -206,12 +310,3 @@ ipcMain.handle("stock:export-report-pdf", async (_event, payload) => {
 
   return filePath;
 });
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
