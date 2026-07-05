@@ -1,8 +1,11 @@
 const crypto = require("crypto");
+const bcrypt = require("bcrypt");
 const { app, BrowserWindow, ipcMain } = require("electron");
 
 process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:', err);
+  app.quit();
+  process.exit(1);
 });
 
 const path = require("path");
@@ -172,7 +175,8 @@ app.on("window-all-closed", () => {
 
 ipcMain.handle("pin:save-local", async (_event, data) => {
   try {
-    await pinStore.write({ pin: data.pin, tenant_id: data.tenant_id, company_name: data.company_name || "" });
+    const hash = await bcrypt.hash(data.pin, 10);
+    await pinStore.write({ pin_hash: hash, tenant_id: data.tenant_id, company_name: data.company_name || "" });
     return true;
   } catch (err) {
     console.error("pin:save-local failed:", err);
@@ -196,12 +200,12 @@ ipcMain.handle("pin:clear-local", async () => {
 
 ipcMain.handle("pin:status", async () => {
   const localPin = await pinStore.read();
-  return { configured: !!(localPin && (localPin.pin || localPin.configured)) };
+  return { configured: !!(localPin && (localPin.pin_hash || localPin.configured)) };
 });
 
 ipcMain.handle("pin:mark-configured", async () => {
   const existing = await pinStore.read();
-  if (!existing || !existing.pin) {
+  if (!existing || !existing.pin_hash) {
     await pinStore.write({ configured: true, company_name: existing?.company_name || '' });
   }
   return true;
@@ -210,7 +214,8 @@ ipcMain.handle("pin:mark-configured", async () => {
 ipcMain.handle("pin:verify", async (_event, pin) => {
   if (!pin) return { valid: false };
   const stored = await pinStore.read();
-  return { valid: !!(stored && stored.pin === pin) };
+  const valid = stored && stored.pin_hash ? await bcrypt.compare(pin, stored.pin_hash) : false;
+  return { valid };
 });
 
 ipcMain.handle("data:load-local", async () => {
@@ -296,7 +301,7 @@ ipcMain.handle("stock:export-report-pdf", async (_event, payload) => {
     show: false,
     webPreferences: {
       offscreen: true,
-      sandbox: false
+      sandbox: true
     }
   });
 

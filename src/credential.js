@@ -1,10 +1,10 @@
 const fs = require("fs");
 const path = require("path");
 
-const CONFIG_FILE = "app-config.json";
+const CREDENTIAL_CONFIG_FILE = "credential-config.json";
 
 function getPath(userDataPath) {
-  return path.join(userDataPath, CONFIG_FILE);
+  return path.join(userDataPath, CREDENTIAL_CONFIG_FILE);
 }
 
 function save(userDataPath, data) {

@@ -5,7 +5,6 @@ const https = require('https');
 const http = require('http');
 const fs = require('fs');
 
-
 const app = require('../src/server');
 const { ensureMasterDb } = require('../src/db/pool');
 
@@ -25,34 +24,37 @@ async function start() {
   const keyPath = process.env.SSL_KEY_PATH;
   const caPath = process.env.SSL_CA_PATH;
 
-  if (certPath && keyPath && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
-    const options = {
-      cert: fs.readFileSync(certPath),
-      key: fs.readFileSync(keyPath),
-    };
-    if (caPath && fs.existsSync(caPath)) {
-      options.ca = fs.readFileSync(caPath);
-    }
-    https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
-      console.log('HTTPS server running on port ' + PORT);
-    });
-  } else {
-    console.log('SSL certificates not found, starting HTTP server');
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log('HTTP server running on port ' + PORT);
-    });
+  if (!certPath || !keyPath || !fs.existsSync(certPath) || !fs.existsSync(keyPath)) {
+    console.error('SSL certificates required. Set SSL_CERT_PATH and SSL_KEY_PATH in .env');
+    process.exit(1);
   }
 
-  http.createServer((req, res) => {
-    if (certPath && keyPath) {
-      res.writeHead(301, { Location: 'https://' + req.headers.host + req.url });
-      res.end();
-    } else {
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('Stock Management API - HTTP fallback');
-    }
-  }).listen(HTTP_PORT, '0.0.0.0', () => {
+  const options = {
+    cert: fs.readFileSync(certPath),
+    key: fs.readFileSync(keyPath),
+  };
+  if (caPath && fs.existsSync(caPath)) {
+    options.ca = fs.readFileSync(caPath);
+  }
+
+  const httpsServer = https.createServer(options, app);
+  httpsServer.listen(PORT, '0.0.0.0', () => {
+    console.log('HTTPS server running on port ' + PORT);
+  });
+  httpsServer.on('error', (err) => {
+    console.error('HTTPS server error:', err.message);
+    process.exit(1);
+  });
+
+  const httpServer = http.createServer((req, res) => {
+    res.writeHead(301, { Location: 'https://' + req.headers.host + req.url });
+    res.end();
+  });
+  httpServer.listen(HTTP_PORT, '0.0.0.0', () => {
     console.log('HTTP redirect server running on port ' + HTTP_PORT);
+  });
+  httpServer.on('error', (err) => {
+    console.error('HTTP redirect server error:', err.message);
   });
 }
 

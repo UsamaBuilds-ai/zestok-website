@@ -9,8 +9,26 @@ const { Client } = require('pg');
 const { masterPool, getTenantPool, ensureMasterDb } = require('./db/pool');
 
 const app = express();
-app.use(cors({ origin: '*' }));
+const allowedOrigins = [
+  'http://localhost:3000',
+  'app://.',
+  'file://'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.some(a => origin.startsWith(a))) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 app.use(express.json({ limit: '10mb' }));
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', "default-src 'self'");
+  next();
+});
 
 const PORT = parseInt(process.env.API_PORT, 10) || 3000;
 
@@ -28,6 +46,10 @@ function getSuperuserConfig() {
   return config;
 }
 
+function quoteIdent(value) {
+  return '"' + String(value).replace(/"/g, '""') + '"';
+}
+
 async function repairTenantPermissions(dbName) {
   const sup = process.env.DB_SUPER_PASSWORD;
   if (!sup) return;
@@ -35,8 +57,8 @@ async function repairTenantPermissions(dbName) {
   try {
     client = new Client({ ...getSuperuserConfig(), database: dbName });
     await client.connect();
-    await client.query('GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "' + process.env.DB_USER + '"');
-    await client.query('GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "' + process.env.DB_USER + '"');
+    await client.query('GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ' + quoteIdent(process.env.DB_USER));
+    await client.query('GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ' + quoteIdent(process.env.DB_USER));
     console.log('Repaired permissions on ' + dbName);
   } catch (err) {
     console.error('Permission repair failed for ' + dbName + ':', err.message);
@@ -107,6 +129,22 @@ const pinVerifyLimiter = rateLimit({
   message: { error: 'Too many attempts. Try again later.' }
 });
 
+const pinCreateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many PIN creation attempts.' }
+});
+
+const globalAuthLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many attempts.' }
+});
+
 const resolveTenant = async (req, res, next) => {
   try {
     const userPin = req.headers['x-access-pin'];
@@ -147,9 +185,9 @@ const resolveTenant = async (req, res, next) => {
 app.get('/api/pin/status', async (req, res) => {
   try {
     const result = await masterPool.query(
-      "SELECT COUNT(*) AS count, COALESCE((SELECT company_name FROM tenants ORDER BY created_at ASC LIMIT 1), '') AS company_name FROM tenants"
+      "SELECT COUNT(*) AS count FROM tenants"
     );
-    res.json({ configured: parseInt(result.rows[0].count) > 0, company_name: result.rows[0].company_name });
+    res.json({ configured: parseInt(result.rows[0].count) > 0 });
   } catch (err) {
     console.error('DB error in /api/pin/status:', err.message);
     res.status(503).json({ error: 'database_unreachable', message: 'Database is not available.' });
@@ -208,7 +246,7 @@ app.get('/api/pin/verify', pinVerifyLimiter, async (req, res) => {
   }
 });
 
-app.post('/api/pin', async (req, res) => {
+app.post('/api/pin', pinCreateLimiter, async (req, res) => {
   try {
     const { pin, company_name } = req.body;
 
@@ -250,13 +288,13 @@ app.post('/api/pin', async (req, res) => {
     if (sup) {
       const suClient = new Client({ ...getSuperuserConfig(), database: 'stock_mgmt' });
       await suClient.connect();
-      await suClient.query('CREATE DATABASE "' + dbName + '"');
-      await suClient.query('GRANT ALL PRIVILEGES ON DATABASE "' + dbName + '" TO "' + process.env.DB_USER + '"');
+      await suClient.query('CREATE DATABASE ' + quoteIdent(dbName));
+      await suClient.query('GRANT ALL PRIVILEGES ON DATABASE ' + quoteIdent(dbName) + ' TO ' + quoteIdent(process.env.DB_USER));
       await suClient.end();
       const suTClient = new Client({ ...getSuperuserConfig(), database: dbName });
       await suTClient.connect();
-      await suTClient.query('GRANT ALL PRIVILEGES ON SCHEMA public TO "' + process.env.DB_USER + '"');
-      await suTClient.query('GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "' + process.env.DB_USER + '"');
+      await suTClient.query('GRANT ALL PRIVILEGES ON SCHEMA public TO ' + quoteIdent(process.env.DB_USER));
+      await suTClient.query('GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ' + quoteIdent(process.env.DB_USER));
       await suTClient.end();
     } else {
       const tmpClient = new Client({
@@ -267,7 +305,7 @@ app.post('/api/pin', async (req, res) => {
         password: process.env.DB_PASSWORD,
       });
       await tmpClient.connect();
-      await tmpClient.query('CREATE DATABASE "' + dbName + '"');
+      await tmpClient.query('CREATE DATABASE ' + quoteIdent(dbName));
       await tmpClient.end();
     }
 
@@ -374,7 +412,7 @@ app.delete('/api/pin', resolveTenant, async (req, res) => {
     const tmpClient = new Client(getSuperuserConfig());
     tmpClient.database = 'stock_mgmt';
     await tmpClient.connect();
-    await tmpClient.query('DROP DATABASE IF EXISTS "' + req.dbName + '"');
+    await tmpClient.query('DROP DATABASE IF EXISTS ' + quoteIdent(req.dbName));
     await tmpClient.end();
 
     await masterPool.query("DELETE FROM trusted_devices WHERE tenant_id = $1", [req.tenantId]);
@@ -387,7 +425,7 @@ app.delete('/api/pin', resolveTenant, async (req, res) => {
   }
 });
 
-app.get('/api/entries', resolveTenant, async (req, res) => {
+app.get('/api/entries', globalAuthLimiter, resolveTenant, async (req, res) => {
   try {
     const result = await req.tenantPool.query(
       `SELECT id, date, type, item, category, quantity, rate, note, created_at AS "createdAt"
@@ -413,9 +451,27 @@ app.get('/api/entries', resolveTenant, async (req, res) => {
   }
 });
 
+function validateEntry(entry) {
+  if (!entry.id || typeof entry.id !== 'string') return 'Invalid entry ID';
+  if (!entry.date || isNaN(Date.parse(entry.date))) return 'Invalid date';
+  if (!['in', 'out'].includes(entry.type)) return 'Invalid type';
+  if (!entry.item || typeof entry.item !== 'string' || entry.item.length > 255) return 'Invalid item name';
+  if (typeof entry.quantity !== 'number' || entry.quantity <= 0) return 'Invalid quantity';
+  if (typeof entry.rate !== 'number' || entry.rate < 0) return 'Invalid rate';
+  return null;
+}
+
 async function saveEntries(req, res, entries) {
   const client = await req.tenantPool.connect();
   try {
+    for (const entry of entries) {
+      const err = validateEntry(entry);
+      if (err) {
+        res.status(400).json({ error: err });
+        return false;
+      }
+    }
+
     await client.query('BEGIN');
 
     await client.query("DELETE FROM stock_entries");
@@ -448,7 +504,7 @@ async function saveEntries(req, res, entries) {
   }
 }
 
-app.post('/api/entries', resolveTenant, async (req, res) => {
+app.post('/api/entries', globalAuthLimiter, resolveTenant, async (req, res) => {
   const { entries } = req.body;
   if (!Array.isArray(entries)) {
     return res.status(400).json({ error: 'entries must be an array' });
@@ -469,7 +525,7 @@ app.post('/api/entries', resolveTenant, async (req, res) => {
   }
 });
 
-app.get('/api/stock', resolveTenant, async (req, res) => {
+app.get('/api/stock', globalAuthLimiter, resolveTenant, async (req, res) => {
   try {
     const result = await req.tenantPool.query(
       `SELECT item, category, in_qty, out_qty, balance, latest_rate,

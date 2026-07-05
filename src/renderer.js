@@ -1,3 +1,9 @@
+// Named constants (replaces magic numbers)
+const PIN_GATE_DELAY_MS = 8000;
+const STATUS_POLL_RETRIES = 3;
+const STATUS_POLL_INTERVAL_MS = 1000;
+const STATUS_REFRESH_INTERVAL_MS = 30000;
+
 window.onerror = (msg, url, line, col, err) => {
   console.error('Uncaught error:', err || msg);
   return true;
@@ -35,6 +41,8 @@ let _deviceToken = null;
 let _unlock;
 let _prevServerOk = false;
 let _dirty = false;
+let _unlocked = false;
+let _syncing = false;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let splashGen = 0;
 
@@ -88,7 +96,7 @@ const showPinGate = () => {
     qs("#pinLogin").classList.remove("hidden");
     qs("#pinGateTitle").textContent = "Enter your PIN";
     qs("#loginPin").focus();
-  }, 8000);
+  }, PIN_GATE_DELAY_MS);
 
   const showForm = (configured) => {
     clearTimeout(gateTimer);
@@ -104,16 +112,16 @@ const showPinGate = () => {
         const r = await fetch(`${API}/pin/status`);
         if (r.ok) {
           const d = await r.json();
-          return { configured: d.configured, companyName: d.company_name || "" };
+          return { configured: d.configured };
         }
       } catch {}
-      await new Promise(r => setTimeout(r, 1000));
+      await new Promise(r => setTimeout(r, STATUS_POLL_INTERVAL_MS));
     }
     const local = await window.stockApi.checkPinStatus().catch(() => ({ configured: false }));
     return { configured: local.configured, companyName: "" };
   };
 
-  const statusPromise = pollStatus(3);
+  const statusPromise = pollStatus(STATUS_POLL_RETRIES);
 
   Promise.all([statusPromise]).then(([status]) => {
     state.companyName = status.companyName || state.companyName;
@@ -276,9 +284,12 @@ const handlePinSetup = async () => {
     await window.stockApi.savePinLocal({ pin, company_name: state.companyName, tenant_id: data.tenant_id });
     unlockApp();
   } catch (e) {
-    await window.stockApi.savePinLocal({ pin, company_name: state.companyName });
-    _currentPin = pin;
-    unlockApp();
+    const msg = qs("#pinSetupMsg");
+    if (msg) {
+      msg.textContent = "Server unreachable. Please try again when connected.";
+    }
+    qs("#setupPin").value = "";
+    qs("#setupPinConfirm").value = "";
   }
 };
 
@@ -344,6 +355,8 @@ const handlePinLogin = async () => {
 };
 
 const unlockApp = () => {
+  if (_unlocked) return;
+  _unlocked = true;
   qs("#pinGate").style.display = "none";
   qs("#appShell").style.display = "grid";
 
@@ -378,16 +391,7 @@ const updateStatus = async () => {
   }
 
   if (serverOk && !_prevServerOk && _dirty) {
-    _dirty = false;
-    try {
-      const headers = { "Content-Type": "application/json", "x-access-pin": _currentPin };
-      if (_deviceToken) headers["x-device-token"] = _deviceToken;
-      await fetch(`${API}/entries`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ entries: state.entries })
-      });
-    } catch {}
+    await syncToServer();
   }
   _prevServerOk = serverOk;
 
@@ -438,9 +442,9 @@ const getBalances = () => {
   return Array.from(items.values()).sort((a, b) => a.item.localeCompare(b.item));
 };
 
-const save = async () => {
-  await window.stockApi.save({ entries: state.entries });
-  _dirty = true;
+const syncToServer = async () => {
+  if (_syncing) return;
+  _syncing = true;
   try {
     const headers = { "Content-Type": "application/json", "x-access-pin": _currentPin };
     if (_deviceToken) headers["x-device-token"] = _deviceToken;
@@ -450,11 +454,19 @@ const save = async () => {
       body: JSON.stringify({ entries: state.entries })
     });
     if (res.ok) _dirty = false;
-  } catch {}
+  } finally {
+    _syncing = false;
+  }
+};
+
+const save = async () => {
+  await window.stockApi.saveDataLocal({ entries: state.entries });
+  _dirty = true;
+  await syncToServer();
 };
 
 window.__saveBeforeQuit = async () => {
-  await window.stockApi.save({ entries: state.entries });
+  await window.stockApi.saveDataLocal({ entries: state.entries });
 };
 
 const setTab = (tabName) => {
@@ -529,7 +541,11 @@ const renderReportRows = () => {
   const rows = state.entries
     .filter((entry) => type === "all" || entry.type === type)
     .filter((entry) => keyFor(`${entry.item} ${entry.category} ${entry.note}`).includes(search))
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    .sort((a, b) => {
+      const aDate = a.createdAt || a.date || '1970-01-01';
+      const bDate = b.createdAt || b.date || '1970-01-01';
+      return bDate.localeCompare(aDate);
+    });
 
   qs("#reportRows").innerHTML = rows.length
     ? rows
@@ -558,7 +574,11 @@ const getReportRows = () => {
   return state.entries
     .filter((entry) => type === "all" || entry.type === type)
     .filter((entry) => keyFor(`${entry.item} ${entry.category} ${entry.note}`).includes(search))
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    .sort((a, b) => {
+      const aDate = a.createdAt || a.date || '1970-01-01';
+      const bDate = b.createdAt || b.date || '1970-01-01';
+      return bDate.localeCompare(aDate);
+    });
 };
 
 const renderReportHeading = () => {
@@ -817,7 +837,7 @@ const init = async () => {
         throw new Error("API entries unavailable");
       }
     } catch {
-      const data = await window.stockApi.load();
+      const data = await window.stockApi.loadDataLocal();
       state.entries = Array.isArray(data.entries) ? data.entries : [];
       _dirty = true;
     }
@@ -829,16 +849,20 @@ const init = async () => {
     render();
     updateEntryFormState();
     updateStatus();
-    setInterval(updateStatus, 30000);
+    setInterval(updateStatus, STATUS_REFRESH_INTERVAL_MS);
   } catch (err) {
     console.error("Initialization error:", err);
-    document.body.innerHTML =
-      '<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;text-align:center;padding:40px;">' +
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = 'display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;text-align:center;padding:40px;';
+    errorDiv.innerHTML =
       '<h2 style="color:#f59e0b;margin:0;">Something went wrong</h2>' +
-      '<p style="color:#94a3b8;margin:0;">Please restart the application.</p>' +
-      '<pre style="color:#64748b;font-size:12px;margin-top:8px;">' +
-      (err.message || "Unknown error") +
-      "</pre></div>";
+      '<p style="color:#94a3b8;margin:0;">Please restart the application.</p>';
+    const pre = document.createElement('pre');
+    pre.style.cssText = 'color:#64748b;font-size:12px;margin-top:8px;';
+    pre.textContent = err.message || "Unknown error";
+    errorDiv.appendChild(pre);
+    document.body.innerHTML = '';
+    document.body.appendChild(errorDiv);
   }
 };
 

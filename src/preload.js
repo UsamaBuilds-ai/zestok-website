@@ -12,8 +12,6 @@ contextBridge.exposeInMainWorld("stockApi", {
   clearPinLocal: () => ipcRenderer.invoke("pin:clear-local"),
   loadDataLocal: () => ipcRenderer.invoke("data:load-local"),
   saveDataLocal: (data) => ipcRenderer.invoke("data:save-local", data),
-  load: () => ipcRenderer.invoke("data:load-local"),
-  save: (data) => ipcRenderer.invoke("data:save-local", data),
   verifyPin: (pin) => ipcRenderer.invoke("pin:verify", pin),
   getVersion: () => ipcRenderer.invoke("app:version"),
   checkForUpdates: () => ipcRenderer.invoke("update:check"),
