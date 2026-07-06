@@ -245,6 +245,17 @@ ipcMain.handle("stock:export-report-pdf", async (_event, payload) => {
       .replace(/'/g, "&#039;");
   };
 
+  const formatAmt = (value) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? "Rs " + num.toLocaleString("en-PK") : "Rs 0";
+  };
+
+  const totalAmt = payload.rows.reduce((sum, entry) => {
+    const qty = Number(entry.quantity) || 0;
+    const rate = Number(entry.rate) || 0;
+    return sum + qty * rate;
+  }, 0);
+
   const htmlTemplate = `<!doctype html>
 <html lang="en">
   <head>
@@ -258,6 +269,7 @@ ipcMain.handle("stock:export-report-pdf", async (_event, payload) => {
       th, td { border: 1px solid #d1d5db; padding: 10px; text-align: left; font-size: 12px; }
       th { background: #f3f4f6; }
       tbody tr:nth-child(even) { background: #fafafa; }
+      tfoot td { background: #f0f6ff; font-weight: 700; border-top: 2px solid #0d65d9; }
     </style>
   </head>
   <body>
@@ -285,14 +297,23 @@ ipcMain.handle("stock:export-report-pdf", async (_event, payload) => {
                 <td>${escapeHtml(entry.type)}</td>
                 <td>${escapeHtml(entry.item)}</td>
                 <td>${escapeHtml(entry.category || "-")}</td>
-                <td>${escapeHtml(String(entry.quantity))}</td>
-                <td>${escapeHtml(String(entry.rate))}</td>
-                <td>${escapeHtml(String(entry.quantity * entry.rate))}</td>
+                <td>${escapeHtml(formatAmt(entry.quantity))}</td>
+                <td>${escapeHtml(formatAmt(entry.rate))}</td>
+                <td>${escapeHtml(formatAmt(entry.quantity * entry.rate))}</td>
                 <td>${escapeHtml(entry.note || "-")}</td>
               </tr>`
           )
           .join("")}
       </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4"><strong>Total</strong></td>
+          <td></td>
+          <td></td>
+          <td><strong>${escapeHtml(formatAmt(totalAmt))}</strong></td>
+          <td></td>
+        </tr>
+      </tfoot>
     </table>
   </body>
 </html>`;
@@ -308,10 +329,13 @@ ipcMain.handle("stock:export-report-pdf", async (_event, payload) => {
   await pdfWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlTemplate)}`);
 
   const pdfData = await pdfWindow.webContents.printToPDF({ printBackground: true, pageSize: "A4" });
-  const fileName = `stock-report-${new Date().toISOString().slice(0, 10)}.pdf`;
-  const filePath = path.join(app.getPath("documents"), fileName);
-  await fs.writeFile(filePath, pdfData);
   pdfWindow.close();
 
+  const label = payload.searchValue
+    ? payload.searchValue.replace(/\s+/g, '-')
+    : (payload.filterType !== "all" ? payload.filterType : "all");
+  const fileName = `stock-report-${label}-${new Date().toISOString().slice(0, 10)}.pdf`;
+  const filePath = path.join(app.getPath("documents"), fileName);
+  await fs.writeFile(filePath, pdfData);
   return filePath;
 });

@@ -30,12 +30,15 @@ const qsa = (selector) => Array.from(document.querySelectorAll(selector));
 
 const normalize = (value) => String(value || "").trim();
 const keyFor = (value) => normalize(value).toLowerCase();
-const formatQty = (value) => Number(value || 0).toLocaleString("en-PK", { maximumFractionDigits: 2 });
+const formatQty = (value) => {
+  const num = Number(value);
+  return Number.isFinite(num) ? num.toLocaleString("en-PK", { maximumFractionDigits: 2 }) : "0.00";
+};
 const formatRate = (value) => currency.format(Number(value || 0)).replace("PKR", "Rs");
 
 const todayValue = () => new Date().toISOString().slice(0, 10);
 
-let API = "http://localhost:3000/api";
+let API = "http://84.235.249.239:3000/api";
 let _currentPin = null;
 let _deviceToken = null;
 let _unlock;
@@ -109,10 +112,10 @@ const showPinGate = () => {
   const pollStatus = async (retries) => {
     for (let i = 0; i < retries; i++) {
       try {
-        const r = await fetch(`${API}/pin/status`);
+        const r = await fetch(`${API}/api/pin/status`);
         if (r.ok) {
           const d = await r.json();
-          return { configured: d.configured };
+          return { configured: d.configured, companyName: d.company_name || '' };
         }
       } catch {}
       await new Promise(r => setTimeout(r, STATUS_POLL_INTERVAL_MS));
@@ -123,8 +126,9 @@ const showPinGate = () => {
 
   const statusPromise = pollStatus(STATUS_POLL_RETRIES);
 
+  const localCompanyName = (typeof localStorage !== 'undefined' ? localStorage.getItem('stockCompanyName') : null) || '';
   Promise.all([statusPromise]).then(([status]) => {
-    state.companyName = status.companyName || state.companyName;
+    state.companyName = status.companyName || localCompanyName || state.companyName;
     showForm(status.configured);
     runSplash(status.configured, state.companyName);
   });
@@ -152,7 +156,7 @@ const showTotpForm = async () => {
 
       msg.textContent = "";
       try {
-        const res = await fetch(`${API}/auth/totp-verify`, {
+        const res = await fetch(`${API}/api/auth/totp-verify`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -216,7 +220,7 @@ const handlePinSetup = async () => {
 
   msg.textContent = "";
   try {
-    const res = await fetch(`${API}/pin`, {
+    const res = await fetch(`${API}/api/pin`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ pin, company_name: state.companyName })
@@ -249,7 +253,7 @@ const handlePinSetup = async () => {
         if (!code) { tmsg.textContent = "Enter the 6-digit code from Google Authenticator"; return; }
         tmsg.textContent = "";
         try {
-          const tres = await fetch(`${API}/auth/totp-verify`, {
+          const tres = await fetch(`${API}/api/auth/totp-verify`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -309,7 +313,7 @@ const handlePinLogin = async () => {
       headers["x-device-token"] = _deviceToken;
     }
 
-    const res = await fetch(`${API}/pin/verify`, { headers });
+    const res = await fetch(`${API}/api/pin/verify`, { headers });
     if (res.ok) {
       const data = await res.json();
       state.companyName = data.company_name || "";
@@ -382,7 +386,7 @@ const setDot = (id, status, label) => {
 const updateStatus = async () => {
   let serverOk = false;
   try {
-    const res = await fetch(`${API}/health`);
+    const res = await fetch(`${API}/api/health`);
     const data = await res.json();
     serverOk = data.status === "ok";
     setDot("#serverStatus", serverOk ? "connected" : "stopped", serverOk ? "Server Running" : "Server Stopped");
@@ -396,7 +400,7 @@ const updateStatus = async () => {
   _prevServerOk = serverOk;
 
   try {
-    const res = await fetch(`${API}/pin/status`);
+    const res = await fetch(`${API}/api/pin/status`);
     if (res.ok) {
       const data = await res.json();
       setDot("#pinStatus", data.configured ? "connected" : "warning", data.configured ? "PIN Active" : "PIN Not Set");
@@ -448,7 +452,7 @@ const syncToServer = async () => {
   try {
     const headers = { "Content-Type": "application/json", "x-access-pin": _currentPin };
     if (_deviceToken) headers["x-device-token"] = _deviceToken;
-    const res = await fetch(`${API}/entries`, {
+    const res = await fetch(`${API}/api/entries`, {
       method: "POST",
       headers,
       body: JSON.stringify({ entries: state.entries })
@@ -482,7 +486,7 @@ const renderMetrics = (balances) => {
   const today = todayValue();
   const todayMovement = state.entries
     .filter((entry) => entry.date === today)
-    .reduce((sum, entry) => sum + (entry.type === "in" ? entry.quantity : -entry.quantity), 0);
+    .reduce((sum, entry) => sum + (entry.type === "in" ? Number(entry.quantity || 0) : -Number(entry.quantity || 0)), 0);
 
   qs("#totalItems").textContent = balances.length;
   qs("#totalBalance").textContent = formatQty(totalBalance);
@@ -541,10 +545,14 @@ const renderReportRows = () => {
   const rows = state.entries
     .filter((entry) => type === "all" || entry.type === type)
     .filter((entry) => keyFor(`${entry.item} ${entry.category} ${entry.note}`).includes(search))
-    .sort((a, b) => {
-      const aDate = a.createdAt || a.date || '1970-01-01';
-      const bDate = b.createdAt || b.date || '1970-01-01';
-      return bDate.localeCompare(aDate);
+    .slice().sort((a, b) => {
+      const aDate = a.date || '1970-01-01';
+      const bDate = b.date || '1970-01-01';
+      const dateCmp = bDate.localeCompare(aDate);
+      if (dateCmp !== 0) return dateCmp;
+      const aTime = a.createdAt || '';
+      const bTime = b.createdAt || '';
+      return bTime.localeCompare(aTime);
     });
 
   qs("#reportRows").innerHTML = rows.length
@@ -575,9 +583,13 @@ const getReportRows = () => {
     .filter((entry) => type === "all" || entry.type === type)
     .filter((entry) => keyFor(`${entry.item} ${entry.category} ${entry.note}`).includes(search))
     .sort((a, b) => {
-      const aDate = a.createdAt || a.date || '1970-01-01';
-      const bDate = b.createdAt || b.date || '1970-01-01';
-      return bDate.localeCompare(aDate);
+      const aDate = a.date || '1970-01-01';
+      const bDate = b.date || '1970-01-01';
+      const dateCmp = bDate.localeCompare(aDate);
+      if (dateCmp !== 0) return dateCmp;
+      const aTime = a.createdAt || '';
+      const bTime = b.createdAt || '';
+      return bTime.localeCompare(aTime);
     });
 };
 
@@ -631,9 +643,13 @@ const updateEntryFormState = () => {
     }
     rateField.disabled = true;
     rateField.style.opacity = "0.6";
+    categoryField.readOnly = true;
+    categoryField.style.opacity = "0.6";
   } else {
     rateField.disabled = false;
     rateField.style.opacity = "1";
+    categoryField.readOnly = false;
+    categoryField.style.opacity = "1";
   }
 };
 
@@ -671,6 +687,7 @@ const handleSubmit = async (event) => {
   qs("#date").value = todayValue();
   updateEntryFormState();
   setTab(state.activeTab);
+  qs("#item").focus();
 };
 
 const deleteEntry = async (id) => {
@@ -680,26 +697,42 @@ const deleteEntry = async (id) => {
 };
 
 const exportCsv = () => {
+  const rows = getReportRows();
+  if (!rows.length) {
+    alert("No report entries found to export.");
+    return;
+  }
+
+  const totalAmount = rows.reduce((sum, entry) => {
+    const qty = Number(entry.quantity) || 0;
+    const rate = Number(entry.rate) || 0;
+    return sum + qty * rate;
+  }, 0);
+
   const headers = ["Date", "Type", "Item", "Category", "Quantity", "Rate", "Amount", "Note"];
-  const rows = state.entries.map((entry) => [
+  const dataRows = rows.map((entry) => [
     entry.date,
     entry.type,
     entry.item,
-    entry.category,
-    entry.quantity,
-    entry.rate,
-    entry.quantity * entry.rate,
-    entry.note
+    entry.category || "-",
+    formatQty(entry.quantity),
+    formatRate(entry.rate),
+    formatRate(entry.quantity * entry.rate),
+    entry.note || "-"
   ]);
+  const totalRow = ["", "", "Total", "", "", "", formatRate(totalAmount), ""];
 
-  const csv = [headers, ...rows]
+  const csv = [headers, ...dataRows, totalRow]
     .map((row) => row.map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(","))
     .join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
+  const filterType = qs("#reportType").value;
+  const searchValue = qs("#reportSearch").value.trim();
+  const label = searchValue ? searchValue.replace(/\s+/g, '-') : (filterType !== "all" ? filterType : "all");
   link.href = url;
-  link.download = `stock-report-${todayValue()}.csv`;
+  link.download = `stock-report-${label}-${todayValue()}.csv`;
   link.click();
   URL.revokeObjectURL(url);
 };
@@ -715,10 +748,17 @@ const exportPdf = async () => {
   const subtitle = qs("#reportSubtitle").textContent;
   const filterType = qs("#reportType").value;
   const searchValue = qs("#reportSearch").value.trim();
+  const totalAmount = rows.reduce((sum, entry) => {
+    const qty = Number(entry.quantity) || 0;
+    const rate = Number(entry.rate) || 0;
+    return sum + qty * rate;
+  }, 0);
 
   try {
-    const filePath = await window.stockApi.exportReportPdf({ title, subtitle, rows, filterType, searchValue });
-    alert(`PDF saved to: ${filePath}`);
+    const filePath = await window.stockApi.exportReportPdf({ title, subtitle, rows, filterType, searchValue, totalAmount });
+    if (filePath) {
+      alert(`PDF saved to: ${filePath}`);
+    }
   } catch (error) {
     console.error("Failed to export PDF:", error);
     alert("Unable to export PDF. Check the app logs.");
@@ -829,7 +869,7 @@ const init = async () => {
     try {
       const headers = { "x-access-pin": _currentPin };
       if (_deviceToken) headers["x-device-token"] = _deviceToken;
-      const res = await fetch(`${API}/entries`, { headers });
+      const res = await fetch(`${API}/api/entries`, { headers });
       if (res.ok) {
         const data = await res.json();
         state.entries = Array.isArray(data.entries) ? data.entries : [];

@@ -9,15 +9,19 @@ const { Client } = require('pg');
 const { masterPool, getTenantPool, ensureMasterDb } = require('./db/pool');
 
 const app = express();
+const envOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+const apiOrigin = process.env.API_URL ? new URL(process.env.API_URL).origin : null;
 const allowedOrigins = [
   'http://localhost:3000',
   'app://.',
-  'file://'
+  'file://',
+  ...envOrigins,
+  ...(apiOrigin ? [apiOrigin] : [])
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.some(a => origin.startsWith(a))) {
+    if (!origin || origin === 'null' || allowedOrigins.some(a => origin.startsWith(a))) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -25,17 +29,13 @@ app.use(cors({
   }
 }));
 app.use(express.json({ limit: '10mb' }));
-app.use((req, res, next) => {
-  res.setHeader('Content-Security-Policy', "default-src 'self'");
-  next();
-});
 
 const PORT = parseInt(process.env.API_PORT, 10) || 3000;
 
 function getSuperuserConfig() {
   const config = {
     host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT, 10) || 5432,
+    port: parseInt(process.env.DB_PORT, 10) || 5454,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     connectionTimeoutMillis: 5000,
@@ -185,9 +185,12 @@ const resolveTenant = async (req, res, next) => {
 app.get('/api/pin/status', async (req, res) => {
   try {
     const result = await masterPool.query(
-      "SELECT COUNT(*) AS count FROM tenants"
+      "SELECT COUNT(*) AS count, (SELECT company_name FROM tenants ORDER BY created_at ASC LIMIT 1) AS company_name FROM tenants"
     );
-    res.json({ configured: parseInt(result.rows[0].count) > 0 });
+    res.json({
+      configured: parseInt(result.rows[0].count) > 0,
+      company_name: result.rows[0].company_name || ''
+    });
   } catch (err) {
     console.error('DB error in /api/pin/status:', err.message);
     res.status(503).json({ error: 'database_unreachable', message: 'Database is not available.' });
