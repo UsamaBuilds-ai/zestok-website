@@ -11,17 +11,18 @@
 **Mode:** mvp
 
 **Success Criteria:**
-1. `@capacitor/core`, `@capacitor/cli`, `@capacitor/preferences`, `@capacitor/app` installed at matching versions
-2. `capacitor.config.ts` created with correct configuration
-3. `npx cap add android` succeeds — Android project scaffolded
-4. App launches on emulator/device showing default Capacitor splash
+1. `@capacitor/core`, `@capacitor/cli`, `@capacitor/preferences`, `@capacitor/app` installed at matching versions in mobile/package.json
+2. `capacitor.config.ts` created with correct configuration (D-01 through D-11)
+3. `npx cap add android` succeeds — Android project scaffolded at mobile/android/
+4. App launches on emulator/device showing health check UI with connection status
 5. Node.js 22+, Android Studio Otter+ confirmed working
+6. Walking Skeleton: SKELETON.md produced with architectural decisions
 
-**Plans:**
-- Install missing Capacitor packages
-- Configure capacitor.config.ts
-- Initialize Android platform
-- Verify toolchain and device launch
+**Plans:** 2 plans (Walking Skeleton)
+
+Plans:
+- [ ] 01-01-PLAN.md — Project scaffold: create mobile/ directory, install Capacitor packages, configure Vite + Capacitor with all Phase 1 decisions (D-01 through D-11)
+- [ ] 01-02-PLAN.md — Health check app & Android launch: build health check UI, initialize Android platform, verify toolchain and emulator launch
 
 ---
 
