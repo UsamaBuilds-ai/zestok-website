@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-07-07)
 
 **Core value:** Users can check current stock data from their phone at any time without needing access to the desktop app.
-**Current focus:** Pre-init — ready for Phase 1
+**Current focus:** Phase 1 context gathered — ready for planning
 
 ## Project State
 
@@ -21,12 +21,18 @@ See: .planning/PROJECT.md (updated 2026-07-07)
 
 ## Current Phase
 
-**Phase:** Pre-init
-**Status:** Ready for Phase 1
+**Phase:** 1 — Project Setup & Toolchain
+**Status:** Context gathered (2026-07-07)
+
+## Recent Sessions
+
+| Date | Session | Artifact |
+|------|---------|----------|
+| 2026-07-07 | Phase 1 context gathered | `.planning/phases/01-project-setup-toolchain/01-CONTEXT.md` |
 
 ## Next Action
 
-Run `/gsd-plan-phase 1` to start execution.
+Run `/gsd-plan-phase 1` to create executable plans for Phase 1.
 
 ---
 *Last updated: 2026-07-07*
