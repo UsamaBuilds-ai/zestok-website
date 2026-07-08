@@ -62,7 +62,7 @@ All values are relative (`rem`) with `html { font-size: 16px }` as the base (bro
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 1rem (16px) | 400 (regular) | 1.5 |
-| Label | 0.875rem (14px) | 500 (medium) | 1.4 |
+| Label | 0.875rem (14px) | 400 (regular) | 1.4 |
 | Heading | 1.25rem (20px) | 600 (semibold) | 1.3 |
 | Display | 1.5rem (24px) | 600 (semibold) | 1.2 |
 
