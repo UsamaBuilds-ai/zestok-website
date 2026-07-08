@@ -1,5 +1,6 @@
 import { getHealth } from './api.js';
 import { initConnectivity, isConnected, onStatusChange } from './connectivity.js';
+import { verifyPin, onAuthChange } from './auth.js';
 
 const indicator = document.getElementById('status-indicator');
 const statusText = document.getElementById('status-text');
@@ -9,6 +10,10 @@ const retryBar = document.getElementById('retry-bar');
 const retryBarBtn = document.getElementById('retry-bar-btn');
 const inlineError = document.getElementById('inline-error');
 const inlineRetryBtn = document.getElementById('inline-retry-btn');
+const pinGateOverlay = document.getElementById('pin-gate-overlay');
+const pinInput = document.querySelector('.pin-input');
+const pinError = document.getElementById('pin-error');
+const spinnerOverlay = document.getElementById('spinner-overlay');
 
 let _healthCheckRunning = false;
 let _lastErrorType = null;
@@ -32,6 +37,45 @@ function showInlineError(show, message) {
   if (message) {
     inlineError.querySelector('p').textContent = message;
   }
+}
+
+function showPinGate() {
+  pinGateOverlay.style.display = 'flex';
+  pinError.textContent = '';
+  pinInput.value = '';
+  setTimeout(() => pinInput.focus(), 100);
+}
+
+function hidePinGate() {
+  pinGateOverlay.style.display = 'none';
+}
+
+function showSpinner(show) {
+  spinnerOverlay.style.display = show ? 'flex' : 'none';
+}
+
+async function handlePinSubmit() {
+  const pin = pinInput.value.trim();
+  if (!pin || pin.length < 4) return;
+
+  pinError.textContent = '';
+  showSpinner(true);
+  pinInput.disabled = true;
+
+  const result = await verifyPin(pin);
+
+  showSpinner(false);
+  pinInput.disabled = false;
+
+  if (result.ok) {
+    hidePinGate();
+    return;
+  }
+
+  pinInput.value = '';
+  pinError.textContent = result.error === 'network_error'
+    ? 'Could not connect to server'
+    : 'Invalid PIN. Try again.';
 }
 
 async function checkHealth() {
@@ -81,16 +125,30 @@ retryBtn.addEventListener('click', checkHealth);
 retryBarBtn.addEventListener('click', handleRetry);
 inlineRetryBtn.addEventListener('click', checkHealth);
 
+pinInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    handlePinSubmit();
+  }
+});
+
 async function init() {
   await initConnectivity();
 
   updateNetworkBadge(isConnected());
+  showPinGate();
 
   onStatusChange((status) => {
     updateNetworkBadge(status.connected);
     if (status.connected && _lastErrorType === 'offline') {
       showInlineError(false);
       checkHealth();
+    }
+  });
+
+  onAuthChange(({ isAuthenticated: auth }) => {
+    if (auth) {
+      hidePinGate();
     }
   });
 

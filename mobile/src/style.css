@@ -194,3 +194,132 @@ main {
 #inline-retry-btn:active {
   opacity: 0.8;
 }
+
+#pin-gate-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+}
+
+.pin-gate-card {
+  background-color: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 32px 24px;
+  max-width: 360px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.pin-gate-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.pin-gate-instruction {
+  font-size: 0.875rem;
+  text-align: center;
+  color: rgba(224,224,224,0.6);
+}
+
+.pin-input {
+  width: 100%;
+  height: 52px;
+  font-size: 1.5rem;
+  letter-spacing: 8px;
+  text-align: center;
+  background: rgba(22,33,62,0.8);
+  border: 1px solid rgba(224,224,224,0.15);
+  border-radius: 12px;
+  color: var(--text-primary);
+  outline: none;
+  caret-color: var(--text-primary);
+}
+
+.pin-input:focus {
+  border-color: rgba(224,224,224,0.4);
+}
+
+.pin-input.error {
+  border-color: rgba(244,67,54,0.5);
+}
+
+.pin-error {
+  color: var(--accent-red);
+  font-size: 0.875rem;
+  text-align: center;
+  min-height: 1.25em;
+  transition: opacity 0.3s ease;
+}
+
+.pin-error.rate-limit {
+  color: #ff9800;
+}
+
+#spinner-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 300;
+  gap: 16px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,0.1);
+  border-top-color: var(--text-primary);
+  animation: spin 1s linear infinite;
+}
+
+.spinner-text {
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  50% { transform: translateX(8px); }
+  75% { transform: translateX(-4px); }
+}
+
+.pin-input.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+.session-expired-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--accent-red);
+  color: #fff;
+  text-align: center;
+  padding: 12px;
+  font-size: 0.875rem;
+  z-index: 500;
+  animation: slideDown 0.3s ease;
+}
+
+.session-expired-banner.hidden {
+  display: none;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}

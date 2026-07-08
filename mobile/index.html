@@ -9,6 +9,19 @@
   <link rel="stylesheet" href="src/style.css" />
 </head>
 <body>
+  <div id="pin-gate-overlay">
+    <div class="pin-gate-card">
+      <div class="pin-gate-title">Stock Management</div>
+      <div class="pin-gate-instruction">Enter your PIN to continue</div>
+      <input class="pin-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autofocus aria-label="PIN input, 4 to 6 digits">
+      <div class="pin-error" id="pin-error"></div>
+    </div>
+  </div>
+  <div id="spinner-overlay" style="display:none">
+    <div class="spinner"></div>
+    <div class="spinner-text">Verifying...</div>
+  </div>
+  <div id="session-expired-banner" class="session-expired-banner hidden"></div>
   <div id="app">
     <header>
       Stock Management
