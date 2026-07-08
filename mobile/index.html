@@ -10,13 +10,24 @@
 </head>
 <body>
   <div id="app">
-    <header>Stock Management</header>
+    <header>
+      Stock Management
+      <span id="network-badge" class="network-online">Online</span>
+    </header>
     <main>
+      <div id="inline-error" class="inline-error hidden">
+        <p>Unable to reach server</p>
+        <button id="inline-retry-btn">Retry</button>
+      </div>
       <div id="status-indicator" class="checking"></div>
       <p id="status-text">Checking server...</p>
       <p id="server-url">http://84.235.249.239:3000</p>
       <button id="retry-btn">Retry</button>
     </main>
+    <div id="retry-bar" class="retry-bar hidden">
+      Server unreachable —
+      <button id="retry-bar-btn">Retry</button>
+    </div>
   </div>
   <script type="module" src="src/main.js" defer></script>
 </body>
