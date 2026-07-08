@@ -5,9 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Stock Management',
   webDir: 'dist',
   server: {
-    url: 'http://84.235.249.239:3000',
     cleartext: true,
-    androidScheme: 'http',
   },
   plugins: {
     SplashScreen: {
