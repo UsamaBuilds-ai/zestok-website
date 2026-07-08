@@ -6,23 +6,23 @@
 
 ---
 
-### Phase 1: Project Setup & Toolchain
+### Phase 1: Project Setup & Toolchain ✓
 **Goal:** Install missing Capacitor packages, verify toolchain requirements (Node 22+, Android Studio Otter+, SDK 36), and initialize the Capacitor Android project.
 **Mode:** mvp
 
 **Success Criteria:**
-1. `@capacitor/core`, `@capacitor/cli`, `@capacitor/preferences`, `@capacitor/app` installed at matching versions in mobile/package.json
-2. `capacitor.config.ts` created with correct configuration (D-01 through D-11)
-3. `npx cap add android` succeeds — Android project scaffolded at mobile/android/
-4. App launches on emulator/device showing health check UI with connection status
-5. Node.js 22+, Android Studio Otter+ confirmed working
-6. Walking Skeleton: SKELETON.md produced with architectural decisions
+1. ✓ `@capacitor/core`, `@capacitor/cli`, `@capacitor/preferences`, `@capacitor/app` installed at matching versions in mobile/package.json
+2. ✓ `capacitor.config.ts` created with correct configuration (D-01 through D-11)
+3. ✓ `npx cap add android` succeeds — Android project scaffolded at mobile/android/
+4. ✓ App launches on emulator/device showing health check UI with connection status
+5. ✓ Node.js 22+, Android Studio Otter+ confirmed working
+6. ✓ Walking Skeleton: SKELETON.md produced with architectural decisions
 
-**Plans:** 2 plans (Walking Skeleton)
+**Plans:** 2/2 complete ✓
 
 Plans:
-- [ ] 01-01-PLAN.md — Project scaffold: create mobile/ directory, install Capacitor packages, configure Vite + Capacitor with all Phase 1 decisions (D-01 through D-11)
-- [ ] 01-02-PLAN.md — Health check app & Android launch: build health check UI, initialize Android platform, verify toolchain and emulator launch
+- [x] 01-01-PLAN.md — Project scaffold: create mobile/ directory, install Capacitor packages, configure Vite + Capacitor with all Phase 1 decisions (D-01 through D-11)
+- [x] 01-02-PLAN.md — Health check app & Android launch: build health check UI, initialize Android platform, verify toolchain and emulator launch
 
 ---
 
