@@ -1,10 +1,13 @@
+import { Preferences } from '@capacitor/preferences';
+
 const API_BASE = 'http://84.235.249.239:3000/api';
 const DEFAULT_TIMEOUT = 10000;
 
-export function getAuthHeaders() {
-  // Phase 2: skeleton — returns empty object.
-  // Phase 3 will populate from Preferences:
-  //   { 'x-access-pin': pin, 'x-device-token': deviceToken }
+export async function getAuthHeaders() {
+  const { value: accessPin } = await Preferences.get({ key: 'accessPin' });
+  if (accessPin) {
+    return { 'x-access-pin': accessPin };
+  }
   return {};
 }
 
@@ -20,7 +23,8 @@ export async function apiRequest(path, options = {}) {
   };
 
   if (auth) {
-    Object.assign(headers, getAuthHeaders());
+    const authHeaders = await getAuthHeaders();
+    Object.assign(headers, authHeaders);
   }
 
   try {
@@ -65,8 +69,7 @@ export async function getEntries(options = {}) {
 
 export async function verifyPin(pin) {
   return apiRequest('/pin/verify', {
-    method: 'POST',
-    body: {},
+    method: 'GET',
     headers: { 'x-access-pin': pin },
   });
 }
