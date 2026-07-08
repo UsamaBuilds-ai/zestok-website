@@ -107,9 +107,7 @@ Build the PIN entry screen, wire up server-side PIN verification via `/api/pin/v
 <deferred>
 ## Deferred Ideas
 
-- **Biometric unlock (fingerprint/face)** — UX-04 in v2 requirements; could skip PIN re-entry on resume when implemented in a future phase
-
-None other — discussion stayed within phase scope.
+None — discussion stayed within phase scope.
 
 </deferred>
 

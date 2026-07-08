@@ -58,4 +58,4 @@ The following areas were marked "let the agent decide" by the user and were not 
 
 ## Deferred Ideas
 
-- **Biometric unlock (fingerprint/face)** — UX-04 in v2 requirements; could skip PIN re-entry on resume when implemented in a future phase
+None carried forward — biometric unlock moved to Phase 4 scope.

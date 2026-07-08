@@ -100,6 +100,7 @@
 | UI-02 | Phase 4 | Pending |
 | UI-03 | Phase 5 | Pending |
 | UI-04 | Phase 5 | Pending |
+| UX-04 | Phase 4 | Pending |
 | REL-01 | Phase 6 | Pending |
 | REL-02 | Phase 1/6 | Pending |
 | REL-03 | Phase 6 | Pending |

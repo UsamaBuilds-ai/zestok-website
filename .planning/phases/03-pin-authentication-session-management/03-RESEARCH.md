@@ -33,7 +33,7 @@
 - Whether to show company name on PIN gate — can be omitted since we don't have it before auth
 
 ### Deferred Ideas (OUT OF SCOPE)
-- **Biometric unlock (fingerprint/face)** — UX-04 in v2 requirements; could skip PIN re-entry on resume when implemented in a future phase
+- None — biometric unlock moved to Phase 4
 </user_constraints>
 
 <phase_requirements>

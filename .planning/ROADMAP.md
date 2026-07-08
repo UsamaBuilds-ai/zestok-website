@@ -42,7 +42,7 @@ Plans:
 4. ✓ `@capacitor/network` installed — app detects online/offline status
 5. ✓ App can successfully call `/api/health` and display server status
 
-**Plans:** 2/2 complete ✓
+**Plans:** 2/2 plans complete
 
 Plans:
 
@@ -88,6 +88,7 @@ Plans:
 4. Data fetched from `/api/entries` on dashboard open
 5. Offline: last-known-good data shown with "stale data" indicator
 6. Mobile-optimized layout (single-column, 44px+ touch targets, safe-area)
+7. Biometric unlock (fingerprint/face) available on resume as alternative to PIN re-entry
 
 **Plans:**
 
@@ -96,6 +97,7 @@ Plans:
 - Build metric cards and stock table with search
 - Add offline cache and stale-data indicator
 - Touch-screen optimization
+- Integrate biometric unlock with Capacitor Biometric plugin
 
 ---
 
