@@ -1,7 +1,7 @@
 import { getHealth } from './api.js';
 import { App } from '@capacitor/app';
 import { initConnectivity, isConnected, onStatusChange } from './connectivity.js';
-import { verifyPin, onAuthChange } from './auth.js';
+import { verifyPin, onAuthChange, handleSessionExpiry, checkSessionTimeout } from './auth.js';
 
 const indicator = document.getElementById('status-indicator');
 const statusText = document.getElementById('status-text');
@@ -15,9 +15,11 @@ const pinGateOverlay = document.getElementById('pin-gate-overlay');
 const pinInput = document.querySelector('.pin-input');
 const pinError = document.getElementById('pin-error');
 const spinnerOverlay = document.getElementById('spinner-overlay');
+const sessionExpiredBanner = document.getElementById('session-expired-banner');
 
 let _healthCheckRunning = false;
 let _lastErrorType = null;
+let _sessionExpiredTimer = null;
 
 function setStatus(state, text) {
   indicator.className = state;
@@ -43,7 +45,10 @@ function showInlineError(show, message) {
 function showPinGate() {
   pinGateOverlay.style.display = 'flex';
   pinError.textContent = '';
+  pinError.className = 'pin-error';
   pinInput.value = '';
+  pinInput.className = 'pin-input';
+  pinInput.disabled = false;
   setTimeout(() => pinInput.focus(), 100);
 }
 
@@ -55,18 +60,31 @@ function showSpinner(show) {
   spinnerOverlay.style.display = show ? 'flex' : 'none';
 }
 
+function showSessionExpired(message) {
+  if (_sessionExpiredTimer) {
+    clearTimeout(_sessionExpiredTimer);
+  }
+  sessionExpiredBanner.textContent = message || 'Session expired';
+  sessionExpiredBanner.classList.remove('hidden');
+  _sessionExpiredTimer = setTimeout(() => {
+    sessionExpiredBanner.classList.add('hidden');
+    _sessionExpiredTimer = null;
+  }, 5000);
+}
+
 async function handlePinSubmit() {
   const pin = pinInput.value.trim();
   if (!pin || pin.length < 4) return;
 
   pinError.textContent = '';
+  pinError.className = 'pin-error';
+  pinInput.classList.remove('error', 'shake');
   showSpinner(true);
   pinInput.disabled = true;
 
   const result = await verifyPin(pin);
 
   showSpinner(false);
-  pinInput.disabled = false;
 
   if (result.ok) {
     hidePinGate();
@@ -74,9 +92,34 @@ async function handlePinSubmit() {
   }
 
   pinInput.value = '';
-  pinError.textContent = result.error === 'network_error'
-    ? 'Could not connect to server'
-    : 'Invalid PIN. Try again.';
+  pinInput.disabled = false;
+
+  if (result.error === 'rate_limited') {
+    let countdown = 5;
+    pinError.textContent = `Too many attempts. Try again in ${countdown}s`;
+    pinError.className = 'pin-error rate-limit';
+    pinInput.disabled = true;
+    const interval = setInterval(() => {
+      countdown--;
+      if (countdown > 0) {
+        pinError.textContent = `Too many attempts. Try again in ${countdown}s`;
+      } else {
+        clearInterval(interval);
+        pinError.textContent = '';
+        pinError.className = 'pin-error';
+        pinInput.disabled = false;
+        pinInput.focus();
+      }
+    }, 1000);
+  } else if (result.error === 'network_error') {
+    pinError.textContent = 'Could not connect to server';
+    pinInput.classList.add('shake');
+    setTimeout(() => pinInput.classList.remove('shake'), 400);
+  } else {
+    pinError.textContent = 'Invalid PIN. Try again.';
+    pinInput.classList.add('shake');
+    setTimeout(() => pinInput.classList.remove('shake'), 400);
+  }
 }
 
 async function checkHealth() {
@@ -153,8 +196,12 @@ async function init() {
     }
   });
 
-  App.addListener('appStateChange', ({ isActive }) => {
+  App.addListener('appStateChange', async ({ isActive }) => {
     if (isActive) {
+      const timeout = await checkSessionTimeout();
+      if (timeout.expired) {
+        showSessionExpired('Session expired');
+      }
       showPinGate();
     }
   });

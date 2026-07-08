@@ -34,12 +34,32 @@ function _notify(state) {
   }
 }
 
-export async function verifyPin(pin) {
-  if (!isConnected()) {
+async function _verifyOffline(pin) {
+  const { value: storedHash } = await Preferences.get({ key: 'pinHash' });
+  if (!storedHash) {
     return { ok: false, error: 'network_error' };
   }
+  const match = bcrypt.compareSync(pin, storedHash);
+  if (match) {
+    const { value: companyName } = await Preferences.get({ key: 'companyName' });
+    const { value: tenantId } = await Preferences.get({ key: 'tenantId' });
+    _notify({ isAuthenticated: true, companyName: companyName || '', tenantId: tenantId || '' });
+    return { ok: true, data: { company_name: companyName, tenant_id: tenantId } };
+  }
+  return { ok: false, error: 'invalid_pin' };
+}
 
-  const result = await apiVerifyPin(pin);
+export async function verifyPin(pin) {
+  if (!isConnected()) {
+    return _verifyOffline(pin);
+  }
+
+  let result;
+  try {
+    result = await apiVerifyPin(pin);
+  } catch {
+    return _verifyOffline(pin);
+  }
 
   if (result.ok && result.data?.valid) {
     const salt = bcrypt.genSaltSync(6);
@@ -54,6 +74,10 @@ export async function verifyPin(pin) {
     return { ok: true, data: result.data };
   }
 
+  if (result.status === 429) {
+    return { ok: false, error: 'rate_limited' };
+  }
+
   return { ok: false, error: 'invalid_pin' };
 }
 
@@ -63,4 +87,14 @@ export async function clearSession() {
   await Preferences.remove({ key: 'tenantId' });
   await Preferences.remove({ key: 'pinHash' });
   _notify({ isAuthenticated: false, companyName: '', tenantId: '' });
+}
+
+export async function handleSessionExpiry() {
+  await clearSession();
+  return { cleared: true };
+}
+
+export async function checkSessionTimeout() {
+  const { value: storedHash } = await Preferences.get({ key: 'pinHash' });
+  return { expired: !storedHash };
 }
