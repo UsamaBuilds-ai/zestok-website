@@ -1,4 +1,5 @@
 import { getHealth } from './api.js';
+import { App } from '@capacitor/app';
 import { initConnectivity, isConnected, onStatusChange } from './connectivity.js';
 import { verifyPin, onAuthChange } from './auth.js';
 
@@ -149,6 +150,12 @@ async function init() {
   onAuthChange(({ isAuthenticated: auth }) => {
     if (auth) {
       hidePinGate();
+    }
+  });
+
+  App.addListener('appStateChange', ({ isActive }) => {
+    if (isActive) {
+      showPinGate();
     }
   });
 
