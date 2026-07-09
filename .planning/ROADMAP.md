@@ -90,14 +90,15 @@ Plans:
 6. Mobile-optimized layout (single-column, 44px+ touch targets, safe-area)
 7. Biometric unlock (fingerprint/face) available on resume as alternative to PIN re-entry
 
-**Plans:**
+**Plans:** 4 plans
 
-- Implement mobile-specific dashboard HTML/CSS
-- Port balance calculation logic from Electron renderer.js
-- Build metric cards and stock table with search
-- Add offline cache and stale-data indicator
-- Touch-screen optimization
-- Integrate biometric unlock with Capacitor Biometric plugin
+Plans:
+- [ ] 04-01-PLAN.md — Dashboard foundation: create dashboard.js, balances.js, update index.html/main.js/style.css with dashboard view and 4 metric cards
+- [ ] 04-02-PLAN.md — Stock balance table + search: add renderStockTable(), real-time 300ms debounce search filter, touch-optimized table CSS
+- [ ] 04-03-PLAN.md — Offline cache: cache entries in Preferences, read cache on failure, stale-data banner with 5s auto-dismiss
+- [ ] 04-04-PLAN.md — Biometric unlock: install @aparajita/capacitor-biometric-auth, implement biometric-first resume flow with PIN fallback
+
+> **Status:** Plans created. Ready for execution.
 
 ---
 
@@ -114,12 +115,12 @@ Plans:
 4. Settings screen shows app version, server status, sign-out button
 5. Sign-out clears session and returns to PIN gate
 
-**Plans:**
+**Plans:** 2 plans
 
-- Build rate check screen with autocomplete
-- Implement bottom navigation bar
-- Create Settings screen
-- Wire up sign-out flow
+Plans:
+
+- [x] 05-01-PLAN.md — Navigation shell + Settings + Sign-out: bottom nav HTML/CSS, tab switching, header updates, Settings screen (company/health/version/sign-out), signOut() in auth.js, PIN gate return on sign-out
+- [x] 05-02-PLAN.md — Rate Check screen: autocomplete input with 300ms debounce, dropdown suggestions, rate (Rs) and balance (qty) result cards
 
 ---
 
