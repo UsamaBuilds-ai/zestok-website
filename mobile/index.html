@@ -24,7 +24,7 @@
   <div id="session-expired-banner" class="session-expired-banner hidden"></div>
   <div id="app">
     <header>
-      Stock Management
+      <span id="header-tab-name"></span> Stock Management
       <span id="network-badge" class="network-online">Online</span>
     </header>
     <main>
@@ -37,10 +37,110 @@
       <p id="server-url">http://84.235.249.239:3000</p>
       <button id="retry-btn">Retry</button>
     </main>
+
+    <!-- Rate Check view (placeholder — full content in Plan 2) -->
+    <div id="ratecheck-view" class="hidden">
+      <p style="text-align:center;color:rgba(224,224,224,0.5);padding:32px 16px;">Rate Check coming soon</p>
+    </div>
+
+    <!-- Settings view -->
+    <div id="settings-view" class="hidden">
+      <div class="settings-list">
+        <div class="settings-item">
+          <span class="settings-item-label">Company</span>
+          <span class="settings-item-value" id="settings-company">—</span>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-label">Server</span>
+          <span class="settings-item-value" id="settings-health-value">
+            <span id="settings-health-spinner" class="spinner-sm hidden"></span>
+            <span>Checking...</span>
+          </span>
+        </div>
+        <div class="settings-item">
+          <span class="settings-item-label">App Version</span>
+          <span class="settings-item-value" id="settings-version">—</span>
+        </div>
+      </div>
+      <button id="signout-btn" class="settings-signout-btn">Sign Out</button>
+    </div>
+
+    <!-- Dashboard view (hidden until after PIN auth) -->
+    <div id="dashboard-view" class="hidden">
+      <div id="stale-data-banner" class="stale-data-banner hidden">Stale data — last updated ...</div>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <span class="metric-label">Total Items</span>
+          <span class="metric-value" id="metric-total-items">0</span>
+          <span class="metric-icon">📦</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Balance Qty</span>
+          <span class="metric-value" id="metric-balance-qty">0</span>
+          <span class="metric-icon">⚖️</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Stock Value</span>
+          <span class="metric-value" id="metric-stock-value">Rs 0</span>
+          <span class="metric-icon">💰</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Today's Movement</span>
+          <span class="metric-value" id="metric-today-movement">0</span>
+          <span class="metric-icon">📊</span>
+        </div>
+      </div>
+
+      <div class="search-container">
+        <input type="text" id="dashboard-search" class="search-input"
+               placeholder="Search items..." aria-label="Search stock items" />
+      </div>
+
+      <div class="stock-table-wrapper" role="region" aria-label="Stock balance table">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Category</th>
+              <th>In</th>
+              <th>Out</th>
+              <th>Balance</th>
+              <th>Rate</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody id="stock-table-body">
+            <tr><td class="empty-row" colspan="7">No stock balance found</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="dashboard-error" class="inline-error hidden">
+      <p id="dashboard-error-text">Could not load stock data</p>
+      <button id="dashboard-retry-btn" class="action-btn">Retry</button>
+    </div>
+
     <div id="retry-bar" class="retry-bar hidden">
       Server unreachable —
       <button id="retry-bar-btn">Retry</button>
     </div>
+  <!-- Bottom navigation bar -->
+    <nav id="bottom-nav">
+      <button class="nav-tab active" data-tab="dashboard">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Dashboard</span>
+      </button>
+      <button class="nav-tab" data-tab="ratecheck">
+        <span class="nav-icon">🔍</span>
+        <span class="nav-label">Rate Check</span>
+      </button>
+      <button class="nav-tab" data-tab="settings">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Settings</span>
+      </button>
+    </nav>
   </div>
   <script type="module" src="src/main.js" defer></script>
 </body>

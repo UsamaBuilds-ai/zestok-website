@@ -2,10 +2,12 @@ import { Preferences } from '@capacitor/preferences';
 import bcrypt from 'bcryptjs';
 import { verifyPin as apiVerifyPin } from './api.js';
 import { isConnected } from './connectivity.js';
+import { BiometricAuth, BiometryError, BiometryErrorType } from '@aparajita/capacitor-biometric-auth';
 
 let _isAuthenticated = false;
 let _companyName = '';
 let _tenantId = '';
+const BIOMETRIC_ENABLED_KEY = 'biometricEnabled';
 const _subscribers = new Set();
 
 export function isAuthenticated() {
@@ -86,7 +88,53 @@ export async function clearSession() {
   await Preferences.remove({ key: 'companyName' });
   await Preferences.remove({ key: 'tenantId' });
   await Preferences.remove({ key: 'pinHash' });
+  await Preferences.remove({ key: BIOMETRIC_ENABLED_KEY });
   _notify({ isAuthenticated: false, companyName: '', tenantId: '' });
+}
+
+export async function signOut() {
+  await Preferences.remove({ key: 'accessPin' });
+  await Preferences.remove({ key: BIOMETRIC_ENABLED_KEY });
+  _notify({ isAuthenticated: false, companyName: '', tenantId: '' });
+}
+
+export async function tryBiometricAuth() {
+  const { value: enabled } = await Preferences.get({ key: BIOMETRIC_ENABLED_KEY });
+  if (!enabled) return { ok: false, reason: 'not_enabled' };
+
+  let biometryInfo;
+  try {
+    biometryInfo = await BiometricAuth.checkBiometry();
+  } catch {
+    return { ok: false, reason: 'unavailable' };
+  }
+
+  if (!biometryInfo.isAvailable) {
+    return { ok: false, reason: 'unavailable' };
+  }
+
+  try {
+    await BiometricAuth.authenticate({
+      reason: 'Unlock Stock Management',
+      cancelTitle: 'Use PIN',
+      allowDeviceCredential: true,
+    });
+    await Preferences.set({ key: BIOMETRIC_ENABLED_KEY, value: 'true' });
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof BiometryError) {
+      if (error.code === BiometryErrorType.userCancel) {
+        return { ok: false, reason: 'cancelled' };
+      }
+      return { ok: false, reason: 'error', code: error.code };
+    }
+    return { ok: false, reason: 'error' };
+  }
+}
+
+export async function isBiometricEnabled() {
+  const { value } = await Preferences.get({ key: BIOMETRIC_ENABLED_KEY });
+  return value === 'true';
 }
 
 export async function handleSessionExpiry() {
