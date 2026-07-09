@@ -93,6 +93,7 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
+
 - [ ] 04-01-PLAN.md — Dashboard foundation: create dashboard.js, balances.js, update index.html/main.js/style.css with dashboard view and 4 metric cards
 - [ ] 04-02-PLAN.md — Stock balance table + search: add renderStockTable(), real-time 300ms debounce search filter, touch-optimized table CSS
 - [ ] 04-03-PLAN.md — Offline cache: cache entries in Preferences, read cache on failure, stale-data banner with 5s auto-dismiss
@@ -118,8 +119,12 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
+**Wave 1**
 
 - [x] 05-01-PLAN.md — Navigation shell + Settings + Sign-out: bottom nav HTML/CSS, tab switching, header updates, Settings screen (company/health/version/sign-out), signOut() in auth.js, PIN gate return on sign-out
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [x] 05-02-PLAN.md — Rate Check screen: autocomplete input with 300ms debounce, dropdown suggestions, rate (Rs) and balance (qty) result cards
 
 ---
