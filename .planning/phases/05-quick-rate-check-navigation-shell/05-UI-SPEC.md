@@ -56,23 +56,21 @@ Declared values (must be multiples of 4):
 
 | Role | Size | Weight | Line Height | Usage |
 |------|------|--------|-------------|-------|
-| Caption | 0.625rem (10px) | 500 (medium) | 1.2 | Network badge, nav-label (uppercase), stock table header |
-| Small | 0.75rem (12px) | 400 (regular) | 1.4 | Metric label, stale-data-banner, metric-icon |
-| Small bold | 0.75rem (12px) | 600 (semibold) | 1.4 | Rate check dropdown category label |
-| Body | 0.8125rem (13px) | 400 (regular) | 1.5 | Stock table data cells, dropdown items |
-| Body bold | 0.8125rem (13px) | 600 (semibold) | 1.5 | Stock table item name, dropdown item name |
-| Body large | 0.875rem (14px) | 400 (regular) | 1.5 | Settings item label and value, retry bar text, inline error text |
-| Body large bold | 0.875rem (14px) | 600 (semibold) | 1.5 | Settings health value, version display |
-| Heading | 1rem (16px) | 600 (semibold) | 1.3 | Sign-out button text, rate check result card value, inline-retry-btn |
-| Header | 1.25rem (20px) | 600 (semibold) | 1.2 | App header (existing), metric-value, pin-gate-title |
+| Caption / Small | 0.75rem (12px) | 400 (regular) | 1.4 | Network badge, nav-label (uppercase), stock table header, metric label, stale-data-banner, dropdown category label, metric-icon |
+| Caption / Small bold | 0.75rem (12px) | 600 (semibold) | 1.4 | Rate check dropdown category label (emphasized caption) |
+| Body | 0.875rem (14px) | 400 (regular) | 1.5 | Stock table data cells, dropdown items, settings item label and value, retry bar text, inline error text |
+| Body bold | 0.875rem (14px) | 600 (semibold) | 1.5 | Stock table item name, dropdown item name, settings health value, version display |
+| Heading / Input | 1rem (16px) | 600 (semibold) | 1.3 | Sign-out button text, rate check result card value, inline-retry-btn |
 | Input | 1rem (16px) | 400 (regular) | 1.5 | Rate check input field (`#ratecheck-input`) |
-| Input large | 1.5rem (24px) | 400 (regular) | 1.3 | PIN input (existing) |
+| Display / Header | 1.25rem (20px) | 600 (semibold) | 1.2 | App header (existing), metric-value, pin-gate-title |
 
 **Font:** system-ui, -apple-system, sans-serif (inherited from `html, body` in style.css).
 
-**Rationale:** The 0.625rem caption size matches existing `#network-badge` (style.css:107) and stock table header (style.css:428). The 0.875rem body size matches existing `.metric-label` (style.css:362). The 1.25rem header size matches existing `header` (style.css:32) and `.metric-value` (style.css:368).
+> **Pre-existing exception:** The PIN input at 1.5rem (24px) was established in Phase 2 and remains unchanged. This is outside Phase 5's contract.
 
-**Source:** Extracted from style.css existing patterns, confirmed by RESEARCH.md §Code Examples. [Pre-populated from existing codebase]
+**Rationale:** Caption at 0.75rem (12px) replaces the previous 0.625rem (10px) caption — all existing 10px uses (network badge, stock table header) are bumped to 12px for readability. Body consolidated to 0.875rem (14px) merging the previous 13px body and 14px large body into a single scale. The 1rem (16px) heading/input and 1.25rem (20px) display sizes are preserved. Font weights are reduced to two (400 regular, 600 semibold) — the previous 500 (medium) on caption and 700 (bold) on card values are merged into 600 (semibold).
+
+**Source:** Extracted from style.css existing patterns, confirmed by RESEARCH.md §Code Examples. [Fixed per gsd-ui-checker Dimension 4 typography audit — 2026-07-09]
 
 ---
 
@@ -170,7 +168,7 @@ Declared values (must be multiples of 4):
 | Element | Spec |
 |---------|------|
 | `.nav-icon` | `font-size: 1.25rem; line-height: 1` |
-| `.nav-label` | `font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.5px` |
+| `.nav-label` | `font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px` |
 | Gap | `gap: 2px` between icon and label |
 
 **Interaction:** Tap → `switchTab(tabName)` in main.js → hides all views, shows selected view, updates header text, updates `.nav-tab.active` class.
@@ -267,7 +265,7 @@ Declared values (must be multiples of 4):
 | `.ratecheck-result-cards` | `display: grid; grid-template-columns: 1fr 1fr; gap: 12px` |
 | `.ratecheck-card` | `background: --bg-secondary; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 4px` |
 | `.ratecheck-card-label` | `font-size: 0.75rem; color: rgba(224,224,224,0.6); text-transform: uppercase; letter-spacing: 0.5px` |
-| `.ratecheck-card-value` | `font-size: 1.25rem; font-weight: 700; color: --text-primary` |
+| `.ratecheck-card-value` | `font-size: 1.25rem; font-weight: 600; color: --text-primary` |
 | `.ratecheck-rate-value` | Extra class for targeting (no additional styling) |
 
 **Data flow:** `showRateCheck(balancesData)` → `_balances = balancesData || []` → if empty, show empty state → if populated, input enables → filter on keystroke → select fills result cards.
@@ -299,7 +297,7 @@ Declared values (must be multiples of 4):
 | `.settings-list` | `display: flex; flex-direction: column; gap: 1px; background: rgba(224,224,224,0.05); border-radius: 12px; overflow: hidden` |
 | `.settings-item` | `display: flex; justify-content: space-between; align-items: center; padding: 16px; background: --bg-secondary; min-height: 48px` |
 | `.settings-item-label` | `font-size: 0.875rem; color: rgba(224,224,224,0.6)` |
-| `.settings-item-value` | `font-size: 0.875rem; color: --text-primary; font-weight: 500` |
+| `.settings-item-value` | `font-size: 0.875rem; color: --text-primary; font-weight: 600` |
 
 **Health status sub-component:**
 | State | Value | CSS Class |
