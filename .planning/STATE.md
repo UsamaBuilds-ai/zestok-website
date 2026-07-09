@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 4
-current_phase_name: Dashboard — Metrics & Stock Table
-status: executing
-stopped_at: Phase 5 UI-SPEC approved
-last_updated: "2026-07-09T13:03:21.087Z"
+current_phase: 5
+current_phase_name: Quick Rate Check & Navigation Shell
+status: completed
+stopped_at: Phase 6 context gathered
+last_updated: "2026-07-09T13:29:12.025Z"
 progress:
   total_phases: 6
-  completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
-  percent: 67
+  completed_phases: 5
+  total_plans: 13
+  completed_plans: 13
+  percent: 83
 ---
 
 # Stock Management — Mobile Companion: State
@@ -22,7 +22,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-07)
 
 **Core value:** Users can check current stock data from their phone at any time without needing access to the desktop app.
-**Current focus:** Phase 04 — dashboard-metrics-stock-table
+**Current focus:** Phase 06 — polish-signing-release
 
 ## Project State
 
@@ -38,8 +38,8 @@ See: .planning/PROJECT.md (updated 2026-07-07)
 
 ## Current Phase
 
-**Phase:** 4 — Dashboard — Metrics & Stock Table
-**Status:** Ready to execute
+**Phase:** 5 — Quick Rate Check & Navigation Shell
+**Status:** ✓ Complete
 
 ## Recent Sessions
 
@@ -48,10 +48,11 @@ See: .planning/PROJECT.md (updated 2026-07-07)
 | 2026-07-09 | Phase 4 Wave 1 executed | `04-01-SUMMARY.md` — balances.js, dashboard.js, dashboard HTML/CSS |
 | 2026-07-09 | Phase 4 Wave 2 executed | `04-02-SUMMARY.md` — stock table + search; `04-04-SUMMARY.md` — biometric unlock |
 | 2026-07-09 | Phase 4 Wave 3 executed | `04-03-SUMMARY.md` — offline cache + stale-data banner |
+| 2026-07-09 | Phase 5 executed | `05-01-SUMMARY.md` — bottom nav, settings, sign-out; `05-02-SUMMARY.md` — rate check screen |
 
 ## Next Action
 
-Proceed to Phase 5 planning (if applicable)
+Proceed to Phase 6: Polish, Signing & Release
 
 ---
 
@@ -59,6 +60,6 @@ Proceed to Phase 5 planning (if applicable)
 
 ## Session
 
-**Last session:** 2026-07-09T12:28:25.462Z
-**Stopped at:** Phase 5 UI-SPEC approved
-**Resume file:** .planning/phases/05-quick-rate-check-navigation-shell/05-UI-SPEC.md
+**Last session:** 2026-07-09T13:29:12.005Z
+**Stopped at:** Phase 6 context gathered
+**Resume file:** .planning/phases/06-polish-signing-release/06-CONTEXT.md
