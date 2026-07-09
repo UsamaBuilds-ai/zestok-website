@@ -620,6 +620,154 @@ main {
   opacity: 0.8;
 }
 
+/* ── Rate Check Screen ─────────────────────────── */
+.ratecheck-search {
+  position: relative;
+}
+
+.ratecheck-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(224, 224, 224, 0.15);
+  color: var(--text-primary);
+  font-size: 1rem;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.ratecheck-input:focus {
+  border-color: rgba(224, 224, 224, 0.4);
+}
+
+.ratecheck-input::placeholder {
+  color: rgba(224, 224, 224, 0.4);
+}
+
+.ratecheck-dropdown {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(224, 224, 224, 0.1);
+  border-radius: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 4px;
+  z-index: 20;
+}
+
+.ratecheck-dropdown.hidden {
+  display: none;
+}
+
+.ratecheck-dropdown-item {
+  padding: 12px 16px;
+  min-height: 44px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(224, 224, 224, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ratecheck-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.ratecheck-dropdown-item:active {
+  background: rgba(224, 224, 224, 0.05);
+}
+
+.ratecheck-dropdown-item strong {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ratecheck-dropdown-category {
+  font-size: 0.75rem;
+  color: rgba(224, 224, 224, 0.5);
+  font-weight: 400;
+}
+
+.ratecheck-no-match {
+  color: rgba(224, 224, 224, 0.4);
+  text-align: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.ratecheck-no-match:active {
+  background: transparent;
+}
+
+.ratecheck-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: rgba(224, 224, 224, 0.4);
+  font-size: 0.875rem;
+}
+
+.ratecheck-empty.hidden {
+  display: none;
+}
+
+.ratecheck-result {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ratecheck-result.hidden {
+  display: none;
+}
+
+.ratecheck-result-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+}
+
+.ratecheck-item-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ratecheck-item-category {
+  font-size: 0.75rem;
+  color: rgba(224, 224, 224, 0.5);
+}
+
+.ratecheck-result-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ratecheck-card {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ratecheck-card-label {
+  font-size: 0.75rem;
+  color: rgba(224, 224, 224, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ratecheck-card-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
 .hidden {
   display: none !important;
 }
