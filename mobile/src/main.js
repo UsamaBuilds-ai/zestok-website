@@ -1,7 +1,11 @@
 import { getHealth } from './api.js';
 import { App } from '@capacitor/app';
 import { initConnectivity, isConnected, onStatusChange } from './connectivity.js';
-import { verifyPin, onAuthChange, handleSessionExpiry, checkSessionTimeout } from './auth.js';
+import { verifyPin, onAuthChange, handleSessionExpiry, checkSessionTimeout, tryBiometricAuth } from './auth.js';
+import { showDashboard, loadDashboard } from './dashboard.js';
+import { signOut } from './auth.js';
+import { showSettings, hideSettings } from './settings.js';
+import { formatRate, formatQty, getBalancesState } from './dashboard.js';
 
 const indicator = document.getElementById('status-indicator');
 const statusText = document.getElementById('status-text');
@@ -20,6 +24,42 @@ const sessionExpiredBanner = document.getElementById('session-expired-banner');
 let _healthCheckRunning = false;
 let _lastErrorType = null;
 let _sessionExpiredTimer = null;
+
+function switchTab(tabName) {
+  // Hide all views
+  const views = ['dashboard-view', 'ratecheck-view', 'settings-view'];
+  views.forEach((id) => document.getElementById(id)?.classList.add('hidden'));
+
+  // Show selected view
+  const viewMap = {
+    dashboard: 'dashboard-view',
+    ratecheck: 'ratecheck-view',
+    settings: 'settings-view',
+  };
+  const target = document.getElementById(viewMap[tabName]);
+  if (target) target.classList.remove('hidden');
+
+  // Update header tab text (preserve network badge — textContent not innerHTML)
+  const headerTab = document.getElementById('header-tab-name');
+  if (headerTab) {
+    const labels = { dashboard: 'Dashboard', ratecheck: 'Rate Check', settings: 'Settings' };
+    headerTab.textContent = labels[tabName] || '';
+  }
+
+  // Update nav active state
+  document.querySelectorAll('.nav-tab').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.tab === tabName);
+  });
+
+  // Call view-specific show function
+  if (tabName === 'dashboard') {
+    showDashboard();
+  } else if (tabName === 'ratecheck') {
+    // Rate check — Plan 2 will fill this in
+  } else if (tabName === 'settings') {
+    showSettings();
+  }
+}
 
 function setStatus(state, text) {
   indicator.className = state;
@@ -88,6 +128,7 @@ async function handlePinSubmit() {
 
   if (result.ok) {
     hidePinGate();
+    showDashboard();
     return;
   }
 
@@ -193,11 +234,19 @@ async function init() {
   onAuthChange(({ isAuthenticated: auth }) => {
     if (auth) {
       hidePinGate();
+      switchTab('dashboard');
+    } else {
+      showPinGate();
     }
   });
 
   App.addListener('appStateChange', async ({ isActive }) => {
     if (isActive) {
+      const bioResult = await tryBiometricAuth();
+      if (bioResult.ok) {
+        hidePinGate();
+        return;
+      }
       const timeout = await checkSessionTimeout();
       if (timeout.expired) {
         showSessionExpired('Session expired');
@@ -207,6 +256,16 @@ async function init() {
   });
 
   checkHealth();
+
+  // Bottom nav tab switching
+  document.querySelectorAll('.nav-tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      if (tab) switchTab(tab);
+    });
+  });
 }
+
+document.getElementById('dashboard-retry-btn')?.addEventListener('click', loadDashboard);
 
 document.addEventListener('DOMContentLoaded', init);
