@@ -6,6 +6,7 @@ import { showDashboard, loadDashboard } from './dashboard.js';
 import { signOut } from './auth.js';
 import { showSettings, hideSettings } from './settings.js';
 import { formatRate, formatQty, getBalancesState } from './dashboard.js';
+import { showRateCheck, hideRateCheck } from './ratecheck.js';
 
 const indicator = document.getElementById('status-indicator');
 const statusText = document.getElementById('status-text');
@@ -55,7 +56,7 @@ function switchTab(tabName) {
   if (tabName === 'dashboard') {
     showDashboard();
   } else if (tabName === 'ratecheck') {
-    // Rate check — Plan 2 will fill this in
+    showRateCheck(getBalancesState());
   } else if (tabName === 'settings') {
     showSettings();
   }
