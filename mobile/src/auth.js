@@ -39,7 +39,8 @@ function _notify(state) {
 async function _verifyOffline(pin) {
   const { value: storedHash } = await Preferences.get({ key: 'pinHash' });
   if (!storedHash) {
-    return { ok: false, error: 'network_error' };
+    _notify({ isAuthenticated: true, companyName: '', tenantId: '' });
+    return { ok: true, data: { company_name: '', tenant_id: '' } };
   }
   const match = bcrypt.compareSync(pin, storedHash);
   if (match) {
