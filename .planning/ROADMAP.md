@@ -143,13 +143,15 @@ Plans:
 5. APK installs and runs on Android 11+ device via `adb install`
 6. All features work correctly in the signed release build
 
-**Plans:**
+**Plans:** 2 plans
 
-- Add app icon and splash screen
-- Generate keystore and configure signing
-- Build signed APK
-- Test installation on Android device
-- Document build and signing process
+**Wave 1**
+
+- [ ] 06-01-PLAN.md — Branded app icon ("SM" vector on #1a1a2e) + splash screen ("Stock Management" text) with launchAutoHide
+
+**Wave 2** *(depends on Wave 1 — file conflict on capacitor.config.ts)*
+
+- [ ] 06-02-PLAN.md — Keystore generation + Gradle signing config + signed APK build + adb install verification + RELEASE.md documentation
 
 ---
 
