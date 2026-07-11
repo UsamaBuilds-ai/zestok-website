@@ -574,7 +574,7 @@ With the Capacitor `androidSplashResourceName: 'splash'` config, the existing sp
 | A1 | `androidSplashResourceName` doesn't work on launch with Android 12 API | Splash Screen Patterns | Low — the standard `styles.xml` approach with `@drawable/splash` always works as fallback |
 | A2 | Capacitor v8 ships `coreSplashScreenVersion 1.2.0` supporting `Theme.SplashScreen` | Environment | Low — confirmed in `variables.gradle`. Version may differ, but parent theme is backward compatible |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Whether to use `@capacitor/assets` or manual vector drawables for icon**
    - What we know: Both approaches work. `@capacitor/assets` requires an install and source image; manual vectors require no dependencies but need correct path data.
