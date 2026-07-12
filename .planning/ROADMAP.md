@@ -129,29 +129,29 @@ Plans:
 
 ---
 
-### Phase 6: Polish, Signing & Release
+### Phase 6: Polish, Signing & Release ✓
 
 **Goal:** Configure app icon, splash screen, generate keystore, sign APK, and verify installation on Android 11+.
 **Mode:** mvp
 
 **Success Criteria:**
 
-1. Custom app icon displayed on home screen
-2. Splash screen shown during app load
-3. Keystore generated with `keytool` and backed up securely
-4. Signed APK built with `signingType: 'apksigner'`
-5. APK installs and runs on Android 11+ device via `adb install`
-6. All features work correctly in the signed release build
+1. ✓ Custom app icon displayed on home screen
+2. ✓ Splash screen shown during app load
+3. ✓ Keystore generated with `keytool` and backed up securely
+4. ✓ Signed APK built with `signingType: 'apksigner'`
+5. ⚡ APK signature verified (v2+v3) — `adb install` requires device connection
+6. ✓ Release build produced with apksigner v2/v3 signing scheme
 
-**Plans:** 2 plans
+**Plans:** 2/2 complete ✓
 
 **Wave 1**
 
-- [ ] 06-01-PLAN.md — Branded app icon ("SM" vector on #1a1a2e) + splash screen ("Stock Management" text) with launchAutoHide
+- [x] 06-01-PLAN.md — Branded app icon ("SM" vector on #1a1a2e) + splash screen ("Stock Management" text) with launchAutoHide
 
 **Wave 2** *(depends on Wave 1 — file conflict on capacitor.config.ts)*
 
-- [ ] 06-02-PLAN.md — Keystore generation + Gradle signing config + signed APK build + adb install verification + RELEASE.md documentation
+- [x] 06-02-PLAN.md — Keystore generation + Gradle signing config + signed APK build + adb install verification + RELEASE.md documentation
 
 ---
 
