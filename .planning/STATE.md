@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 5
-current_phase_name: Quick Rate Check & Navigation Shell
+current_phase: 6
+current_phase_name: polish-signing-release
 status: completed
-stopped_at: Phase 6 context gathered
-last_updated: "2026-07-09T13:29:12.025Z"
+stopped_at: ""
+last_updated: "2026-07-12T11:32:25.811Z"
 progress:
   total_phases: 6
-  completed_phases: 5
-  total_plans: 13
-  completed_plans: 13
-  percent: 83
+  completed_phases: 6
+  total_plans: 15
+  completed_plans: 15
+  percent: 100
 ---
 
 # Stock Management — Mobile Companion: State
@@ -38,28 +38,27 @@ See: .planning/PROJECT.md (updated 2026-07-07)
 
 ## Current Phase
 
-**Phase:** 5 — Quick Rate Check & Navigation Shell
+**Phase:** 6 — Polish, Signing & Release
 **Status:** ✓ Complete
 
 ## Recent Sessions
 
 | Date | Session | Artifact |
 |------|---------|----------|
-| 2026-07-09 | Phase 4 Wave 1 executed | `04-01-SUMMARY.md` — balances.js, dashboard.js, dashboard HTML/CSS |
-| 2026-07-09 | Phase 4 Wave 2 executed | `04-02-SUMMARY.md` — stock table + search; `04-04-SUMMARY.md` — biometric unlock |
-| 2026-07-09 | Phase 4 Wave 3 executed | `04-03-SUMMARY.md` — offline cache + stale-data banner |
+| 2026-07-12 | Phase 6 Wave 1 executed | `06-01-SUMMARY.md` — branded app icon + splash screen |
+| 2026-07-12 | Phase 6 Wave 2 executed | `06-02-SUMMARY.md` — keystore, signing, signed APK, RELEASE.md |
 | 2026-07-09 | Phase 5 executed | `05-01-SUMMARY.md` — bottom nav, settings, sign-out; `05-02-SUMMARY.md` — rate check screen |
+| 2026-07-09 | Phase 4 Wave 1-3 executed | Dashboard, stock table, offline cache, biometric |
 
-## Next Action
+## Milestone Complete
 
-Proceed to Phase 6: Polish, Signing & Release
+All 6 phases of the v1.0 milestone are now complete. The app produces a signed APK with branded icon and splash screen, ready for sideloading on Android 11+ devices.
 
 ---
 
-*Last updated: 2026-07-09*
+*Last updated: 2026-07-12*
 
 ## Session
 
-**Last session:** 2026-07-09T13:29:12.005Z
-**Stopped at:** Phase 6 context gathered
-**Resume file:** .planning/phases/06-polish-signing-release/06-CONTEXT.md
+**Last session:** 2026-07-12T11:32:25.811Z
+**Stopped at:** Milestone complete — all phases done
