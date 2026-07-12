@@ -7,3 +7,5 @@ build/
 Icons/
 src/db/
 src/config.js
+.aider*
+keystore.properties

@@ -7,6 +7,12 @@ const config: CapacitorConfig = {
   server: {
     cleartext: true,
   },
+  android: {
+    buildOptions: {
+      androidReleaseType: 'APK',
+      signingType: 'apksigner',
+    }
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
