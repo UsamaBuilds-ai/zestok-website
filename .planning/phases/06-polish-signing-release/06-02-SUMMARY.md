@@ -8,7 +8,7 @@
 ## Tasks Executed
 
 ### Task 1: Generate keystore and configure Android signing ✓
-- **Keystore:** Generated with `keytool` at `%USERPROFILE%\.android\stock-mgmt-release.jks` (outside repo — D-63)
+    - **Keystore:** Generated with `keytool` at `%USERPROFILE%\.android\zestok-release.jks` (outside repo — D-63)
   - Algorithm: RSA 2048-bit, PKCS12 format
   - Validity: 10,000 days
   - SHA1 Fingerprint: `1A:F9:B5:CF:BD:F3:4B:6F:54:19:02:3B:DA:43:D9:ED:57:0D:4C:0D`
@@ -31,7 +31,7 @@
 
 | Check | Result |
 |-------|--------|
-| Keystore exists outside repo | ✓ Pass (`%USERPROFILE%\.android\stock-mgmt-release.jks`) |
+| Keystore exists outside repo | ✓ Pass (`%USERPROFILE%\.android\zestok-release.jks`) |
 | `keystore.properties` created | ✓ Pass (gitignored) |
 | `signingConfigs` in build.gradle | ✓ Pass |
 | `androidReleaseType: 'APK'` in config | ✓ Pass |
@@ -43,7 +43,7 @@
 | RELEASE.md created | ✓ Pass (124 lines) |
 
 ## Decisions Applied
-- **D-63:** Keystore generated outside repo — `%USERPROFILE%\.android\stock-mgmt-release.jks`
+- **D-63:** Keystore generated outside repo — `%USERPROFILE%\.android\zestok-release.jks`
 - **D-64:** `keystore.properties` + `build.gradle` signingConfigs.release
 - **D-65:** `apksigner` via `signingType: 'apksigner'` in capacitor.config.ts
 - **D-66:** APK built and signature verified (v2+v3); `adb install` requires device connection

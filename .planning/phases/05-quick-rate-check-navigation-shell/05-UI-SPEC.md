@@ -407,7 +407,7 @@ Spinner: `.spinner-sm` — 20px spinner same as existing `.spinner` pattern but 
 
 ```
 ┌─────────────────────────────────────────────┐
-│         Stock Management [Dashboard] ⬤     │  ← header, 24px pad top/bottom
+│         Zestok [Dashboard] ⬤              │  ← header, 24px pad top/bottom
 │                                             │     tab name updates per view
 ├─────────────────────────────────────────────┤
 │                                             │

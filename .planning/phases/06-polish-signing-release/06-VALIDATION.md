@@ -40,8 +40,8 @@ This phase produces a signed, installable APK. Primary validation is installatio
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | Status |
 |---------|------|------|-------------|-----------|-------------------|--------|
-| 06-01-01 | 01 | 1 | REL-02 | Manual | Visual: app icon shows "SM" on dark bg | ⬜ pending |
-| 06-01-02 | 01 | 1 | REL-02 | Manual | Visual: splash shows "Stock Management" white on `#1a1a2e` | ⬜ pending |
+| 06-01-01 | 01 | 1 | REL-02 | Manual | Visual: app icon shows "Z" on dark bg | ⬜ pending |
+| 06-01-02 | 01 | 1 | REL-02 | Manual | Visual: splash shows "Zestok" white on `#1a1a2e` | ⬜ pending |
 | 06-02-01 | 02 | 1 | REL-03 | Audit | Verify keystore exists at documented location | ⬜ pending |
 | 06-02-02 | 02 | 1 | REL-01 | Smoke | `adb install .../app-release.apk && adb shell am start` | ⬜ pending |
 | 06-02-03 | 02 | 1 | REL-01 | Manual | Launch app, verify all features in release build | ⬜ pending |
@@ -58,8 +58,8 @@ This phase produces a signed, installable APK. Primary validation is installatio
 
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
-| App icon displayed | REL-02 | Visual inspection required | Install APK, check home screen icon shows "SM" on `#1a1a2e` |
-| Splash screen on launch | REL-02 | Visual inspection required | Launch app, verify "Stock Management" splash shown briefly |
+| App icon displayed | REL-02 | Visual inspection required | Install APK, check home screen icon shows "Z" on `#1a1a2e` |
+| Splash screen on launch | REL-02 | Visual inspection required | Launch app, verify "Zestok" splash shown briefly |
 | All features in release build | REL-01 | End-to-end functional test | Launch signed APK, test PIN auth, dashboard, rate check, settings, sign-out |
 
 ---

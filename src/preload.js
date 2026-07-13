@@ -22,5 +22,6 @@ contextBridge.exposeInMainWorld("stockApi", {
   onUpdateNotAvailable: (cb) => { ipcRenderer.on("update:not-available", cb); return () => ipcRenderer.removeListener("update:not-available", cb); },
   onUpdateDownloadProgress: (cb) => { ipcRenderer.on("update:download-progress", (_e, p) => cb(p)); return () => ipcRenderer.removeListener("update:download-progress", cb); },
   onUpdateDownloaded: (cb) => { ipcRenderer.on("update:downloaded", (_e, info) => cb(info)); return () => ipcRenderer.removeListener("update:downloaded", cb); },
-  onUpdateError: (cb) => { ipcRenderer.on("update:error", (_e, msg) => cb(msg)); return () => ipcRenderer.removeListener("update:error", cb); }
+  onUpdateError: (cb) => { ipcRenderer.on("update:error", (_e, msg) => cb(msg)); return () => ipcRenderer.removeListener("update:error", cb); },
+  resetAllData: () => ipcRenderer.invoke("data:reset-all")
 });

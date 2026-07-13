@@ -1,4 +1,4 @@
-# Roadmap: Stock Management Mobile Companion
+# Roadmap: Zestok Mobile Companion
 
 **Created:** 2026-07-07
 **Granularity:** Standard (6 phases)
@@ -147,7 +147,7 @@ Plans:
 
 **Wave 1**
 
-- [x] 06-01-PLAN.md — Branded app icon ("SM" vector on #1a1a2e) + splash screen ("Stock Management" text) with launchAutoHide
+- [x] 06-01-PLAN.md — Branded app icon ("Z" vector on #1a1a2e) + splash screen ("Zestok" text) with launchAutoHide
 
 **Wave 2** *(depends on Wave 1 — file conflict on capacitor.config.ts)*
 

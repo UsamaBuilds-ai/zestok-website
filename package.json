@@ -1,15 +1,14 @@
 {
-  "name": "stock-management",
+  "name": "zestok",
   "version": "1.0.0",
-  "description": "Professional Electron stock management desktop app.",
+  "description": "Zestok — modern inventory management desktop app.",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win",
+    "build": "node scripts/build.js",
     "pack": "electron-builder --dir",
     "test": "node --test",
-    "migrate": "node src/db/migrate.js",
-    "server": "node server/index.js"
+    "migrate": "node src/db/migrate.js"
   },
   "keywords": [
     "electron",
@@ -26,12 +25,12 @@
     "supertest": "^7.2.2"
   },
   "build": {
-    "appId": "com.usama.stockmanagement",
-    "productName": "Stock Management",
+    "appId": "com.usama.zestok",
+    "productName": "Zestok",
     "directories": {
       "output": "dist"
     },
-    "icon": "Icons/stock.ico",
+    "icon": "Icons/zestok.ico",
     "files": [
       "src/**/*",
       "Icons/**/*",
@@ -43,26 +42,26 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "Icons/stock.ico",
+      "icon": "Icons/zestok.ico",
       "signAndEditExecutable": false,
-      "artifactName": "Stock.${ext}"
+      "artifactName": "Zestok.${ext}"
     },
     "publish": {
       "provider": "github",
       "owner": "UsamaBuilds-ai",
-      "repo": "stock-management"
+      "repo": "Stock-Management"
     },
     "nsis": {
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": false,
-      "installerIcon": "Icons/stock.ico",
-      "uninstallerIcon": "Icons/stock.ico",
+      "installerIcon": "Icons/zestok.ico",
+      "uninstallerIcon": "Icons/zestok.ico",
       "deleteAppDataOnUninstall": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "guid": "com.usama.stockmanagement",
-      "shortcutName": "Stock Management",
+      "guid": "com.usama.zestok",
+      "shortcutName": "Zestok",
       "include": "build/installer.nsh",
       "runAfterFinish": true,
       "warningsAsErrors": false
@@ -77,9 +76,9 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
     "icojs": "^1.0.0",
-    "pg": "^8.22.0",
     "qrcode": "^1.5.4",
-    "speakeasy": "^2.0.0"
+    "speakeasy": "^2.0.0",
+    "sql.js": "^1.14.1"
   },
   "allowScripts": {
     "electron@31.7.7": true

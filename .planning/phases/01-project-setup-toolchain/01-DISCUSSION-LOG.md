@@ -13,23 +13,23 @@
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| `com.stockmgmt.mobile` | Simple, matches project name | (agent decided) |
-| `com.yourcompany.stockmgmt` | Reverse-domain with company | |
+| `com.zestok.mobile` | Simple, matches project name | (agent decided) |
+| `com.yourcompany.zestok` | Reverse-domain with company | |
 | (other) | Let the agent decide | ✓ |
 
 **User's choice:** Let the agent decide
-**Notes:** Agent chose `com.stockmgmt.mobile`
+**Notes:** Agent chose `com.zestok.mobile`
 
 ---
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| Stock Management | Matches desktop branding | (agent decided) |
+| Zestok | Matches desktop branding | (agent decided) |
 | Stock Mgmt | Shorter, mobile-friendly | |
 | (other) | Let the agent decide | ✓ |
 
 **User's choice:** Let the agent decide
-**Notes:** Agent chose "Stock Management" for clear branding
+**Notes:** Agent chose "Zestok" for clear branding
 
 ---
 

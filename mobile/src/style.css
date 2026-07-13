@@ -71,12 +71,6 @@ main {
   text-align: center;
 }
 
-#server-url {
-  font-size: 0.75rem;
-  color: rgba(224, 224, 224, 0.6);
-  text-align: center;
-}
-
 #retry-btn {
   min-height: 48px;
   border-radius: 8px;
@@ -766,6 +760,98 @@ main {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.settings-item-input {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.settings-input {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.settings-input:focus {
+  border-color: var(--accent);
+}
+
+.settings-action-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#server-setup-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  z-index: 2000;
+}
+
+.setup-card {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 32px 24px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.setup-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.setup-instruction {
+  font-size: 0.85rem;
+  color: rgba(224, 224, 224, 0.7);
+  text-align: center;
+}
+
+.setup-input {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  outline: none;
+  text-align: center;
+}
+
+.setup-input:focus {
+  border-color: var(--accent);
+}
+
+.setup-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .hidden {

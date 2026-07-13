@@ -1,6 +1,6 @@
-# Stock Management
+# Zestok
 
-Stock Management is a desktop stock/inventory application built with Electron, Node.js, Express, and PostgreSQL. It combines a desktop client with a backend API server and is intended for local use as well as self-hosted or cloud deployment.
+Zestok is a modern inventory management application built with Electron, Node.js, Express, and SQLite. It combines a desktop client with a backend API server and is intended for local use as well as self-hosted or cloud deployment.
 
 ## Features
 

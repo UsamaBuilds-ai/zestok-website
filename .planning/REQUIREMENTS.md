@@ -1,4 +1,4 @@
-# Requirements: Stock Management Mobile Companion
+# Requirements: Zestok Mobile Companion
 
 **Defined:** 2026-07-07
 **Core Value:** Users can check current stock data from their phone at any time without needing access to the desktop app.

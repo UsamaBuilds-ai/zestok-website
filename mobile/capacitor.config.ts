@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.stockmgmt.mobile',
-  appName: 'Stock Management',
+  appId: 'com.zestok.mobile',
+  appName: 'Zestok',
   webDir: 'dist',
   server: {
     cleartext: true,

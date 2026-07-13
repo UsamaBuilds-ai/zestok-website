@@ -121,7 +121,7 @@ No new packages are installed in Phase 5. All functionality uses the existing de
 │                       Capacitor WebView                         │
 │                                                                 │
 │  ┌─────────────────────────────────────────────────────────┐   │
-│  │  Header ("Stock Management" + "[Tab Name]" + net badge)│   │
+│  │  Header ("Zestok" + "[Tab Name]" + net badge)        │   │
 │  ├─────────────────────────────────────────────────────────┤   │
 │  │                                                         │   │
 │  │  ┌──────────┐  ┌──────────────┐  ┌──────────────┐     │   │
@@ -209,7 +209,7 @@ function switchTab(tabName) {
     settings: 'Settings',
   };
   document.querySelector('header').innerHTML = `
-    Stock Management
+    Zestok
     <span id="network-badge" class="network-online">Online</span>
     <span class="header-tab">${headerMap[tabName] || ''}</span>
   `;
@@ -464,7 +464,7 @@ export async function clearSession() {
 **What goes wrong:** D-54 says header text updates per active tab. If the header is rewritten using `innerHTML`, the network badge element is recreated, losing its event listeners or state.
 **Why it happens:** `document.querySelector('header').innerHTML = '...'` removes and recreates DOM nodes.
 **How to avoid:** Instead of replacing the entire header content, update only the relevant text node. Either:
-- Pre-segment the header with spans: `<header><span>Stock Management</span> <span id="header-tab-name">Dashboard</span> <span id="network-badge">...</span></header>`
+- Pre-segment the header with spans: `<header><span>Zestok</span> <span id="header-tab-name">Dashboard</span> <span id="network-badge">...</span></header>`
 - Or update only the tab name text: `document.getElementById('header-tab-name').textContent = tabLabel;`
 
 ### Pitfall 6: Debounce Timer Leak on Tab Switch
@@ -748,7 +748,7 @@ export function formatRate(num) {
 | A4 | The `onAuthChange` subscriber in main.js can be extended to handle `isAuthenticated === false` by showing the PIN gate | Architecture Patterns | Medium — the current subscriber only checks `if (auth)`. Adding an `else { showPinGate(); }` branch is straightforward but `showPinGate()` must be available (it's already defined in main.js scope). Verified. |
 | A5 | Bottom nav height of ~64px is sufficient for 3 tab labels | Code Examples | Low — standard mobile bottom nav height is 56-64px. 64px with `padding-bottom: env(safe-area-inset-bottom)` covers most device configurations. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **[App Version Source]**
    - What we know: Agent discretion. Options are hardcoded constant, Vite `import.meta.env` define, or `navigator.userAgent` parsing.

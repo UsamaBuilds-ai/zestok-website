@@ -1,14 +1,28 @@
 import { Preferences } from '@capacitor/preferences';
+import { getApiUrl, getAppSecret } from './config.js';
 
-const API_BASE = 'http://84.235.249.239:3000/api';
 const DEFAULT_TIMEOUT = 10000;
+
+let _apiBase = null;
+
+async function getApiBase() {
+  if (!_apiBase) {
+    _apiBase = await getApiUrl();
+  }
+  return _apiBase;
+}
 
 export async function getAuthHeaders() {
   const { value: accessPin } = await Preferences.get({ key: 'accessPin' });
+  const headers = {};
   if (accessPin) {
-    return { 'x-access-pin': accessPin };
+    headers['x-access-pin'] = accessPin;
   }
-  return {};
+  const secret = await getAppSecret();
+  if (secret) {
+    headers['x-app-secret'] = secret;
+  }
+  return headers;
 }
 
 export async function apiRequest(path, options = {}) {
@@ -25,10 +39,16 @@ export async function apiRequest(path, options = {}) {
   if (auth) {
     const authHeaders = await getAuthHeaders();
     Object.assign(headers, authHeaders);
+  } else {
+    const secret = await getAppSecret();
+    if (secret) {
+      headers['x-app-secret'] = secret;
+    }
   }
 
   try {
-    const res = await fetch(`${API_BASE}${path}`, {
+    const apiBase = await getApiBase();
+    const res = await fetch(`${apiBase}${path}`, {
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,

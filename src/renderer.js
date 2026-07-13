@@ -1,4 +1,4 @@
-// Named constants (replaces magic numbers)
+﻿// Named constants (replaces magic numbers)
 const PIN_GATE_DELAY_MS = 8000;
 const STATUS_POLL_RETRIES = 3;
 const STATUS_POLL_INTERVAL_MS = 1000;
@@ -38,11 +38,10 @@ const formatRate = (value) => currency.format(Number(value || 0)).replace("PKR",
 
 const todayValue = () => new Date().toISOString().slice(0, 10);
 
-let API = "http://84.235.249.239:3000/api";
+let API = "http://localhost:3000";
 let _currentPin = null;
 let _deviceToken = null;
 let _unlock;
-let _prevServerOk = false;
 let _dirty = false;
 let _unlocked = false;
 let _syncing = false;
@@ -70,7 +69,7 @@ const runSplash = async (configured, companyName) => {
   if (splashGen !== gen) return;
 
   el.innerHTML += "<br>";
-  const line2 = companyName ? `This is ${companyName}` : "This is Stock Management App";
+  const line2 = companyName ? `This is ${companyName}` : "This is Inventory Management App";
   for (let c = 0; c < line2.length; c++) {
     if (splashGen !== gen) return;
     el.innerHTML += line2[c];
@@ -94,7 +93,6 @@ const showPinGate = () => {
   qs("#pinSetup").classList.add("hidden");
   qs("#pinLogin").classList.add("hidden");
   qs("#totpSetup").classList.add("hidden");
-
   let gateTimer = setTimeout(() => {
     qs("#pinLogin").classList.remove("hidden");
     qs("#pinGateTitle").textContent = "Enter your PIN";
@@ -106,7 +104,12 @@ const showPinGate = () => {
     const show = configured ? "pinLogin" : "pinSetup";
     qs(`#${show}`).classList.remove("hidden");
     qs("#pinGateTitle").textContent = configured ? "Enter your PIN" : "Set up your PIN";
-    qs(`#${show === "pinLogin" ? "loginPin" : "setupPin"}`).focus();
+    if (!configured) {
+      qs("#signUpCompanyName").value = state.companyName || "";
+      qs("#signUpCompanyName").focus();
+    } else {
+      qs("#loginPin").focus();
+    }
   };
 
   const pollStatus = async (retries) => {
@@ -126,7 +129,7 @@ const showPinGate = () => {
 
   const statusPromise = pollStatus(STATUS_POLL_RETRIES);
 
-  const localCompanyName = (typeof localStorage !== 'undefined' ? localStorage.getItem('stockCompanyName') : null) || '';
+  const localCompanyName = (typeof localStorage !== 'undefined' ? localStorage.getItem('zestokCompanyName') : null) || '';
   Promise.all([statusPromise]).then(([status]) => {
     state.companyName = status.companyName || localCompanyName || state.companyName;
     showForm(status.configured);
@@ -134,9 +137,16 @@ const showPinGate = () => {
   });
 
   qs("#pinSetupBtn").onclick = handlePinSetup;
-  qs("#pinLoginBtn").onclick = handlePinLogin;
-  qs("#loginPin").onkeydown = (e) => { if (e.key === "Enter") handlePinLogin(); };
+  qs("#pinLoginBtn").onclick = handlePinLogin;  qs("#loginPin").onkeydown = (e) => { if (e.key === "Enter") handlePinLogin(); };
+  let _pinDebounce;
+  qs("#loginPin").oninput = () => {
+    if (_pinDebounce) clearTimeout(_pinDebounce);
+    _pinDebounce = setTimeout(() => {
+      if (qs("#loginPin").value.length >= 4) handlePinLogin();
+    }, 350);
+  };
   qs("#setupPinConfirm").onkeydown = (e) => { if (e.key === "Enter") handlePinSetup(); };
+  qs("#pinLoginLink").onclick = (e) => { e.preventDefault(); showForm(true); };
 
   return new Promise((r) => { _unlock = r; });
 };
@@ -214,6 +224,11 @@ const handlePinSetup = async () => {
   const pin = qs("#setupPin").value;
   const confirm = qs("#setupPinConfirm").value;
   const msg = qs("#pinSetupMsg");
+  const companyName = qs("#signUpCompanyName").value.trim();
+  if (companyName) {
+    state.companyName = companyName;
+    localStorage.setItem("zestokCompanyName", companyName);
+  }
 
   if (!pin || pin.length < 4) { msg.textContent = "PIN must be at least 4 digits"; return; }
   if (pin !== confirm) { msg.textContent = "PINs do not match"; return; }
@@ -229,7 +244,7 @@ const handlePinSetup = async () => {
       qs("#pinSetup").classList.add("hidden");
       qs("#pinLogin").classList.remove("hidden");
       qs("#pinGateTitle").textContent = "Enter your PIN";
-      qs("#pinLoginMsg").textContent = "PIN already exists — enter it to sign in";
+      qs("#pinLoginMsg").textContent = "PIN already exists enter it to sign in";
       qs("#loginPin").focus();
       qs("#setupPin").value = "";
       qs("#setupPinConfirm").value = "";
@@ -361,14 +376,19 @@ const handlePinLogin = async () => {
 const unlockApp = () => {
   if (_unlocked) return;
   _unlocked = true;
-  qs("#pinGate").style.display = "none";
-  qs("#appShell").style.display = "grid";
+  qs("#pinGate").classList.add("fade-out");
 
   const headerName = qs("#headerCompanyName");
   if (headerName) {
     headerName.textContent = state.companyName ? `|| ${state.companyName}` : "";
   }
 
+  setTimeout(() => {
+    qs("#pinGate").style.display = "none";
+    qs("#appShell").style.display = "grid";
+    void qs("#appShell").offsetWidth;
+    qs("#appShell").classList.add("unlocked");
+  }, 350);
   _unlock();
 };
 
@@ -387,17 +407,12 @@ const updateStatus = async () => {
   let serverOk = false;
   try {
     const res = await fetch(`${API}/api/health`);
-    const data = await res.json();
-    serverOk = data.status === "ok";
-    setDot("#serverStatus", serverOk ? "connected" : "stopped", serverOk ? "Server Running" : "Server Stopped");
-  } catch {
-    setDot("#serverStatus", "stopped", "Server Stopped");
-  }
+    serverOk = (await res.json()).status === "ok";
+  } catch { serverOk = false; }
 
-  if (serverOk && !_prevServerOk && _dirty) {
+  if (serverOk && _dirty) {
     await syncToServer();
   }
-  _prevServerOk = serverOk;
 
   try {
     const res = await fetch(`${API}/api/pin/status`);
@@ -419,7 +434,7 @@ const getBalances = () => {
   const items = new Map();
 
   for (const entry of state.entries) {
-    const itemKey = keyFor(entry.item);
+    const itemKey = `${keyFor(entry.item)}|${keyFor(entry.category || "")}`;
     const current = items.get(itemKey) || {
       item: entry.item,
       category: entry.category || "-",
@@ -437,7 +452,6 @@ const getBalances = () => {
       current.outQty += entry.quantity;
     }
 
-    current.category = entry.category || current.category;
     current.balance = current.inQty - current.outQty;
     current.value = current.balance * current.latestRate;
     items.set(itemKey, current);
@@ -529,14 +543,45 @@ const renderBalanceRows = (balances) => {
     : `<tr><td class="empty-row" colspan="7">No stock balance found</td></tr>`;
 };
 
+const updateRateFormState = () => {
+  const itemName = qs("#rateSearch").value;
+  const categoryField = qs("#rateCategory");
+  if (itemName) {
+    const balances = getBalances();
+    const matching = balances.filter(b => keyFor(b.item) === keyFor(itemName));
+    const uniqueCats = [...new Set(matching.map(b => b.category).filter(c => c && c !== "-"))];
+    if (uniqueCats.length === 1) {
+      categoryField.value = uniqueCats[0];
+      categoryField.readOnly = true;
+      categoryField.style.opacity = "0.6";
+    } else {
+      categoryField.readOnly = false;
+      categoryField.style.opacity = "1";
+    }
+  } else {
+    categoryField.readOnly = false;
+    categoryField.style.opacity = "1";
+  }
+};
+
 const renderRateCheck = (balances) => {
   const selected = keyFor(qs("#rateSearch").value);
-  const item = balances.find((balance) => keyFor(balance.item) === selected);
+  const category = keyFor(qs("#rateCategory").value);
+
+  if (!category) {
+    qs("#latestRate").textContent = "Rs 0";
+    qs("#rateMeta").textContent = selected ? "Select a category" : "No item selected";
+    return;
+  }
+
+  const item = balances.find(b =>
+    keyFor(b.item) === selected && keyFor(b.category) === category
+  );
 
   qs("#latestRate").textContent = item ? formatRate(item.latestRate) : "Rs 0";
   qs("#rateMeta").textContent = item
-    ? `${item.item} balance: ${formatQty(item.balance)}`
-    : "No item selected";
+    ? `${item.item} (${item.category}) balance: ${formatQty(item.balance)}`
+    : "No data for this combination";
 };
 
 const renderReportRows = () => {
@@ -619,37 +664,93 @@ const render = () => {
   renderMetrics(balances);
   renderDatalist(balances);
   renderBalanceRows(balances);
+  updateRateFormState();
   renderRateCheck(balances);
   renderReportHeading();
   renderReportRows();
+  renderItemPreview();
 };
 
-const getItemDetails = (itemName) => {
+const renderItemPreview = () => {
+  const itemName = qs("#item").value;
+  const el = qs("#itemPreview");
+  if (!el) return;
+  if (!itemName) {
+    el.innerHTML = `<p class="preview-placeholder">Type an item name to see balance</p>`;
+    return;
+  }
   const balances = getBalances();
-  return balances.find((item) => keyFor(item.item) === keyFor(itemName));
+  const category = qs("#category").value;
+  const item = balances.find(b => keyFor(b.item) === keyFor(itemName) && keyFor(b.category) === keyFor(category));
+  if (!item) {
+    el.innerHTML = `<p class="preview-placeholder">No data found for "${escapeHtml(itemName)}"</p>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="preview-row">
+      <span class="preview-label">Item</span>
+      <span class="preview-value">${escapeHtml(item.item)}</span>
+    </div>
+    <div class="preview-row">
+      <span class="preview-label">Category</span>
+      <span class="preview-value">${escapeHtml(item.category)}</span>
+    </div>
+    <div class="preview-row">
+      <span class="preview-label">Balance</span>
+      <span class="preview-value">${formatQty(item.balance)}</span>
+    </div>
+    <div class="preview-row">
+      <span class="preview-label">Latest Rate</span>
+      <span class="preview-value">${formatRate(item.latestRate)}</span>
+    </div>
+    <div class="preview-row">
+      <span class="preview-label">Stock Value</span>
+      <span class="preview-value">${formatRate(item.value)}</span>
+    </div>`;
+};
+
+const getItemDetails = (itemName, category) => {
+  const balances = getBalances();
+  if (category) {
+    return balances.find((item) => keyFor(item.item) === keyFor(itemName) && keyFor(item.category) === keyFor(category));
+  }
+  return null;
 };
 
 const updateEntryFormState = () => {
   const type = qs("#type").value;
   const itemName = qs("#item").value;
-  const itemDetails = getItemDetails(itemName);
   const rateField = qs("#rate");
   const categoryField = qs("#category");
 
+  if (itemName) {
+    const balances = getBalances();
+    const matching = balances.filter(b => keyFor(b.item) === keyFor(itemName));
+    const uniqueCats = [...new Set(matching.map(b => b.category).filter(c => c && c !== "-"))];
+    if (uniqueCats.length === 1) {
+      categoryField.value = uniqueCats[0];
+      categoryField.readOnly = true;
+      categoryField.style.opacity = "0.6";
+    } else {
+      categoryField.readOnly = false;
+      categoryField.style.opacity = "1";
+    }
+  } else {
+    categoryField.readOnly = false;
+    categoryField.style.opacity = "1";
+  }
+
+  const itemDetails = itemName && categoryField.value ? getItemDetails(itemName, categoryField.value) : null;
+
   if (type === "out") {
     if (itemDetails) {
-      categoryField.value = itemDetails.category;
       rateField.value = itemDetails.latestRate || 0;
     }
     rateField.disabled = true;
     rateField.style.opacity = "0.6";
-    categoryField.readOnly = true;
-    categoryField.style.opacity = "0.6";
   } else {
     rateField.disabled = false;
     rateField.style.opacity = "1";
-    categoryField.readOnly = false;
-    categoryField.style.opacity = "1";
   }
 };
 
@@ -660,6 +761,79 @@ const escapeHtml = (value) =>
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+
+let _ddSkip = false;
+
+const renderDD = (listId, filter, getItems, state) => {
+  const el = qs(listId);
+  if (!el) return;
+  let items = getItems();
+  if (filter) {
+    const key = keyFor(filter);
+    items = items.filter(i => keyFor(i).includes(key));
+  }
+  if (!items.length) {
+    el.innerHTML = '<div class="dropdown-item empty">No items found</div>';
+    el.classList.add("open");
+    state.index = -1;
+    return;
+  }
+  el.innerHTML = items.map((item, i) =>
+    `<div class="dropdown-item${i === state.index ? " active" : ""}" data-value="${escapeHtml(item)}">${escapeHtml(item)}</div>`
+  ).join("");
+  el.classList.add("open");
+};
+
+const showDD = (inputId, listId, showAll, getItems, state) => {
+  if (_ddSkip) return;
+  const input = qs(inputId);
+  renderDD(listId, showAll ? "" : input.value, getItems, state);
+};
+
+const hideDD = (listId, state) => {
+  const el = qs(listId);
+  if (el) el.classList.remove("open");
+  state.index = -1;
+};
+
+const selectDD = (inputId, listId, value, state) => {
+  _ddSkip = true;
+  qs(inputId).value = value;
+  hideDD(listId, state);
+  qs(inputId).dispatchEvent(new Event("input", { bubbles: true }));
+  _ddSkip = false;
+};
+
+const handleDDKeydown = (e, listId, inputId, getItems, state) => {
+  const items = qs(listId).querySelectorAll(".dropdown-item:not(.empty)");
+  if (!items.length) return;
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    state.index = Math.min(state.index + 1, items.length - 1);
+    renderDD(listId, keyFor(qs(inputId).value), getItems, state);
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    state.index = Math.max(state.index - 1, 0);
+    renderDD(listId, keyFor(qs(inputId).value), getItems, state);
+  } else if (e.key === "Enter" && state.index >= 0) {
+    e.preventDefault();
+    selectDD(inputId, listId, items[state.index].dataset.value, state);
+  } else if (e.key === "Escape") {
+    hideDD(listId, state);
+  }
+};
+
+const bindDD = (inputId, listId, getItems) => {
+  const state = { index: -1 };
+  qs(inputId).addEventListener("input", () => showDD(inputId, listId, false, getItems, state));
+  qs(inputId).addEventListener("focus", () => showDD(inputId, listId, true, getItems, state));
+  qs(inputId).addEventListener("blur", () => setTimeout(() => hideDD(listId, state), 150));
+  qs(inputId).addEventListener("keydown", (e) => handleDDKeydown(e, listId, inputId, getItems, state));
+  qs(listId).addEventListener("mousedown", (e) => {
+    const item = e.target.closest(".dropdown-item:not(.empty)");
+    if (item) selectDD(inputId, listId, item.dataset.value, state);
+  });
+};
 
 const handleSubmit = async (event) => {
   event.preventDefault();
@@ -732,7 +906,7 @@ const exportCsv = () => {
   const searchValue = qs("#reportSearch").value.trim();
   const label = searchValue ? searchValue.replace(/\s+/g, '-') : (filterType !== "all" ? filterType : "all");
   link.href = url;
-  link.download = `stock-report-${label}-${todayValue()}.csv`;
+  link.download = `zestok-report-${label}-${todayValue()}.csv`;
   link.click();
   URL.revokeObjectURL(url);
 };
@@ -778,9 +952,46 @@ const bindEvents = () => {
   });
 
   qs("#type").addEventListener("change", updateEntryFormState);
-  qs("#item").addEventListener("input", updateEntryFormState);
+  qs("#item").addEventListener("input", () => {
+    updateEntryFormState();
+    renderItemPreview();
+  });
+  qs("#category").addEventListener("input", () => {
+    updateEntryFormState();
+    renderItemPreview();
+  });
 
-  ["#dashboardSearch", "#rateSearch", "#reportSearch", "#reportType"].forEach((selector) => {
+  bindDD("#item", "#itemDropdown", () => [...new Set(getBalances().map(b => b.item))].sort());
+  bindDD("#category", "#categoryDropdown", () => {
+    const selectedItem = keyFor(qs("#item").value);
+    if (!selectedItem) {
+      return [...new Set(getBalances().map(b => b.category).filter(c => c && c !== "-"))].sort();
+    }
+    return [...new Set(
+      getBalances()
+        .filter(b => keyFor(b.item) === selectedItem)
+        .map(b => b.category)
+        .filter(c => c && c !== "-")
+    )].sort();
+  });
+  bindDD("#rateSearch", "#rateSearchDropdown", () => [...new Set(getBalances().map(b => b.item))].sort());
+  bindDD("#rateCategory", "#rateCategoryDropdown", () => {
+    const selectedItem = keyFor(qs("#rateSearch").value);
+    if (!selectedItem) return [];
+    return [...new Set(
+      getBalances()
+        .filter(b => keyFor(b.item) === selectedItem)
+        .map(b => b.category)
+        .filter(c => c && c !== "-")
+    )].sort();
+  });
+  qs("#rateSearch").addEventListener("input", () => {
+    updateRateFormState();
+    render();
+  });
+  qs("#rateCategory").addEventListener("input", render);
+
+  ["#dashboardSearch", "#reportSearch", "#reportType"].forEach((selector) => {
     qs(selector).addEventListener("input", render);
   });
 
@@ -793,6 +1004,21 @@ const bindEvents = () => {
 
   qs("#exportCsv").addEventListener("click", exportCsv);
   qs("#exportPdf").addEventListener("click", exportPdf);
+
+  qs("#resetAppLink").addEventListener("click", async (e) => {
+    e.preventDefault();
+    if (!confirm("Reset all local data?\n\nThis will clear all entries, PIN, and settings. Server data will NOT be affected.")) return;
+    if (!confirm("Are you sure? This cannot be undone.")) return;
+    try {
+      await window.stockApi.resetAllData();
+      localStorage.clear();
+      state.entries = [];
+      render();
+      alert("Local data has been reset. Restart the app to set up again.");
+    } catch (err) {
+      alert("Failed to reset data: " + (err.message || "Unknown error"));
+    }
+  });
 };
 
 const setupUpdater = () => {
@@ -861,7 +1087,7 @@ const setupUpdater = () => {
 const init = async () => {
   try {
     const cfg = await window.stockApi.getConfig();
-    API = cfg?.apiUrl || await window.stockApi.getApiUrl() || "http://localhost:3000/api";
+    API = cfg?.apiUrl || await window.stockApi.getApiUrl() || "http://localhost:3000";
     _deviceToken = cfg?.deviceToken || null;
 
     await showPinGate();
@@ -907,3 +1133,8 @@ const init = async () => {
 };
 
 init();
+
+
+
+
+

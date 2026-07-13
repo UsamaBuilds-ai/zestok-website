@@ -1,35 +1,58 @@
 import { getHealth } from './api.js';
 import { getCompanyName, signOut } from './auth.js';
 import { isConnected } from './connectivity.js';
+import { getSavedServerIp, setServerIp, clearServerIp, getServerConfig } from './config.js';
 
 const APP_VERSION = '1.0.0';
 
 let _healthTimer = null;
 
-export function showSettings() {
+export async function showSettings() {
   document.getElementById('settings-view').classList.remove('hidden');
 
-  // Company name
   const companyEl = document.getElementById('settings-company');
   if (companyEl) {
     companyEl.textContent = getCompanyName() || '—';
   }
 
-  // App version
   const versionEl = document.getElementById('settings-version');
   if (versionEl) {
     versionEl.textContent = APP_VERSION;
   }
 
-  // Server health — fetch live
-  updateHealthStatus();
+  const ipInput = document.getElementById('settings-server-ip');
+  if (ipInput) {
+    const saved = await getSavedServerIp();
+    ipInput.value = saved;
+  }
 
-  // Wire sign-out button (idempotent — use fresh listener each show)
+  updateHealthStatus();
+  wireSettingsEvents();
+}
+
+function wireSettingsEvents() {
+  const applyBtn = document.getElementById('settings-server-apply');
+  if (applyBtn) {
+    const newBtn = applyBtn.cloneNode(true);
+    applyBtn.parentNode.replaceChild(newBtn, applyBtn);
+    newBtn.addEventListener('click', async () => {
+      const ipInput = document.getElementById('settings-server-ip');
+      const ip = (ipInput.value || '').trim();
+      if (ip) {
+        await setServerIp(ip);
+      } else {
+        await clearServerIp();
+      }
+      updateHealthStatus();
+    });
+  }
+
   const signoutBtn = document.getElementById('signout-btn');
   if (signoutBtn) {
     const newBtn = signoutBtn.cloneNode(true);
     signoutBtn.parentNode.replaceChild(newBtn, signoutBtn);
     newBtn.addEventListener('click', async () => {
+      await clearServerIp();
       await signOut();
     });
   }

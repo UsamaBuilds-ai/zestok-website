@@ -1,8 +1,8 @@
-# Stock Management — Mobile Companion
+# Zestok — Mobile Companion
 
 ## What This Is
 
-A read-only Android companion app for the Stock Management desktop system. Users enter a PIN to authenticate against the existing backend server, then view live inventory analytics — metrics, stock balance, and rate checks — directly from their phone. Built for business owners and managers who need quick stock visibility on the go.
+A read-only Android companion app for the Zestok desktop system. Users enter a PIN to authenticate against the existing backend server, then view live inventory analytics — metrics, stock balance, and rate checks — directly from their phone. Built for business owners and managers who need quick stock visibility on the go.
 
 ## Core Value
 
@@ -10,7 +10,7 @@ Users can check current stock data from their phone at any time without needing 
 
 ## Business Context
 
-- **Customer**: Stock Management desktop app users who want mobile access
+- **Customer**: Zestok desktop app users who want mobile access
 - **Revenue model**: Bundled with the existing desktop system
 - **Success metric**: Users can authenticate and view accurate dashboard data within 3 seconds of app launch
 

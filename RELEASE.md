@@ -1,4 +1,4 @@
-# Stock Management Mobile — Release Build Process
+# Zestok Mobile — Release Build Process
 
 ## Prerequisites
 
@@ -19,8 +19,8 @@ echo %ANDROID_HOME%
 
 ## Keystore
 
-- **Location:** `%USERPROFILE%\.android\stock-mgmt-release.jks` (OUTSIDE the repository)
-- **Alias:** `stock-mgmt`
+- **Location:** `%USERPROFILE%\.android\zestok-release.jks` (OUTSIDE the repository)
+- **Alias:** `zestok`
 - **Algorithm:** RSA 2048-bit, PKCS12 format
 - **Validity:** 10000 days (~27 years)
 - **Generated:** 2026-07-12
@@ -30,7 +30,7 @@ echo %ANDROID_HOME%
 
 - [ ] Copy keystore file to secure backup location (USB drive / cloud storage)
 - [ ] Store passwords in password manager (Bitwarden/1Password/KeePass)
-- [ ] Verify backup: `keytool -list -v -keystore <backup-path> -alias stock-mgmt`
+- [ ] Verify backup: `keytool -list -v -keystore <backup-path> -alias zestok`
 - [ ] Print keystore fingerprint and store in safe location
 
 ## Signing Configuration
@@ -56,9 +56,9 @@ cd android
 ```bash
 set ANDROID_HOME=C:\Users\memon\AppData\Local\Android\Sdk
 "%ANDROID_HOME%\build-tools\37.0.0\apksigner" sign ^
-  --ks "%USERPROFILE%\.android\stock-mgmt-release.jks" ^
+  --ks "%USERPROFILE%\.android\zestok-release.jks" ^
   --ks-pass pass:<keystore-password> ^
-  --ks-key-alias stock-mgmt ^
+  --ks-key-alias zestok ^
   --key-pass pass:<key-password> ^
   --out app/build/outputs/apk/release/app-release.apk ^
   app/build/outputs/apk/release/app-release.apk
@@ -81,7 +81,7 @@ Expected output: `Verified using v2 scheme: true` and `Verified using v3 scheme:
 
 ```bash
 adb install -r mobile/android/app/build/outputs/apk/release/app-release.apk
-adb shell am start -n com.stockmgmt.mobile/.MainActivity
+adb shell am start -n com.zestok.mobile/.MainActivity
 ```
 
 ## Versioning
@@ -98,8 +98,8 @@ adb shell am start -n com.stockmgmt.mobile/.MainActivity
 - [ ] Dashboard shows with metrics and stock table
 - [ ] Rate check screen works with autocomplete
 - [ ] Bottom navigation and settings accessible
-- [ ] Splash screen shows "Stock Management" on dark background
-- [ ] App icon shows "SM" branded icon on home screen
+- [ ] Splash screen shows "Zestok" on dark background
+- [ ] App icon shows branded icon on home screen
 
 ## Troubleshooting
 
@@ -113,7 +113,7 @@ Incompatible release type and signing type combination. Ensure `androidReleaseTy
 
 ### Keystore path error in Gradle
 
-Use forward slashes in keystore.properties path: `storeFile=C\:/Users/memon/.android/stock-mgmt-release.jks`
+Use forward slashes in keystore.properties path: `storeFile=C\:/Users/memon/.android/zestok-release.jks`
 
 ### apksigner not found
 

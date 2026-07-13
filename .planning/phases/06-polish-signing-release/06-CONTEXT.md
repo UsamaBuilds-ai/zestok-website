@@ -14,11 +14,11 @@ Final app packaging and release. Configure app icon and splash screen, generate 
 ## Implementation Decisions
 
 ### App Icon
-- **D-59:** Generate standard Android adaptive icon using a simple text-based design — app initials "SM" centered on the existing dark theme background (`#1a1a2e`). Use Android Asset Studio (built into Android Studio) or `@capacitor/assets` to produce all required densities (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi).
+- **D-59:** Generate standard Android adaptive icon using a simple text-based design — app initials "Z" centered on the existing dark theme background (`#1a1a2e`). Use Android Asset Studio (built into Android Studio) or `@capacitor/assets` to produce all required densities (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi).
 - **D-60:** Icon assets stored in `mobile/android/app/src/main/res/` (standard Android location). Source icon file kept in `mobile/` (gitignored) or generated from a script.
 
 ### Splash Screen
-- **D-61:** Use Capacitor's built-in SplashScreen plugin (already configured in `capacitor.config.ts` with 2000ms duration and `#1a1a2e` background). Center the app name "Stock Management" in white text on the dark background as the splash content.
+- **D-61:** Use Capacitor's built-in SplashScreen plugin (already configured in `capacitor.config.ts` with 2000ms duration and `#1a1a2e` background). Center the app name "Zestok" in white text on the dark background as the splash content.
 - **D-62:** Splash auto-hides after the configured duration — no custom dismissal logic needed (matches the existing config). Add `launchAutoHide: true` if not already default.
 
 ### Keystore & APK Signing
@@ -93,9 +93,9 @@ Final app packaging and release. Configure app icon and splash screen, generate 
 <specifics>
 ## Specific Ideas
 
-- App icon: standard Android adaptive icon format (foreground + background layers) — foreground "SM" text in white on transparent, background layer matches app theme `#1a1a2e`
-- Splash: simple centered white text "Stock Management" on `#1a1a2e` background, no logo needed for v1
-- Keystore: `keytool -genkey -v -keystore release.keystore -alias stock-mgmt -keyalg RSA -keysize 2048 -validity 10000`
+- App icon: standard Android adaptive icon format (foreground + background layers) — foreground "Z" text in white on transparent, background layer matches app theme `#1a1a2e`
+- Splash: simple centered white text "Zestok" on `#1a1a2e` background, no logo needed for v1
+- Keystore: `keytool -genkey -v -keystore release.keystore -alias zestok -keyalg RSA -keysize 2048 -validity 10000`
 - Release build: `cd mobile/android && ./gradlew assembleRelease` produces unsigned APK, signing step follows
 - Verification: `adb install mobile/android/app/build/outputs/apk/release/app-release.apk`
 

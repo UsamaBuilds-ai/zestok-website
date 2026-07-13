@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -8,8 +8,8 @@
       script-src 'self';
        style-src 'self' 'unsafe-inline';
         img-src 'self' data:;
-         connect-src 'self' http://localhost:* https://* http://84.235.249.239:3000;" />
-    <title>Stock Management</title>
+          connect-src 'self' http://localhost:* https://*;" />
+    <title>Zestok</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -17,7 +17,7 @@
       <div class="pin-gate-cards">
         <div class="pin-card pin-card-splash">
           <div class="pin-card-header">
-            <h1>Stock Management</h1>
+            <h1>Zestok</h1>
             <p class="pin-splash-company" id="pinSplashCompany"></p>
             <p class="pin-card-subtitle">Welcome</p>
           </div>
@@ -27,14 +27,16 @@
         </div>
         <div class="pin-card pin-card-auth">
           <div class="pin-card-header">
-            <h1>Stock Management</h1>
+            <h1>Zestok</h1>
             <p class="pin-card-subtitle" id="pinGateTitle">Set up your PIN</p>
           </div>
           <div class="pin-auth-mode" id="pinSetup">
             <p class="pin-auth-desc">Create a new PIN for this PC</p>
+            <input id="signUpCompanyName" type="text" placeholder="(E.g. Usama Fabrics)" maxlength="100" />
             <input id="setupPin" type="password" placeholder="New PIN (min 4 digits)" minlength="4" maxlength="6" pattern="[0-9]*" inputmode="numeric" />
             <input id="setupPinConfirm" type="password" placeholder="Confirm PIN" minlength="4" maxlength="6" pattern="[0-9]*" inputmode="numeric" />
             <button class="primary-btn pin-auth-btn" id="pinSetupBtn">Set PIN &amp; Continue</button>
+            <a class="pin-auth-link" id="pinLoginLink" href="#">Already have a PIN? Login here</a>
             <p class="pin-auth-msg" id="pinSetupMsg"></p>
             
           </div>
@@ -47,9 +49,9 @@
           </div>
           <div class="pin-auth-mode hidden" id="totpSetup">
             <p class="pin-auth-desc" id="totpDesc">Enter the 6-digit code from Google Authenticator</p>
-            <img id="totpQrCode" style="display:none;width:200px;height:200px;margin:0 auto 12px;border-radius:8px;" />
-            <div id="totpManual" style="display:none;font-size:12px;color:#64748b;margin-bottom:12px;"></div>
-            <input id="totpCode" type="text" placeholder="000000" maxlength="6" pattern="[0-9]*" inputmode="numeric" style="letter-spacing:8px;font-size:24px;" />
+            <img id="totpQrCode" />
+            <div id="totpManual" class="hidden totp-manual"></div>
+            <input id="totpCode" type="text" placeholder="000000" maxlength="6" pattern="[0-9]*" inputmode="numeric" />
             <button class="primary-btn pin-auth-btn" id="totpVerifyBtn">Verify &amp; Continue</button>
             <p class="pin-auth-msg" id="totpMsg"></p>
             <button class="pin-auth-link" id="totpCancelBtn" type="button">Cancel</button>
@@ -60,14 +62,10 @@
     <div class="app-shell" id="appShell" style="display:none">
       <header class="topbar">
         <div>
-          <h1>Stock Management <span class="header-separator" id="headerCompanyName"></span></h1>
+          <h1>Zestok <span class="header-separator" id="headerCompanyName"></span></h1>
         </div>
         <div class="topbar-right">
           <div class="status-indicators">
-            <div class="status-dot" id="serverStatus" title="Server Status">
-              <span class="dot"></span>
-              <span class="status-label">Server</span>
-            </div>
             <div class="status-dot" id="pinStatus" title="PIN Status">
               <span class="dot"></span>
               <span class="status-label">PIN</span>
@@ -138,7 +136,17 @@
               </div>
               <label class="field">
                 <span>Item Name</span>
-                <input id="rateSearch" list="itemOptions" placeholder="Type item name" />
+                <div class="dropdown-wrap">
+                  <input id="rateSearch" placeholder="Type item name" autocomplete="off" />
+                  <div id="rateSearchDropdown" class="dropdown-list"></div>
+                </div>
+              </label>
+              <label class="field">
+                <span>Category</span>
+                <div class="dropdown-wrap">
+                  <input id="rateCategory" placeholder="Select category" autocomplete="off" />
+                  <div id="rateCategoryDropdown" class="dropdown-list"></div>
+                </div>
               </label>
               <div class="rate-card">
                 <span>Latest Rate</span>
@@ -149,50 +157,70 @@
         </section>
 
         <section class="view" id="entry">
-          <section class="panel entry-panel">
-            <div class="panel-title">
-              <h2>Stock Entry</h2>
-              <p>Add stock in/out transactions</p>
-            </div>
+          <div class="entry-grid">
+            <section class="panel entry-panel">
+              <div class="panel-title">
+                <h2>Stock Entry</h2>
+                <p>Add stock in/out transactions</p>
+              </div>
 
-            <form id="entryForm" class="entry-form">
-              <label class="field">
-                <span>Date</span>
-                <input id="date" name="date" type="date" required />
-              </label>
-              <label class="field">
-                <span>Type</span>
-                <select id="type" name="type" required>
-                  <option value="in">Stock In</option>
-                  <option value="out">Stock Out</option>
-                </select>
-              </label>
+              <form id="entryForm" class="entry-form">
+                <label class="field">
+                  <span>Date</span>
+                  <input id="date" name="date" type="date" required />
+                </label>
+                <label class="field">
+                  <span>Type</span>
+                  <select id="type" name="type" required>
+                    <option value="in">Stock In</option>
+                    <option value="out">Stock Out</option>
+                  </select>
+                </label>
               <label class="field">
                 <span>Item Name</span>
-                <input id="item" name="item" list="itemOptions" placeholder="e.g. 8000 Black" required />
+                <div class="dropdown-wrap">
+                  <input id="item" name="item" placeholder="e.g. 8000 Black" required autocomplete="off" />
+                  <div id="itemDropdown" class="dropdown-list"></div>
+                </div>
               </label>
               <label class="field">
-                <span>Category</span>
-                <input id="category" name="category" list="categoryOptions" placeholder="e.g. Polyster 5000yard" required />
-              </label>
-              <label class="field">
-                <span>Quantity</span>
-                <input id="quantity" name="quantity" type="number" min="0" step="0.01" required />
-              </label>
-              <label class="field">
-                <span>Rate</span>
-                <input id="rate" name="rate" type="number" min="0" step="0.01" required />
-              </label>
-              <label class="field full">
-                <span>Note</span>
-                <input id="note" name="note" placeholder="e.g Candle Thread" required />
-              </label>
-              <div class="form-actions">
-                <button class="secondary-btn" id="resetForm" type="button">Clear</button>
-                <button class="primary-btn" type="submit">Save Entry</button>
-              </div>
-            </form>
-          </section>
+                  <span>Category</span>
+                  <div class="dropdown-wrap">
+                    <input id="category" name="category" placeholder="e.g. Polyster 5000yard" required autocomplete="off" />
+                    <div id="categoryDropdown" class="dropdown-list"></div>
+                  </div>
+                </label>
+                <label class="field">
+                  <span>Quantity</span>
+                  <input id="quantity" name="quantity" type="number" min="0" step="0.01" required />
+                </label>
+                <label class="field">
+                  <span>Rate</span>
+                  <input id="rate" name="rate" type="number" min="0" step="0.01" required />
+                </label>
+                <label class="field full">
+                  <span>Note</span>
+                  <input id="note" name="note" placeholder="e.g Candle Thread" required />
+                </label>
+                <div class="form-actions">
+                  <button class="secondary-btn" id="resetForm" type="button">Clear</button>
+                  <button class="primary-btn" type="submit">Save Entry</button>
+                </div>
+              </form>
+            </section>
+
+            <div class="entry-sidebar">
+              <section class="panel">
+                <div class="panel-title">
+                  <h2>Item Balance Preview</h2>
+                </div>
+                <div id="itemPreview" class="preview-card">
+                  <p class="preview-placeholder">Type an item name to see balance</p>
+                </div>
+              </section>
+
+            </div>
+          </div>
         </section>
 
         <section class="view" id="report">
@@ -242,17 +270,20 @@
           <span id="updateMessage">A new version is available</span>
           <span id="updateProgress" class="update-progress hidden"></span>
           <div class="update-actions">
-            <button id="updateDownloadBtn" class="primary-btn" type="button" style="padding:4px 14px;font-size:13px;">Download</button>
-            <button id="updateInstallBtn" class="primary-btn" type="button" style="padding:4px 14px;font-size:13px;display:none;">Install &amp; Restart</button>
-            <button id="updateDismissBtn" class="secondary-btn" type="button" style="padding:4px 10px;font-size:13px;">Dismiss</button>
+            <button id="updateDownloadBtn" class="primary-btn update-btn" type="button">Download</button>
+            <button id="updateInstallBtn" class="primary-btn update-btn" type="button" style="display:none;">Install &amp; Restart</button>
+            <button id="updateDismissBtn" class="secondary-btn update-btn-sm" type="button">Dismiss</button>
           </div>
         </div>
         <footer>
           <span>Build by Usama | v<span id="appVersion"></span></span>
           <span>For Any Query Contact # 0314-2958627</span>
+          <a href="#" id="resetAppLink" style="color:rgba(255,255,255,0.5);font-size:12px;text-decoration:none;">Reset App Data</a>
         </footer>
     </div>
 
     <script src="./renderer.js"></script>
   </body>
 </html>
+
+

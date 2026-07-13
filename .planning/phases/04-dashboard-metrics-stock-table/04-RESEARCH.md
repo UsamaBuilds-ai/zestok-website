@@ -342,7 +342,7 @@ export async function tryBiometricAuth() {
   // Attempt authentication
   try {
     await BiometricAuth.authenticate({
-      reason: 'Unlock Stock Management',
+      reason: 'Unlock Zestok',
       cancelTitle: 'Use PIN',
       allowDeviceCredential: true,
     });
@@ -730,7 +730,7 @@ async function tryBiometricAuth() {
 
   try {
     await BiometricAuth.authenticate({
-      reason: 'Unlock Stock Management',
+      reason: 'Unlock Zestok',
       cancelTitle: 'Use PIN',
       allowDeviceCredential: true,
     });

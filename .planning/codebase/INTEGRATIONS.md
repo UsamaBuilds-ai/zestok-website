@@ -95,7 +95,7 @@
 ## CI/CD & Deployment
 
 **Hosting:**
-- **Self-hosted / Oracle Cloud** — Server description in `server/package.json`: "Stock Management API server for Oracle Cloud"
+- **Self-hosted / Oracle Cloud** — Server description in `server/package.json`: "Zestok API server for Oracle Cloud"
 - HTTPS supported via Let's Encrypt certificates (env vars: `SSL_CERT_PATH`, `SSL_KEY_PATH`, `SSL_CA_PATH`)
 - Reference: `server/index.js:23-53`
 

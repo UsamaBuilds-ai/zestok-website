@@ -9,3 +9,5 @@ src/db/
 src/config.js
 .aider*
 keystore.properties
+RELEASE.md
+mobile

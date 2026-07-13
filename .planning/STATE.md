@@ -15,7 +15,7 @@ progress:
   percent: 100
 ---
 
-# Stock Management — Mobile Companion: State
+# Zestok — Mobile Companion: State
 
 ## Project Reference
 

@@ -1,4 +1,4 @@
-# Walking Skeleton — Stock Management Mobile Companion
+# Walking Skeleton — Zestok Mobile Companion
 
 **Phase:** 1 — Project Setup & Toolchain
 **Generated:** 2026-07-07
@@ -14,7 +14,7 @@
 | Mobile framework | Capacitor 8.4 | Already in deps (`@capacitor/android@^8.4.1`); reuses the developer's vanilla JS skills from the Electron app; read-only dashboards don't need native performance |
 | Frontend stack | Vanilla JS + Vite 6.1 | The mobile companion is 6 thin screens (PIN entry, dashboard, stock table, rate check, settings). Vanilla JS + Vite keeps bundle ~50KB vs 200KB+ for framework overhead. The developer is already productive in vanilla JS from the Electron project. Frameworks add zero value for this scope. |
 | Project layout | `mobile/` subdirectory | Separate from Electron `src/`; clean separation without workspace tooling overhead. Capacitor config, Vite config, and Android project all live under `mobile/`. |
-| App identity | `com.stockmgmt.mobile` / "Stock Management" | D-01, D-02: reverse-domain convention matching project; desktop branding consistency on home screen |
+| App identity | `com.zestok.mobile` / "Zestok" | D-01, D-02: reverse-domain convention matching project; desktop branding consistency on home screen |
 | Backend URL | `http://84.235.249.239:3000` | D-04: matches existing Electron app's server config; HTTP not HTTPS (cleartext required) |
 | HTTP client | CapacitorHttp (bundled in `@capacitor/core`) | Native Android HTTP (OkHttp) bypasses browser CORS; bundled with core — no separate install; full timeout control |
 | Local storage | `@capacitor/preferences` | Maps to Android SharedPreferences — explicitly preserved by OS unlike WebView localStorage which can be evicted under memory pressure |
@@ -63,7 +63,7 @@
 
 These architectural decisions from Phase 1 are **locked** — future phases build on them, they do not renegotiate them:
 
-1. `appId: "com.stockmgmt.mobile"` — used for all future Android manifest references
+1. `appId: "com.zestok.mobile"` — used for all future Android manifest references
 2. `webDir: "dist"` — all Vite builds output to `mobile/dist/`; `npx cap sync` copies from there
 3. `server.url: "http://84.235.249.239:3000"` — all API calls use this base URL
 4. `server.cleartext: true` — cleartext HTTP is enabled; Phase 2 adds domain-specific config

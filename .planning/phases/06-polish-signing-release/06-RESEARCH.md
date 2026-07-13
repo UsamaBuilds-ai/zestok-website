@@ -19,11 +19,11 @@ All environment dependencies are confirmed present: Android SDK 36, JDK 21, keyt
 
 ### Locked Decisions
 
-**D-59:** Generate standard Android adaptive icon using a simple text-based design — app initials "SM" centered on the existing dark theme background (`#1a1a2e`). Use Android Asset Studio (built into Android Studio) or `@capacitor/assets` to produce all required densities (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi).
+**D-59:** Generate standard Android adaptive icon using a simple text-based design — app initials "Z" centered on the existing dark theme background (`#1a1a2e`). Use Android Asset Studio (built into Android Studio) or `@capacitor/assets` to produce all required densities (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi).
 
 **D-60:** Icon assets stored in `mobile/android/app/src/main/res/` (standard Android location). Source icon file kept in `mobile/` (gitignored) or generated from a script.
 
-**D-61:** Use Capacitor's built-in SplashScreen plugin (already configured in `capacitor.config.ts` with 2000ms duration and `#1a1a2e` background). Center the app name "Stock Management" in white text on the dark background as the splash content.
+**D-61:** Use Capacitor's built-in SplashScreen plugin (already configured in `capacitor.config.ts` with 2000ms duration and `#1a1a2e` background). Center the app name "Zestok" in white text on the dark background as the splash content.
 
 **D-62:** Splash auto-hides after the configured duration — no custom dismissal logic needed (matches the existing config). Add `launchAutoHide: true` if not already default.
 
@@ -59,7 +59,7 @@ None — discussion stayed within phase scope.
 | ID | Description | Research Support |
 |----|-------------|------------------|
 | REL-01 | Signed APK produced that installs on Android 11+ | `keytool` generates keystore; `build.gradle` signingConfig with `keystore.properties`; `npx cap build android` with `androidReleaseType: 'APK'` and `signingType: 'apksigner'` produces valid signed APK. `adb install` verifies on Android 11+. |
-| REL-02 | App has custom icon and splash screen | Adaptive icon via vector drawable foreground ("SM" text) + `#1a1a2e` background; splash via Capacitor SplashScreen plugin + `@drawable/splash` with white "Stock Management" text on `#1a1a2e` background. |
+| REL-02 | App has custom icon and splash screen | Adaptive icon via vector drawable foreground ("Z" text) + `#1a1a2e` background; splash via Capacitor SplashScreen plugin + `@drawable/splash` with white "Zestok" text on `#1a1a2e` background. |
 | REL-03 | Keystore backed up securely | Keystore stored outside repo (gitignored), documented in `RELEASE.md`; developer responsible for secure backup. |
 </phase_requirements>
 
@@ -180,7 +180,7 @@ stock-management/
 │   │   │       ├── drawable/
 │   │   │       │   └── ic_launcher_background.xml  # MODIFY: replace grid with solid #1a1a2e
 │   │   │       ├── drawable-v24/
-│   │   │       │   └── ic_launcher_foreground.xml  # MODIFY: replace with "SM" vector text
+│   │   │       │   └── ic_launcher_foreground.xml  # MODIFY: replace with "Z" vector text
 │   │   │       ├── drawable-port-*/                 # REPLACE splash.png with text-based versions
 │   │   │       ├── drawable-land-*/                 # REPLACE splash.png with text-based versions
 │   │   │       └── mipmap-anydpi-v26/
@@ -196,17 +196,17 @@ stock-management/
 
 ### Pattern 1: Adaptive Icon as Vector Text Drawable
 
-**What:** Replace the default Capacitor icon foreground (Android head) with a vector drawable rendering "SM" text centered on a `#1a1a2e` background. The adaptive icon system uses two layers: background (solid color or vector) and foreground (104×104dp safe zone within 108×108dp canvas).
+**What:** Replace the default Capacitor icon foreground (Android head) with a vector drawable rendering "Z" text centered on a `#1a1a2e` background. The adaptive icon system uses two layers: background (solid color or vector) and foreground (104×104dp safe zone within 108×108dp canvas).
 
 **When to use:** Standard Android 8+ (API 26+) adaptive icon format. Fallback PNGs in mipmap-* directories handle pre-API-26 devices.
 
 **Implementation:**
 - Background layer: Change `drawable/ic_launcher_background.xml` from the grid pattern vector to a solid `#1a1a2e` rectangle.
-- Foreground layer: Replace `drawable-v24/ic_launcher_foreground.xml` with a vector containing centered "SM" text. Use `android:fillColor="#FFFFFF"` and position text within the 72dp safe zone circle.
+- Foreground layer: Replace `drawable-v24/ic_launcher_foreground.xml` with a vector containing centered "Z" text. Use `android:fillColor="#FFFFFF"` and position text within the 72dp safe zone circle.
 - Background color resource: Change `values/ic_launcher_background.xml` from `#FFFFFF` to `#1a1a2e` (this is used by pre-v26 fallback paths).
 
 **Vector text drawable approach:**
-Using `android.graphics.Typeface` is not available in vector drawables. Instead, render "SM" as vector paths. A practical approach is to generate the vector via `@capacitor/assets` easy mode (which handles text-to-vector conversion) or manually craft a simple geometric "SM" as path data.
+Using `android.graphics.Typeface` is not available in vector drawables. Instead, render "Z" as vector paths. A practical approach is to generate the vector via `@capacitor/assets` easy mode (which handles text-to-vector conversion) or manually craft a simple geometric "Z" as path data.
 
 **Agent's discretion:** The exact rendering approach (manual vector paths vs. `@capacitor/assets` easy mode with a generated source image).
 
@@ -216,7 +216,7 @@ Using `android.graphics.Typeface` is not available in vector drawables. Instead,
 
 **When to use:** Standard Capacitor pattern — splash image is placed in Android `drawable-*` resources and referenced by the launch theme.
 
-**Change plan:** Replace the splash PNGs with text-based images (white "Stock Management" centered on `#1a1a2e`). The simplest approach: generate new splash PNGs via `@capacitor/assets` if using the tool, or create a vector drawable for the splash content.
+**Change plan:** Replace the splash PNGs with text-based images (white "Zestok" centered on `#1a1a2e`). The simplest approach: generate new splash PNGs via `@capacitor/assets` if using the tool, or create a vector drawable for the splash content.
 
 **`capacitor.config.ts` update:**
 ```typescript
@@ -236,9 +236,9 @@ SplashScreen: {
 
 **`keystore.properties` (gitignored):**
 ```properties
-storeFile=C\\:/Users/memon/.android/stock-mgmt-keystore.jks
+storeFile=C\\:/Users/memon/.android/zestok-keystore.jks
 storePassword=<strong-password>
-keyAlias=stock-mgmt
+keyAlias=zestok
 keyPassword=<same-strong-password>
 ```
 
@@ -349,15 +349,15 @@ Verified patterns from official sources:
 ### Keystore Generation
 ```bash
 # Generate RSA 2048-bit keystore (PKCS12 format, recommended)
-keytool -genkey -v -keystore stock-mgmt-release.jks \
-  -alias stock-mgmt \
+keytool -genkey -v -keystore zestok-release.jks \
+  -alias zestok \
   -keyalg RSA \
   -keysize 2048 \
   -validity 10000 \
   -storetype PKCS12
 
 # Verify keystore contents
-keytool -list -v -keystore stock-mgmt-release.jks -alias stock-mgmt
+keytool -list -v -keystore zestok-release.jks -alias zestok
 ```
 
 ### signingConfig in build.gradle with keystore.properties
@@ -370,10 +370,10 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.stockmgmt.mobile"
+    namespace = "com.zestok.mobile"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.stockmgmt.mobile"
+        applicationId "com.zestok.mobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -402,9 +402,9 @@ android {
 
 ### keystore.properties (gitignored)
 ```properties
-storeFile=C:/Users/memon/.android/stock-mgmt-release.jks
+storeFile=C:/Users/memon/.android/zestok-release.jks
 storePassword=<use-a-strong-password>
-keyAlias=stock-mgmt
+keyAlias=zestok
 keyPassword=<use-a-strong-password>
 ```
 
@@ -413,8 +413,8 @@ keyPassword=<use-a-strong-password>
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.stockmgmt.mobile',
-  appName: 'Stock Management',
+  appId: 'com.zestok.mobile',
+  appName: 'Zestok',
   webDir: 'dist',
   server: {
     cleartext: true,
@@ -493,10 +493,10 @@ apksigner verify mobile/android/app/build/outputs/apk/release/app-release.apk
 </resources>
 ```
 
-### Adaptive Icon — Foreground "SM" Text
+### Adaptive Icon — Foreground "Z" Text
 ```xml
 <!-- mobile/android/app/src/main/res/drawable-v24/ic_launcher_foreground.xml -->
-<!-- REPLACE Android head with centered "SM" text -->
+<!-- REPLACE Android head with centered "Z" text -->
 <!-- This is a simplified path-based version. Agent's discretion on exact rendering. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
@@ -516,14 +516,14 @@ apksigner verify mobile/android/app/build/outputs/apk/release/app-release.apk
 </vector>
 ```
 
-**Important note on icon foreground:** The above path data is a simplified representation. The actual vector paths for good-looking text should be generated via `@capacitor/assets` or a design tool. The agent may opt to use `@capacitor/assets` easy mode with a 1024x1024 source image containing white "SM" on transparent, which produces proper vectorized output.
+**Important note on icon foreground:** The above path data is a simplified representation. The actual vector paths for good-looking text should be generated via `@capacitor/assets` or a design tool. The agent may opt to use `@capacitor/assets` easy mode with a 1024x1024 source image containing white "Z" on transparent, which produces proper vectorized output.
 
 ### Splash Screen — Image Replacement
 The existing `drawable-port-*/splash.png` and `drawable-land-*/splash.png` files (Capacitor logo) need replacement. Two approaches:
 
 **Approach A (Recommended):** Use `@capacitor/assets` easy mode to generate from a source logo image:
 ```bash
-# Create assets/splash.png with white "Stock Management" text on #1a1a2e (1024x1024+)
+# Create assets/splash.png with white "Zestok" text on #1a1a2e (1024x1024+)
 npx @capacitor/assets generate --android \
   --splashBackgroundColor '#1a1a2e' \
   --iconBackgroundColor '#1a1a2e'
@@ -623,9 +623,9 @@ This phase produces an installable APK. The primary validation is installation +
 ### Phase Requirements → Test Map
 | Req ID | Behavior | Test Type | Automated Command | File Exists? |
 |--------|----------|-----------|-------------------|-------------|
-| REL-01 | Signed APK installs on Android 11+ | Smoke | `adb install .../app-release.apk && adb shell am start -n com.stockmgmt.mobile/.MainActivity` | ❌ Manual |
-| REL-02 | Custom icon displayed on home screen | Manual | Visual inspection — app icon shows "SM" on dark background | ❌ Manual |
-| REL-02 | Splash screen shows on launch | Manual | Visual inspection — "Stock Management" white text on dark bg | ❌ Manual |
+| REL-01 | Signed APK installs on Android 11+ | Smoke | `adb install .../app-release.apk && adb shell am start -n com.zestok.mobile/.MainActivity` | ❌ Manual |
+| REL-02 | Custom icon displayed on home screen | Manual | Visual inspection — app icon shows "Z" on dark background | ❌ Manual |
+| REL-02 | Splash screen shows on launch | Manual | Visual inspection — "Zestok" white text on dark bg | ❌ Manual |
 | REL-03 | Keystore backed up | Audit | Verify keystore exists at documented location and backup | ❌ Manual |
 
 ### Sampling Rate

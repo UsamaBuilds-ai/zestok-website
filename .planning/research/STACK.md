@@ -1,6 +1,6 @@
 # Technology Stack
 
-**Project:** Stock Management — Mobile Companion (Android)
+**Project:** Zestok — Mobile Companion (Android)
 **Researched:** 2026-07-07
 **Overall confidence:** HIGH (official Capacitor docs verified) / MEDIUM (community posts)
 
@@ -100,7 +100,7 @@ npx cap init
 ```
 
 You will be prompted for:
-- **App name:** `Stock Management`
+- **App name:** `Zestok`
 - **App Package ID:** `com.usama.stockmanagement` (must match the existing `appId` in package.json's `build.appId`)
 
 This creates `capacitor.config.ts` at the project root.
@@ -112,7 +112,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.usama.stockmanagement',
-  appName: 'Stock Management',
+  appName: 'Zestok',
   webDir: 'www',
   server: {
     // Allow cleartext (HTTP) to the backend server during development.
@@ -223,7 +223,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.usama.stockmanagement',
-  appName: 'Stock Management',
+  appName: 'Zestok',
   webDir: 'www',
   server: {
     cleartext: true,

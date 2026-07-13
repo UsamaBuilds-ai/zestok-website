@@ -1,13 +1,13 @@
 # Project Research Summary
 
-**Project:** Stock Management — Mobile Companion (Android)
-**Domain:** PIN-authenticated read-only Android companion app for Stock Management desktop system
+**Project:** Zestok — Mobile Companion (Android)
+**Domain:** PIN-authenticated read-only Android companion app for Zestok desktop system
 **Researched:** 2026-07-07
 **Confidence:** HIGH (stack, architecture, pitfalls) / MEDIUM (features)
 
 ## Executive Summary
 
-This project is a Capacitor v8-based Android companion app that pairs with an existing Stock Management Electron desktop system. It provides warehouse managers and stock controllers with read-only access to key metrics (total items, balance quantities, stock value, daily movement) and a quick rate-check feature from their mobile devices. The app follows a PIN-authenticated, single-page application (SPA) pattern using vanilla JavaScript — deliberately avoiding framework overhead (React, Vue, etc.) since the mobile interface comprises only 6 thin screens.
+This project is a Capacitor v8-based Android companion app that pairs with an existing Zestok Electron desktop system. It provides warehouse managers and stock controllers with read-only access to key metrics (total items, balance quantities, stock value, daily movement) and a quick rate-check feature from their mobile devices. The app follows a PIN-authenticated, single-page application (SPA) pattern using vanilla JavaScript — deliberately avoiding framework overhead (React, Vue, etc.) since the mobile interface comprises only 6 thin screens.
 
 The recommended approach is a Capacitor 8 + Vite + vanilla JS architecture, reusing the backend API (`http://84.235.249.239:3000`) already serving the desktop app. This keeps the bundle small (~200KB web assets + ~5MB Android shell), avoids a framework learning curve for the developer (who is experienced with vanilla JS from the Electron project), and delivers core value through PIN auth, a 4-card metric dashboard, a scrollable stock balance table with search, and a quick rate-check screen. Session persistence uses `@capacitor/preferences` (Android SharedPreferences) rather than localStorage, which can be evicted by the OS on mobile.
 

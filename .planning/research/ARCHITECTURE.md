@@ -359,7 +359,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.usama.stockmanagement.mobile',
-  appName: 'Stock Management',
+  appName: 'Zestok',
   webDir: 'mobile',
   server: {
     cleartext: true,  // Development only — remove before production

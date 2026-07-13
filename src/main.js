@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
+const http = require("http");
 const { app, BrowserWindow, ipcMain } = require("electron");
 
 process.on('uncaughtException', (err) => {
@@ -94,9 +95,9 @@ const createWindow = () => {
     height: 820,
     minWidth: 980,
     minHeight: 680,
-    title: "Stock Management",
+    title: "Zestok",
     backgroundColor: "#07172e",
-    icon: path.join(__dirname, "..", "Icons", "stock.ico"),
+    icon: path.join(__dirname, "..", "Icons", "zestok.ico"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -159,6 +160,26 @@ app.whenReady().then(async () => {
   ipcMain.handle("update:install", () => autoUpdater.quitAndInstall());
 
   createWindow();
+
+  const apiApp = require('./server');
+  const { initDatabase, setDb } = require('./db/local');
+  const dbPath = path.join(app.getPath('userData'), 'stock.db');
+  const db = await initDatabase(dbPath);
+  setDb(db);
+
+  const serverPort = parseInt(process.env.API_PORT, 10) || 3000;
+  const httpServer = http.createServer(apiApp);
+  httpServer.listen(serverPort, '0.0.0.0', () => {
+    console.log('API server running on port ' + serverPort);
+  });
+  httpServer.on('error', (err) => {
+    console.error('API server error:', err.message);
+  });
+
+  app.on('will-quit', () => {
+    httpServer.close();
+    db.close();
+  });
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -334,8 +355,22 @@ ipcMain.handle("stock:export-report-pdf", async (_event, payload) => {
   const label = payload.searchValue
     ? payload.searchValue.replace(/\s+/g, '-')
     : (payload.filterType !== "all" ? payload.filterType : "all");
-  const fileName = `stock-report-${label}-${new Date().toISOString().slice(0, 10)}.pdf`;
+  const fileName = `zestok-report-${label}-${new Date().toISOString().slice(0, 10)}.pdf`;
   const filePath = path.join(app.getPath("documents"), fileName);
   await fs.writeFile(filePath, pdfData);
   return filePath;
+});
+
+ipcMain.handle("data:reset-all", async () => {
+  const userData = app.getPath("userData");
+  const files = ["stock-pin.json", "stock-data.json", "app-config.json"];
+  for (const file of files) {
+    try {
+      await fs.unlink(path.join(userData, file));
+    } catch {}
+  }
+  try {
+    await fs.unlink(path.join(userData, "stock.db"));
+  } catch {}
+  return true;
 });

@@ -13,13 +13,13 @@
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| Text-based icon | App initials "SM" on dark background | ✓ (agent discretion) |
+| Text-based icon | App initials "Z" on dark background | ✓ (agent discretion) |
 | Custom graphic icon | Bring custom PNG/vector design | |
 | Generate via Android Asset Studio | Built-in Android Studio tool | ✓ (recommended) |
 | Generate via @capacitor/assets CLI | Automated CLI tool | |
 
 **User's choice:** Agent discretion — user deferred all decisions
-**Notes:** Standard Android adaptive icon format with foreground/background layers. White "SM" foreground on `#1a1a2e` background.
+**Notes:** Standard Android adaptive icon format with foreground/background layers. White "Z" foreground on `#1a1a2e` background.
 
 ---
 
@@ -33,7 +33,7 @@
 | WebView-ready dismiss | Hide when webview reports loaded | |
 
 **User's choice:** Agent discretion — user deferred all decisions
-**Notes:** Keep existing Capacitor SplashScreen config. Center app name "Stock Management" in white on dark background.
+**Notes:** Keep existing Capacitor SplashScreen config. Center app name "Zestok" in white on dark background.
 
 ---
 

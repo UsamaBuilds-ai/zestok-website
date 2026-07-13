@@ -1,12 +1,12 @@
 # Feature Landscape
 
-**Domain:** PIN-authenticated read-only Android companion app for Stock Management desktop system
+**Domain:** PIN-authenticated read-only Android companion app for Zestok desktop system
 **Researched:** 2026-07-07
 **Mode:** Ecosystem research (mobile companion app features)
 
 ## Overview
 
-This document maps the feature landscape for a Capacitor-based Android companion app that pairs with the Stock Management desktop system. Features are categorized by whether they are table stakes (users expect them), differentiators (competitive advantage), or anti-features (things to deliberately avoid in v1).
+This document maps the feature landscape for a Capacitor-based Android companion app that pairs with the Zestok desktop system. Features are categorized by whether they are table stakes (users expect them), differentiators (competitive advantage), or anti-features (things to deliberately avoid in v1).
 
 ---
 
@@ -204,7 +204,7 @@ The goal is a working app that delivers on the core value proposition: "Users ca
 
 ## Sources
 
-- **Project context:** `.planning/PROJECT.md`, `src/index.html`, `src/renderer.js` (Stock Management desktop app reference)
+- **Project context:** `.planning/PROJECT.md`, `src/index.html`, `src/renderer.js` (Zestok desktop app reference)
 - **PIN auth patterns:** Industry standard for companion apps (banking apps, authenticator apps, enterprise portals) — 4-6 digit numeric PIN, server-side verification, optional biometric fallback
 - **Mobile dashboard UX:** Material Design 3 guidelines for data display; inventory management mobile apps (Zoho Inventory, Odoo mobile, Lightspeed)
 - **Capacitor patterns:** Capacitor v8 official documentation patterns for Preferences storage, network detection, and biometrics

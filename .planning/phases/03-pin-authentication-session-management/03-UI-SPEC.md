@@ -131,7 +131,7 @@ Destructive reserved for: Inline error messages, retry bar, error borders on inp
 │   ┌──────────────────────────────┐   │
 │   │        PIN GATE CARD         │   │
 │   │                              │   │
-│   │    Stock Management           │   │
+│   │         Zestok                │   │
 │   │    ───────────────────       │   │
 │   │                              │   │
 │   │    Enter your PIN to         │   │

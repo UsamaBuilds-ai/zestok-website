@@ -7,7 +7,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.stockmgmt.mobile"
+    namespace = "com.zestok.mobile"
     compileSdk = rootProject.ext.compileSdkVersion
     signingConfigs {
         release {
@@ -20,7 +20,7 @@ android {
         }
     }
     defaultConfig {
-        applicationId "com.stockmgmt.mobile"
+        applicationId "com.zestok.mobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

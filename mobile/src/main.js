@@ -5,6 +5,7 @@ import { verifyPin, onAuthChange, handleSessionExpiry, checkSessionTimeout, tryB
 import { showDashboard, loadDashboard } from './dashboard.js';
 import { signOut } from './auth.js';
 import { showSettings, hideSettings } from './settings.js';
+import { getSavedServerIp, setServerIp } from './config.js';
 import { formatRate, formatQty, getBalancesState } from './dashboard.js';
 import { showRateCheck, hideRateCheck } from './ratecheck.js';
 
@@ -26,7 +27,7 @@ let _healthCheckRunning = false;
 let _lastErrorType = null;
 let _sessionExpiredTimer = null;
 
-function switchTab(tabName) {
+async function switchTab(tabName) {
   // Hide all views
   const views = ['dashboard-view', 'ratecheck-view', 'settings-view'];
   views.forEach((id) => document.getElementById(id)?.classList.add('hidden'));
@@ -58,7 +59,7 @@ function switchTab(tabName) {
   } else if (tabName === 'ratecheck') {
     showRateCheck(getBalancesState());
   } else if (tabName === 'settings') {
-    showSettings();
+    await showSettings();
   }
 }
 
@@ -222,6 +223,34 @@ async function init() {
   await initConnectivity();
 
   updateNetworkBadge(isConnected());
+
+  const savedIp = await getSavedServerIp();
+  if (!savedIp) {
+    const setupOverlay = document.getElementById('server-setup-overlay');
+    const applyBtn = document.getElementById('setup-apply-btn');
+    const ipInput = document.getElementById('setup-server-ip');
+    if (setupOverlay) setupOverlay.style.display = 'flex';
+    if (ipInput) {
+      ipInput.value = '10.0.2.2';
+      ipInput.focus();
+    }
+    if (applyBtn) {
+      applyBtn.onclick = async () => {
+        const ip = (ipInput.value || '').trim();
+        if (ip) {
+          await setServerIp(ip);
+          if (setupOverlay) setupOverlay.style.display = 'none';
+          showPinGate();
+          checkHealth();
+        }
+      };
+      ipInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') applyBtn.click();
+      });
+    }
+    return;
+  }
+
   showPinGate();
 
   onStatusChange((status) => {
@@ -232,10 +261,10 @@ async function init() {
     }
   });
 
-  onAuthChange(({ isAuthenticated: auth }) => {
+  onAuthChange(async ({ isAuthenticated: auth }) => {
     if (auth) {
       hidePinGate();
-      switchTab('dashboard');
+      await switchTab('dashboard');
     } else {
       showPinGate();
     }
@@ -260,9 +289,9 @@ async function init() {
 
   // Bottom nav tab switching
   document.querySelectorAll('.nav-tab').forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const tab = btn.dataset.tab;
-      if (tab) switchTab(tab);
+      if (tab) await switchTab(tab);
     });
   });
 }

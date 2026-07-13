@@ -14,8 +14,8 @@ Install missing Capacitor packages, configure Capacitor with app identity and pl
 ## Implementation Decisions
 
 ### App Identity
-- **D-01:** appId set to `com.stockmgmt.mobile` — follows reverse-domain convention matching the project name
-- **D-02:** appName set to `"Stock Management"` — matches desktop branding for clarity on mobile home screen
+- **D-01:** appId set to `com.zestok.mobile` — follows reverse-domain convention matching the project name
+- **D-02:** appName set to `"Zestok"` — matches desktop branding for clarity on mobile home screen
 - **D-03:** UIDisplayName inherits from appName
 
 ### Capacitor Configuration
