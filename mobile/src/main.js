@@ -2,11 +2,9 @@ import { getHealth } from './api.js';
 import { App } from '@capacitor/app';
 import { initConnectivity, isConnected, onStatusChange } from './connectivity.js';
 import { verifyPin, onAuthChange, handleSessionExpiry, checkSessionTimeout, tryBiometricAuth } from './auth.js';
-import { showDashboard, loadDashboard } from './dashboard.js';
-import { signOut } from './auth.js';
+import { showDashboard, hideDashboard, loadDashboard, getBalancesState } from './dashboard.js';
 import { showSettings, hideSettings } from './settings.js';
 import { getSavedServerIp, setServerIp } from './config.js';
-import { formatRate, formatQty, getBalancesState } from './dashboard.js';
 import { showRateCheck, hideRateCheck } from './ratecheck.js';
 
 const indicator = document.getElementById('status-indicator');
@@ -31,6 +29,11 @@ async function switchTab(tabName) {
   // Hide all views
   const views = ['dashboard-view', 'ratecheck-view', 'settings-view'];
   views.forEach((id) => document.getElementById(id)?.classList.add('hidden'));
+
+  // Cleanup background timers in hidden views
+  hideDashboard();
+  hideRateCheck();
+  hideSettings();
 
   // Show selected view
   const viewMap = {
@@ -116,7 +119,13 @@ function showSessionExpired(message) {
 
 async function handlePinSubmit() {
   const pin = pinInput.value.trim();
-  if (!pin || pin.length < 4) return;
+  if (!pin || pin.length < 4) {
+    pinError.textContent = 'PIN must be at least 4 digits';
+    pinError.className = 'pin-error';
+    pinInput.classList.add('shake');
+    setTimeout(() => pinInput.classList.remove('shake'), 400);
+    return;
+  }
 
   pinError.textContent = '';
   pinError.className = 'pin-error';
@@ -138,6 +147,7 @@ async function handlePinSubmit() {
   pinInput.disabled = false;
 
   if (result.error === 'rate_limited') {
+    // TODO: Read Retry-After header from server response instead of hardcoding 5s
     let countdown = 5;
     pinError.textContent = `Too many attempts. Try again in ${countdown}s`;
     pinError.className = 'pin-error rate-limit';
@@ -280,6 +290,7 @@ async function init() {
       }
       const timeout = await checkSessionTimeout();
       if (timeout.expired) {
+        await handleSessionExpiry();
         showSessionExpired('Session expired');
       }
       showPinGate();
