@@ -130,7 +130,7 @@ async function handlePinSubmit() {
 
   if (result.ok) {
     hidePinGate();
-    showDashboard();
+    // Auth subscriber handles view switching — do NOT call showDashboard() here
     return;
   }
 
@@ -275,6 +275,7 @@ async function init() {
       const bioResult = await tryBiometricAuth();
       if (bioResult.ok) {
         hidePinGate();
+        await switchTab('dashboard');
         return;
       }
       const timeout = await checkSessionTimeout();

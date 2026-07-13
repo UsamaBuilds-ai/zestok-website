@@ -39,8 +39,7 @@ function _notify(state) {
 async function _verifyOffline(pin) {
   const { value: storedHash } = await Preferences.get({ key: 'pinHash' });
   if (!storedHash) {
-    _notify({ isAuthenticated: true, companyName: '', tenantId: '' });
-    return { ok: true, data: { company_name: '', tenant_id: '' } };
+    return { ok: false, error: 'offline_no_session' };
   }
   const match = bcrypt.compareSync(pin, storedHash);
   if (match) {
@@ -94,9 +93,7 @@ export async function clearSession() {
 }
 
 export async function signOut() {
-  await Preferences.remove({ key: 'accessPin' });
-  await Preferences.remove({ key: BIOMETRIC_ENABLED_KEY });
-  _notify({ isAuthenticated: false, companyName: '', tenantId: '' });
+  await clearSession();
 }
 
 export async function tryBiometricAuth() {
@@ -121,6 +118,9 @@ export async function tryBiometricAuth() {
       allowDeviceCredential: true,
     });
     await Preferences.set({ key: BIOMETRIC_ENABLED_KEY, value: 'true' });
+    const { value: companyName } = await Preferences.get({ key: 'companyName' });
+    const { value: tenantId } = await Preferences.get({ key: 'tenantId' });
+    _notify({ isAuthenticated: true, companyName: companyName || '', tenantId: tenantId || '' });
     return { ok: true };
   } catch (error) {
     if (error instanceof BiometryError) {
