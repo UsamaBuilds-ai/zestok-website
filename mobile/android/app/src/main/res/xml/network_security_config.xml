@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Allow cleartext HTTP only to the specific API server -->
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="false">84.235.249.239</domain>
-    </domain-config>
-    <!-- Block all other cleartext traffic -->
-    <base-config cleartextTrafficPermitted="false" />
+    <base-config cleartextTrafficPermitted="true" />
 </network-security-config>
