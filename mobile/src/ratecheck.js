@@ -1,17 +1,10 @@
 import { keyFor } from './balances.js';
 import { formatRate, formatQty } from './dashboard.js';
+import { escapeHtml } from './utils.js';
 
 let _balances = [];
 let _selectedItem = null;
 let _debounceTimer = null;
-
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
 
 export function showRateCheck(balancesData) {
   _balances = balancesData || [];

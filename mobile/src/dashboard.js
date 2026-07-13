@@ -2,6 +2,7 @@ import { getEntries } from './api.js';
 import { getBalances, keyFor } from './balances.js';
 import { Preferences } from '@capacitor/preferences';
 import { isConnected } from './connectivity.js';
+import { escapeHtml } from './utils.js';
 
 const CACHE_KEY = 'cachedEntries';
 const TS_KEY = 'cachedTimestamp';
@@ -24,14 +25,6 @@ export function formatRate(num) {
   return new Intl.NumberFormat('en-PK', { style: 'currency', currency: 'PKR', maximumFractionDigits: 0 })
     .format(n)
     .replace('PKR', 'Rs');
-}
-
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }
 
 function renderMetrics() {
@@ -72,7 +65,15 @@ export async function loadDashboard() {
   const { value: timestamp } = await Preferences.get({ key: TS_KEY });
 
   if (cached) {
-    _entries = JSON.parse(cached);
+    try {
+      _entries = JSON.parse(cached);
+    } catch {
+      _entries = [];
+      await Preferences.remove({ key: CACHE_KEY });
+      await Preferences.remove({ key: TS_KEY });
+      showErrorMessage('Cached data corrupted. Please refresh.');
+      return { ok: false, error: 'cache_corrupted' };
+    }
     _fromCache = true;
     setState();
     showStaleDataBanner(timestamp || 'unknown');
@@ -144,12 +145,9 @@ export function getBalancesState() {
 }
 
 function debounce(fn, ms = 300) {
-  let timer;
   return (...args) => {
-    clearTimeout(timer);
-    if (_debounceTimer) clearTimeout(_debounceTimer);
-    timer = setTimeout(() => fn(...args), ms);
-    _debounceTimer = timer;
+    clearTimeout(_debounceTimer);
+    _debounceTimer = setTimeout(() => fn(...args), ms);
   };
 }
 
