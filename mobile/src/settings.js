@@ -72,12 +72,12 @@ async function updateHealthStatus() {
   if (!statusEl) return;
 
   if (spinnerEl) spinnerEl.classList.remove('hidden');
-  statusEl.innerHTML = '<span>Checking...</span>';
+  statusEl.textContent = 'Checking...';
   statusEl.className = '';
 
   if (!isConnected()) {
     if (spinnerEl) spinnerEl.classList.add('hidden');
-    statusEl.innerHTML = '<span>Offline</span>';
+    statusEl.textContent = 'Offline';
     statusEl.className = 'settings-health-offline';
     return;
   }
@@ -86,10 +86,10 @@ async function updateHealthStatus() {
   if (spinnerEl) spinnerEl.classList.add('hidden');
 
   if (result.ok) {
-    statusEl.innerHTML = '<span>Connected</span>';
+    statusEl.textContent = 'Connected';
     statusEl.className = 'settings-health-ok';
   } else {
-    statusEl.innerHTML = '<span>Unreachable</span>';
+    statusEl.textContent = 'Unreachable';
     statusEl.className = 'settings-health-error';
   }
 }
