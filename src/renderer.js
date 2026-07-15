@@ -963,27 +963,21 @@ const bindEvents = () => {
 
   bindDD("#item", "#itemDropdown", () => [...new Set(getBalances().map(b => b.item))].sort());
   bindDD("#category", "#categoryDropdown", () => {
+    const allCategories = [...new Set(getBalances().map(b => b.category).filter(c => c && c !== "-"))].sort();
     const selectedItem = keyFor(qs("#item").value);
-    if (!selectedItem) {
-      return [...new Set(getBalances().map(b => b.category).filter(c => c && c !== "-"))].sort();
-    }
-    return [...new Set(
-      getBalances()
-        .filter(b => keyFor(b.item) === selectedItem)
-        .map(b => b.category)
-        .filter(c => c && c !== "-")
-    )].sort();
+    if (!selectedItem) return allCategories;
+    const matching = getBalances().filter(b => keyFor(b.item) === selectedItem);
+    if (matching.length === 0) return allCategories;
+    return [...new Set(matching.map(b => b.category).filter(c => c && c !== "-"))].sort();
   });
   bindDD("#rateSearch", "#rateSearchDropdown", () => [...new Set(getBalances().map(b => b.item))].sort());
   bindDD("#rateCategory", "#rateCategoryDropdown", () => {
+    const allCategories = [...new Set(getBalances().map(b => b.category).filter(c => c && c !== "-"))].sort();
     const selectedItem = keyFor(qs("#rateSearch").value);
-    if (!selectedItem) return [];
-    return [...new Set(
-      getBalances()
-        .filter(b => keyFor(b.item) === selectedItem)
-        .map(b => b.category)
-        .filter(c => c && c !== "-")
-    )].sort();
+    if (!selectedItem) return allCategories;
+    const matching = getBalances().filter(b => keyFor(b.item) === selectedItem);
+    if (matching.length === 0) return allCategories;
+    return [...new Set(matching.map(b => b.category).filter(c => c && c !== "-"))].sort();
   });
   qs("#rateSearch").addEventListener("input", () => {
     updateRateFormState();
@@ -1110,6 +1104,20 @@ const init = async () => {
 
     qs("#date").value = todayValue();
     qs("#appVersion").textContent = await window.stockApi.getVersion();
+
+    try {
+      const ips = await window.stockApi.getLocalIps();
+      const ipLabel = qs("#serverIpLabel");
+      if (ipLabel) {
+        ipLabel.textContent = ips.length ? `IP: ${ips[0]}` : 'IP: —';
+        if (ips.length > 1) {
+          ipLabel.title = ips.join(', ');
+        }
+      }
+    } catch {
+      // Non-critical, silently ignore
+    }
+
     setupUpdater();
     bindEvents();
     render();

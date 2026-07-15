@@ -1,6 +1,8 @@
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const http = require("http");
+const dgram = require("dgram");
+const os = require("os");
 const { app, BrowserWindow, ipcMain } = require("electron");
 
 process.on('uncaughtException', (err) => {
@@ -155,6 +157,18 @@ app.whenReady().then(async () => {
   });
 
   ipcMain.handle("app:version", () => app.getVersion());
+  ipcMain.handle("network:local-ips", () => {
+    const ips = [];
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+      for (const iface of interfaces[name]) {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          ips.push(iface.address);
+        }
+      }
+    }
+    return ips;
+  });
   ipcMain.handle("update:check", () => autoUpdater.checkForUpdates());
   ipcMain.handle("update:download", () => autoUpdater.downloadUpdate());
   ipcMain.handle("update:install", () => autoUpdater.quitAndInstall());
@@ -176,8 +190,34 @@ app.whenReady().then(async () => {
     console.error('API server error:', err.message);
   });
 
+  const DISCOVERY_PORT = 45678;
+  const discoverySocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+  discoverySocket.on('message', (msg, rinfo) => {
+    const request = msg.toString().trim();
+    if (request === 'ZESTOK_DISCOVER_REQ') {
+      const localIps = [];
+      const interfaces = os.networkInterfaces();
+      for (const name of Object.keys(interfaces)) {
+        for (const iface of interfaces[name]) {
+          if (iface.family === 'IPv4' && !iface.internal) {
+            localIps.push(iface.address);
+          }
+        }
+      }
+      for (const ip of localIps) {
+        const response = Buffer.from(`ZESTOK_DISCOVER_RESP:${ip}:${serverPort}`);
+        discoverySocket.send(response, rinfo.port, rinfo.address);
+      }
+    }
+  });
+  discoverySocket.bind(DISCOVERY_PORT, () => {
+    discoverySocket.setBroadcast(true);
+    console.log('Discovery responder listening on port ' + DISCOVERY_PORT);
+  });
+
   app.on('will-quit', () => {
     httpServer.close();
+    discoverySocket.close();
     db.close();
   });
 

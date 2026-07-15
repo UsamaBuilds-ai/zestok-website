@@ -1,11 +1,8 @@
-import { getHealth } from './api.js';
 import { getCompanyName, signOut } from './auth.js';
-import { isConnected } from './connectivity.js';
-import { getSavedServerIp, setServerIp, clearServerIp, getServerConfig } from './config.js';
+import { getSavedServerIp, setServerIp, clearServerIp } from './config.js';
+import { discoverServers } from './discovery.js';
 
 const APP_VERSION = '1.0.0';
-
-let _healthTimer = null;
 
 export async function showSettings() {
   document.getElementById('settings-view').classList.remove('hidden');
@@ -26,7 +23,6 @@ export async function showSettings() {
     ipInput.value = saved;
   }
 
-  updateHealthStatus();
   wireSettingsEvents();
 }
 
@@ -47,6 +43,41 @@ function wireSettingsEvents() {
     });
   }
 
+  const findBtn = document.getElementById('settings-find-btn');
+  if (findBtn) {
+    const newBtn = findBtn.cloneNode(true);
+    findBtn.parentNode.replaceChild(newBtn, findBtn);
+    newBtn.addEventListener('click', async () => {
+      const resultsEl = document.getElementById('settings-discovery-results');
+      if (!resultsEl) return;
+      newBtn.disabled = true;
+      newBtn.textContent = 'Scanning...';
+      resultsEl.classList.remove('hidden');
+      resultsEl.innerHTML = '<div class="discovery-item">Searching for servers...</div>';
+      const servers = await discoverServers();
+      newBtn.disabled = false;
+      newBtn.textContent = 'Find';
+      if (servers.length === 0) {
+        resultsEl.innerHTML = '<div class="discovery-item discovery-empty">No servers found. Make sure the desktop app is running.</div>';
+        return;
+      }
+      resultsEl.innerHTML = '';
+      const ipInput = document.getElementById('settings-server-ip');
+      servers.forEach((s) => {
+        const item = document.createElement('div');
+        item.className = 'discovery-item';
+        item.textContent = `${s.ip}:${s.port}`;
+        item.addEventListener('click', async () => {
+          if (ipInput) ipInput.value = s.ip;
+          resultsEl.classList.add('hidden');
+          await setServerIp(s.ip);
+          updateHealthStatus();
+        });
+        resultsEl.appendChild(item);
+      });
+    });
+  }
+
   const signoutBtn = document.getElementById('signout-btn');
   if (signoutBtn) {
     const newBtn = signoutBtn.cloneNode(true);
@@ -60,36 +91,4 @@ function wireSettingsEvents() {
 
 export function hideSettings() {
   document.getElementById('settings-view').classList.add('hidden');
-  if (_healthTimer) {
-    clearTimeout(_healthTimer);
-    _healthTimer = null;
-  }
-}
-
-async function updateHealthStatus() {
-  const statusEl = document.getElementById('settings-health-value');
-  const spinnerEl = document.getElementById('settings-health-spinner');
-  if (!statusEl) return;
-
-  if (spinnerEl) spinnerEl.classList.remove('hidden');
-  statusEl.textContent = 'Checking...';
-  statusEl.className = '';
-
-  if (!isConnected()) {
-    if (spinnerEl) spinnerEl.classList.add('hidden');
-    statusEl.textContent = 'Offline';
-    statusEl.className = 'settings-health-offline';
-    return;
-  }
-
-  const result = await getHealth();
-  if (spinnerEl) spinnerEl.classList.add('hidden');
-
-  if (result.ok) {
-    statusEl.textContent = 'Connected';
-    statusEl.className = 'settings-health-ok';
-  } else {
-    statusEl.textContent = 'Unreachable';
-    statusEl.className = 'settings-health-error';
-  }
 }

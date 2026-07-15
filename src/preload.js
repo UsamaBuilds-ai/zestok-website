@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld("stockApi", {
   saveDataLocal: (data) => ipcRenderer.invoke("data:save-local", data),
   verifyPin: (pin) => ipcRenderer.invoke("pin:verify", pin),
   getVersion: () => ipcRenderer.invoke("app:version"),
+  getLocalIps: () => ipcRenderer.invoke("network:local-ips"),
   checkForUpdates: () => ipcRenderer.invoke("update:check"),
   downloadUpdate: () => ipcRenderer.invoke("update:download"),
   installUpdate: () => ipcRenderer.invoke("update:install"),

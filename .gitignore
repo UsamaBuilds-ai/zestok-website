@@ -9,5 +9,6 @@ src/db/
 src/config.js
 .aider*
 keystore.properties
-RELEASE.md
 mobile
+RELEASE.md
+rcedit-x64.exe

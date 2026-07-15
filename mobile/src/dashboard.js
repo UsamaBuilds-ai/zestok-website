@@ -3,6 +3,7 @@ import { getBalances, keyFor } from './balances.js';
 import { Preferences } from '@capacitor/preferences';
 import { isConnected } from './connectivity.js';
 import { escapeHtml } from './utils.js';
+import { getCompanyName } from './auth.js';
 
 const CACHE_KEY = 'cachedEntries';
 const TS_KEY = 'cachedTimestamp';
@@ -118,12 +119,53 @@ function showErrorMessage(msg) {
   if (err) err.classList.remove('hidden');
 }
 
+let _pullStartY = 0;
+let _pulling = false;
+
+function showCompanyName() {
+  const el = document.getElementById('dashboard-company');
+  if (el) {
+    const name = getCompanyName();
+    el.textContent = name || '';
+  }
+}
+
+function initPullToRefresh() {
+  const view = document.getElementById('dashboard-view');
+  if (!view || view.dataset.pullInit) return;
+  view.dataset.pullInit = 'true';
+
+  view.addEventListener('touchstart', (e) => {
+    if (view.scrollTop <= 0) {
+      _pullStartY = e.touches[0].clientY;
+      _pulling = false;
+    }
+  }, { passive: true });
+
+  view.addEventListener('touchmove', (e) => {
+    if (view.scrollTop > 0) return;
+    const dy = e.touches[0].clientY - _pullStartY;
+    if (dy > 0) {
+      _pulling = true;
+    }
+  }, { passive: true });
+
+  view.addEventListener('touchend', async () => {
+    if (_pulling) {
+      _pulling = false;
+      await loadDashboard();
+    }
+  }, { passive: true });
+}
+
 export async function showDashboard() {
   document.getElementById('dashboard-view').classList.remove('hidden');
+  showCompanyName();
   if (!_searchInitialized) {
     initSearch();
     _searchInitialized = true;
   }
+  initPullToRefresh();
   await loadDashboard();
 }
 

@@ -1,18 +1,18 @@
 import { getHealth } from './api.js';
 import { App } from '@capacitor/app';
+import { Preferences } from '@capacitor/preferences';
 import { initConnectivity, isConnected, onStatusChange } from './connectivity.js';
 import { verifyPin, onAuthChange, handleSessionExpiry, checkSessionTimeout, tryBiometricAuth } from './auth.js';
 import { showDashboard, hideDashboard, loadDashboard, getBalancesState } from './dashboard.js';
 import { showSettings, hideSettings } from './settings.js';
 import { getSavedServerIp, setServerIp } from './config.js';
 import { showRateCheck, hideRateCheck } from './ratecheck.js';
+import { discoverServers } from './discovery.js';
 
 const indicator = document.getElementById('status-indicator');
 const statusText = document.getElementById('status-text');
 const retryBtn = document.getElementById('retry-btn');
 const networkBadge = document.getElementById('network-badge');
-const retryBar = document.getElementById('retry-bar');
-const retryBarBtn = document.getElementById('retry-bar-btn');
 const inlineError = document.getElementById('inline-error');
 const inlineRetryBtn = document.getElementById('inline-retry-btn');
 const pinGateOverlay = document.getElementById('pin-gate-overlay');
@@ -76,10 +76,6 @@ function updateNetworkBadge(connected) {
   networkBadge.textContent = connected ? 'Online' : 'Offline';
 }
 
-function showRetryBar(show) {
-  retryBar.classList.toggle('hidden', !show);
-}
-
 function showInlineError(show, message) {
   inlineError.classList.toggle('hidden', !show);
   if (message) {
@@ -87,14 +83,21 @@ function showInlineError(show, message) {
   }
 }
 
-function showPinGate() {
+async function showPinGate() {
   pinGateOverlay.style.display = 'flex';
   pinError.textContent = '';
   pinError.className = 'pin-error';
-  pinInput.value = '';
   pinInput.className = 'pin-input';
   pinInput.disabled = false;
-  setTimeout(() => pinInput.focus(), 100);
+
+  const { value: savedPin } = await Preferences.get({ key: 'accessPin' });
+  if (savedPin) {
+    pinInput.value = savedPin;
+    setTimeout(() => handlePinSubmit(), 50);
+  } else {
+    pinInput.value = '';
+    setTimeout(() => pinInput.focus(), 100);
+  }
 }
 
 function hidePinGate() {
@@ -188,38 +191,24 @@ async function checkHealth() {
 
   if (result.ok) {
     setStatus('connected', 'Connected');
-    showRetryBar(false);
     _lastErrorType = null;
   } else if (!isConnected()) {
     setStatus('error', 'No network connection');
-    showRetryBar(false);
     showInlineError(true, 'No internet connection. Check your device and try again.');
     _lastErrorType = 'offline';
     console.error('[health] No network connectivity');
   } else if (result.error === 'network_error') {
     setStatus('error', 'Server unreachable');
-    showRetryBar(true);
     _lastErrorType = 'transient';
     console.error('[health] Server unreachable — network timeout or DNS failure');
   } else {
     setStatus('error', `Server error: ${result.status}`);
-    showRetryBar(true);
     _lastErrorType = 'transient';
     console.error('[health] Server returned error status:', result.status);
   }
 }
 
-function handleRetry() {
-  showRetryBar(false);
-  if (!isConnected()) {
-    showInlineError(true, 'No internet connection. Check your device and try again.');
-    return;
-  }
-  checkHealth();
-}
-
 retryBtn.addEventListener('click', checkHealth);
-retryBarBtn.addEventListener('click', handleRetry);
 inlineRetryBtn.addEventListener('click', checkHealth);
 
 pinInput.addEventListener('keydown', (e) => {
@@ -229,40 +218,7 @@ pinInput.addEventListener('keydown', (e) => {
   }
 });
 
-async function init() {
-  await initConnectivity();
-
-  updateNetworkBadge(isConnected());
-
-  const savedIp = await getSavedServerIp();
-  if (!savedIp) {
-    const setupOverlay = document.getElementById('server-setup-overlay');
-    const applyBtn = document.getElementById('setup-apply-btn');
-    const ipInput = document.getElementById('setup-server-ip');
-    if (setupOverlay) setupOverlay.style.display = 'flex';
-    if (ipInput) {
-      ipInput.value = '10.0.2.2';
-      ipInput.focus();
-    }
-    if (applyBtn) {
-      applyBtn.onclick = async () => {
-        const ip = (ipInput.value || '').trim();
-        if (ip) {
-          await setServerIp(ip);
-          if (setupOverlay) setupOverlay.style.display = 'none';
-          showPinGate();
-          checkHealth();
-        }
-      };
-      ipInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') applyBtn.click();
-      });
-    }
-    return;
-  }
-
-  showPinGate();
-
+function registerAppListeners() {
   onStatusChange((status) => {
     updateNetworkBadge(status.connected);
     if (status.connected && _lastErrorType === 'offline') {
@@ -297,15 +253,84 @@ async function init() {
     }
   });
 
-  checkHealth();
-
-  // Bottom nav tab switching
   document.querySelectorAll('.nav-tab').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const tab = btn.dataset.tab;
       if (tab) await switchTab(tab);
     });
   });
+}
+
+async function onServerConnected() {
+  showPinGate();
+  checkHealth();
+}
+
+async function init() {
+  await initConnectivity();
+
+  updateNetworkBadge(isConnected());
+
+  const savedIp = await getSavedServerIp();
+  if (!savedIp) {
+    const setupOverlay = document.getElementById('server-setup-overlay');
+    const applyBtn = document.getElementById('setup-apply-btn');
+    const findBtn = document.getElementById('setup-find-btn');
+    const ipInput = document.getElementById('setup-server-ip');
+    const discoveryResults = document.getElementById('setup-discovery-results');
+    if (setupOverlay) setupOverlay.style.display = 'flex';
+    if (ipInput) {
+      ipInput.focus();
+    }
+    if (applyBtn) {
+      applyBtn.onclick = async () => {
+        const ip = (ipInput.value || '').trim();
+        if (ip) {
+          await setServerIp(ip);
+          if (setupOverlay) setupOverlay.style.display = 'none';
+          registerAppListeners();
+          onServerConnected();
+        }
+      };
+      ipInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') applyBtn.click();
+      });
+    }
+    if (findBtn) {
+      findBtn.onclick = async () => {
+        findBtn.disabled = true;
+        findBtn.textContent = 'Scanning...';
+        discoveryResults.classList.remove('hidden');
+        discoveryResults.innerHTML = '<div class="discovery-item">Searching for servers...</div>';
+        const servers = await discoverServers();
+        findBtn.disabled = false;
+        findBtn.textContent = 'Find Server';
+        if (servers.length === 0) {
+          discoveryResults.innerHTML = '<div class="discovery-item discovery-empty">No servers found. Make sure the desktop app is running.</div>';
+          return;
+        }
+        discoveryResults.innerHTML = '';
+        servers.forEach((s) => {
+          const item = document.createElement('div');
+          item.className = 'discovery-item';
+          item.textContent = `${s.ip}:${s.port}`;
+          item.addEventListener('click', async () => {
+            ipInput.value = s.ip;
+            discoveryResults.classList.add('hidden');
+            await setServerIp(s.ip);
+            if (setupOverlay) setupOverlay.style.display = 'none';
+            registerAppListeners();
+            onServerConnected();
+          });
+          discoveryResults.appendChild(item);
+        });
+      };
+    }
+    return;
+  }
+
+  registerAppListeners();
+  onServerConnected();
 }
 
 document.getElementById('dashboard-retry-btn')?.addEventListener('click', loadDashboard);

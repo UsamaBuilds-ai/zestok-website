@@ -13,8 +13,10 @@
     <div class="setup-card">
       <div class="setup-title">Zestok</div>
       <div class="setup-instruction">Enter server IP to connect</div>
-      <input id="setup-server-ip" class="setup-input" type="text" placeholder="e.g. 10.0.2.2" autocomplete="off" />
+      <input id="setup-server-ip" class="setup-input" type="text" placeholder="e.g. 192.168.1.100" autocomplete="off" />
       <button id="setup-apply-btn" class="setup-btn">Connect</button>
+      <button id="setup-find-btn" class="setup-btn setup-find-btn">Find Server</button>
+      <div id="setup-discovery-results" class="discovery-results hidden"></div>
     </div>
   </div>
 
@@ -41,9 +43,6 @@
         <p>Unable to reach server</p>
         <button id="inline-retry-btn">Retry</button>
       </div>
-      <div id="status-indicator" class="checking"></div>
-      <p id="status-text">Checking server...</p>
-      <button id="retry-btn">Retry</button>
     </main>
 
     <!-- Rate Check view -->
@@ -84,19 +83,22 @@
           <span class="settings-item-label">Company</span>
           <span class="settings-item-value" id="settings-company">—</span>
         </div>
-        <div class="settings-item">
+        <div class="settings-item settings-server-status" id="settings-server-status">
           <span class="settings-item-label">Server</span>
-          <span class="settings-item-value" id="settings-health-value">
-            <span id="settings-health-spinner" class="spinner-sm hidden"></span>
-            <span>Checking...</span>
-          </span>
+          <div class="settings-server-right">
+            <div id="status-indicator" class="checking"></div>
+            <span id="status-text" class="settings-item-value">Checking...</span>
+          </div>
         </div>
+        <button id="retry-btn" class="settings-retry-btn">Retry</button>
         <div class="settings-item settings-item-input">
           <span class="settings-item-label">Server IP</span>
           <input type="text" id="settings-server-ip" class="settings-input"
                  placeholder="e.g. 192.168.1.100" autocomplete="off" />
           <button id="settings-server-apply" class="settings-action-btn">Apply</button>
+          <button id="settings-find-btn" class="settings-action-btn settings-find-btn">Find</button>
         </div>
+        <div id="settings-discovery-results" class="discovery-results hidden"></div>
         <div class="settings-item">
           <span class="settings-item-label">App Version</span>
           <span class="settings-item-value" id="settings-version">—</span>
@@ -107,6 +109,7 @@
 
     <!-- Dashboard view (hidden until after PIN auth) -->
     <div id="dashboard-view" class="hidden">
+      <div id="dashboard-company" class="dashboard-company"></div>
       <div id="stale-data-banner" class="stale-data-banner hidden">Stale data — last updated ...</div>
 
       <div class="metric-grid">
@@ -160,11 +163,6 @@
     <div id="dashboard-error" class="inline-error hidden">
       <p id="dashboard-error-text">Could not load stock data</p>
       <button id="dashboard-retry-btn" class="action-btn">Retry</button>
-    </div>
-
-    <div id="retry-bar" class="retry-bar hidden">
-      Server unreachable —
-      <button id="retry-bar-btn">Retry</button>
     </div>
   <!-- Bottom navigation bar -->
     <nav id="bottom-nav">
