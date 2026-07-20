@@ -4,7 +4,7 @@ export function getBalances(entries) {
   const items = new Map();
 
   for (const entry of entries) {
-    const itemKey = keyFor(entry.item);
+    const itemKey = `${keyFor(entry.item)}|${keyFor(entry.category || '')}`;
     const current = items.get(itemKey) || {
       item: entry.item,
       category: entry.category || '-',

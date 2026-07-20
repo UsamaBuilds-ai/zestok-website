@@ -660,12 +660,13 @@ const renderReportHeading = () => {
 };
 
 const render = () => {
-  const balances = getBalances();
-  renderMetrics(balances);
-  renderDatalist(balances);
-  renderBalanceRows(balances);
+  const allBalances = getBalances();
+  const activeBalances = allBalances.filter(b => b.balance > 0);
+  renderMetrics(activeBalances);
+  renderDatalist(activeBalances);
+  renderBalanceRows(activeBalances);
   updateRateFormState();
-  renderRateCheck(balances);
+  renderRateCheck(allBalances);
   renderReportHeading();
   renderReportRows();
   renderItemPreview();
@@ -717,6 +718,15 @@ const getItemDetails = (itemName, category) => {
   return null;
 };
 
+const getLastEntryForItem = (itemName) => {
+  const entries = state.entries
+    .filter(e => keyFor(e.item) === keyFor(itemName))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return entries[0] || null;
+};
+
+let _lastAutoItem = "";
+
 const updateEntryFormState = () => {
   const type = qs("#type").value;
   const itemName = qs("#item").value;
@@ -727,8 +737,15 @@ const updateEntryFormState = () => {
     const balances = getBalances();
     const matching = balances.filter(b => keyFor(b.item) === keyFor(itemName));
     const uniqueCats = [...new Set(matching.map(b => b.category).filter(c => c && c !== "-"))];
-    if (uniqueCats.length === 1) {
-      categoryField.value = uniqueCats[0];
+
+    const lastEntry = getLastEntryForItem(itemName);
+
+    if (keyFor(itemName) !== keyFor(_lastAutoItem) && lastEntry && uniqueCats.length > 0) {
+      categoryField.value = lastEntry.category || "";
+      _lastAutoItem = itemName;
+    }
+
+    if (type === "out") {
       categoryField.readOnly = true;
       categoryField.style.opacity = "0.6";
     } else {
@@ -736,6 +753,7 @@ const updateEntryFormState = () => {
       categoryField.style.opacity = "1";
     }
   } else {
+    _lastAutoItem = "";
     categoryField.readOnly = false;
     categoryField.style.opacity = "1";
   }
@@ -749,6 +767,9 @@ const updateEntryFormState = () => {
     rateField.disabled = true;
     rateField.style.opacity = "0.6";
   } else {
+    if (itemDetails) {
+      rateField.value = itemDetails.latestRate || "";
+    }
     rateField.disabled = false;
     rateField.style.opacity = "1";
   }
@@ -855,6 +876,22 @@ const handleSubmit = async (event) => {
     return;
   }
 
+  if (entry.type === "out") {
+    const balances = getBalances();
+    const balance = balances.find(b =>
+      keyFor(b.item) === keyFor(entry.item) && keyFor(b.category) === keyFor(entry.category)
+    );
+    const currentBalance = balance ? balance.balance : 0;
+    if (entry.quantity > currentBalance) {
+      const err = qs("#balanceError");
+      err.textContent = `Insufficient balance! Available: ${formatQty(currentBalance)}`;
+      qs("#quantity").focus();
+      updateEntryFormState();
+      return;
+    }
+    qs("#balanceError").textContent = "";
+  }
+
   state.entries.push(entry);
   await save();
   form.reset();
@@ -948,15 +985,24 @@ const bindEvents = () => {
   qs("#resetForm").addEventListener("click", () => {
     qs("#entryForm").reset();
     qs("#date").value = todayValue();
+    qs("#balanceError").textContent = "";
     updateEntryFormState();
   });
 
-  qs("#type").addEventListener("change", updateEntryFormState);
+  qs("#type").addEventListener("change", () => {
+    qs("#balanceError").textContent = "";
+    updateEntryFormState();
+  });
+  qs("#quantity").addEventListener("input", () => {
+    qs("#balanceError").textContent = "";
+  });
   qs("#item").addEventListener("input", () => {
+    qs("#balanceError").textContent = "";
     updateEntryFormState();
     renderItemPreview();
   });
   qs("#category").addEventListener("input", () => {
+    qs("#balanceError").textContent = "";
     updateEntryFormState();
     renderItemPreview();
   });
@@ -964,6 +1010,7 @@ const bindEvents = () => {
   bindDD("#item", "#itemDropdown", () => [...new Set(getBalances().map(b => b.item))].sort());
   bindDD("#category", "#categoryDropdown", () => {
     const allCategories = [...new Set(getBalances().map(b => b.category).filter(c => c && c !== "-"))].sort();
+    if (qs("#type").value === "in") return allCategories;
     const selectedItem = keyFor(qs("#item").value);
     if (!selectedItem) return allCategories;
     const matching = getBalances().filter(b => keyFor(b.item) === selectedItem);

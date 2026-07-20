@@ -779,6 +779,14 @@ tbody tr:last-child td {
   gap: 10px;
 }
 
+.field-error {
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+  min-height: 16px;
+}
+
 .primary-btn,
 .secondary-btn,
 .danger-btn {

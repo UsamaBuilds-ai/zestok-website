@@ -9,6 +9,20 @@
   <link rel="stylesheet" href="src/style.css" />
 </head>
 <body>
+  <!-- Animated Background -->
+  <div id="bg-animation">
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+  </div>
+
   <div id="server-setup-overlay" style="display:none">
     <div class="setup-card">
       <div class="setup-title">Zestok</div>
@@ -33,44 +47,74 @@
     <div class="spinner-text">Verifying...</div>
   </div>
   <div id="session-expired-banner" class="session-expired-banner hidden"></div>
+  <div id="connection-restored-banner" class="connection-restored-banner hidden">Connected — data refreshed</div>
   <div id="app">
     <header>
       <span id="header-tab-name"></span> Zestok
       <span id="network-badge" class="network-online">Online</span>
     </header>
-    <main>
-      <div id="inline-error" class="inline-error hidden">
-        <p>Unable to reach server</p>
-        <button id="inline-retry-btn">Retry</button>
-      </div>
-    </main>
+    <div id="inline-error" class="inline-error hidden">
+      <p>Unable to reach server</p>
+      <button id="inline-retry-btn">Retry</button>
+    </div>
 
-    <!-- Rate Check view -->
-    <div id="ratecheck-view" class="hidden">
-      <div class="ratecheck-search">
-        <input type="text" id="ratecheck-input" class="ratecheck-input"
-               placeholder="Type item name..." autocomplete="off"
-               aria-label="Search item for rate check" />
-        <div id="ratecheck-dropdown" class="ratecheck-dropdown hidden"></div>
+    <!-- Reports view -->
+    <div id="reports-view" class="hidden">
+      <!-- Search filter with dropdown -->
+      <div id="reports-search" class="reports-search">
+        <input type="text" id="reports-input" class="reports-input"
+               placeholder="Search item or category..." autocomplete="off" />
+        <div id="reports-dropdown" class="reports-dropdown hidden"></div>
       </div>
 
-      <div id="ratecheck-empty" class="ratecheck-empty">
-        <p>Type an item name above to check its latest rate and balance.</p>
-      </div>
-
-      <div id="ratecheck-result" class="ratecheck-result hidden">
-        <div class="ratecheck-result-header">
-          <span id="ratecheck-item-name" class="ratecheck-item-name"></span>
-          <span id="ratecheck-item-category" class="ratecheck-item-category"></span>
+      <!-- Summary cards -->
+      <div id="reports-summary-cards" class="reports-summary-cards">
+        <div class="reports-card">
+          <span class="reports-card-label">Rate Check</span>
+          <span id="reports-rate-card-value" class="reports-card-value">Rs 0</span>
         </div>
-        <div class="ratecheck-result-cards">
-          <div class="ratecheck-card">
-            <span class="ratecheck-card-label">Latest Rate</span>
-            <span id="ratecheck-rate-value" class="ratecheck-card-value ratecheck-rate-value">Rs 0</span>
+        <div class="reports-card">
+          <span class="reports-card-label">Balance Qty</span>
+          <span id="reports-balance-card-value" class="reports-card-value">0</span>
+        </div>
+      </div>
+
+      <!-- Date-wise entries table (max 20) -->
+      <div id="reports-entries-wrapper" class="reports-entries-wrapper">
+        <table class="reports-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Item</th>
+              <th>Category</th>
+              <th>Qty</th>
+              <th>Rate</th>
+            </tr>
+          </thead>
+          <tbody id="reports-entries-body">
+            <tr><td class="reports-empty-row" colspan="6">No entries found</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="reports-count" class="reports-count"></div>
+
+      <!-- Detail view (shown on row tap) -->
+      <div id="reports-detail" class="reports-detail hidden">
+        <button id="reports-back-btn" class="reports-back-btn">← Back to All</button>
+        <div class="reports-detail-header">
+          <span id="reports-detail-name" class="reports-detail-name"></span>
+          <span id="reports-detail-category" class="reports-detail-category"></span>
+        </div>
+        <div class="reports-detail-cards">
+          <div class="reports-card">
+            <span class="reports-card-label">Latest Rate</span>
+            <span id="reports-rate-value" class="reports-card-value">Rs 0</span>
           </div>
-          <div class="ratecheck-card">
-            <span class="ratecheck-card-label">Current Balance</span>
-            <span id="ratecheck-balance-value" class="ratecheck-card-value">0</span>
+          <div class="reports-card">
+            <span class="reports-card-label">Current Balance</span>
+            <span id="reports-balance-value" class="reports-card-value">0</span>
           </div>
         </div>
       </div>
@@ -78,33 +122,87 @@
 
     <!-- Settings view -->
     <div id="settings-view" class="hidden">
+      <div class="settings-section-label">Account</div>
       <div class="settings-list">
         <div class="settings-item">
-          <span class="settings-item-label">Company</span>
+          <div class="settings-item-left">
+            <svg class="settings-icon" viewBox="0 0 24 24" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="settings-item-label">Company</span>
+          </div>
           <span class="settings-item-value" id="settings-company">—</span>
         </div>
+      </div>
+
+      <div class="settings-section-label">Server</div>
+      <div class="settings-list">
         <div class="settings-item settings-server-status" id="settings-server-status">
-          <span class="settings-item-label">Server</span>
+          <div class="settings-item-left">
+            <svg class="settings-icon" viewBox="0 0 24 24" width="18" height="18"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+            <span class="settings-item-label">Server</span>
+          </div>
           <div class="settings-server-right">
             <div id="status-indicator" class="checking"></div>
             <span id="status-text" class="settings-item-value">Checking...</span>
           </div>
         </div>
-        <button id="retry-btn" class="settings-retry-btn">Retry</button>
+        <button id="retry-btn" class="settings-retry-btn">Retry Connection</button>
         <div class="settings-item settings-item-input">
           <span class="settings-item-label">Server IP</span>
           <input type="text" id="settings-server-ip" class="settings-input"
                  placeholder="e.g. 192.168.1.100" autocomplete="off" />
-          <button id="settings-server-apply" class="settings-action-btn">Apply</button>
-          <button id="settings-find-btn" class="settings-action-btn settings-find-btn">Find</button>
+          <div class="settings-btn-group">
+            <button id="settings-server-apply" class="settings-action-btn">Apply</button>
+            <button id="settings-find-btn" class="settings-action-btn settings-find-btn">Find</button>
+          </div>
         </div>
         <div id="settings-discovery-results" class="discovery-results hidden"></div>
+      </div>
+
+      <div class="settings-section-label">Security</div>
+      <div class="settings-list">
+        <div class="settings-toggle-item">
+          <div class="settings-item-left">
+            <svg class="settings-icon" viewBox="0 0 24 24" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span class="settings-item-label">Biometric</span>
+          </div>
+          <div class="settings-toggle-right">
+            <span id="settings-bio-status" class="settings-bio-status disabled">Off</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="biometric-toggle" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section-label">Appearance</div>
+      <div class="settings-list">
+        <div class="settings-toggle-item">
+          <div class="settings-item-left">
+            <svg class="settings-icon" viewBox="0 0 24 24" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <span class="settings-item-label">Dark Theme</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="theme-toggle" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-section-label">About</div>
+      <div class="settings-list">
         <div class="settings-item">
-          <span class="settings-item-label">App Version</span>
+          <div class="settings-item-left">
+            <svg class="settings-icon" viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span class="settings-item-label">App Version</span>
+          </div>
           <span class="settings-item-value" id="settings-version">—</span>
         </div>
       </div>
-      <button id="signout-btn" class="settings-signout-btn">Sign Out</button>
+      <button id="signout-btn" class="settings-signout-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
     </div>
 
     <!-- Dashboard view (hidden until after PIN auth) -->
@@ -116,22 +214,30 @@
         <div class="metric-card">
           <span class="metric-label">Total Items</span>
           <span class="metric-value" id="metric-total-items">0</span>
-          <span class="metric-icon">📦</span>
+          <span class="metric-icon icon-animate">
+            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          </span>
         </div>
         <div class="metric-card">
           <span class="metric-label">Balance Qty</span>
           <span class="metric-value" id="metric-balance-qty">0</span>
-          <span class="metric-icon">⚖️</span>
+          <span class="metric-icon icon-animate">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </span>
         </div>
         <div class="metric-card">
           <span class="metric-label">Stock Value</span>
           <span class="metric-value" id="metric-stock-value">Rs 0</span>
-          <span class="metric-icon">💰</span>
+          <span class="metric-icon icon-animate">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </span>
         </div>
         <div class="metric-card">
           <span class="metric-label">Today's Movement</span>
           <span class="metric-value" id="metric-today-movement">0</span>
-          <span class="metric-icon">📊</span>
+          <span class="metric-icon icon-animate">
+            <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </span>
         </div>
       </div>
 
@@ -164,18 +270,24 @@
       <p id="dashboard-error-text">Could not load stock data</p>
       <button id="dashboard-retry-btn" class="action-btn">Retry</button>
     </div>
-  <!-- Bottom navigation bar -->
+    <!-- Bottom navigation bar -->
     <nav id="bottom-nav">
       <button class="nav-tab active" data-tab="dashboard">
-        <span class="nav-icon">📊</span>
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="11" rx="1"/><rect x="3" y="13" width="7" height="8" rx="1"/></svg>
+        </span>
         <span class="nav-label">Dashboard</span>
       </button>
-      <button class="nav-tab" data-tab="ratecheck">
-        <span class="nav-icon">🔍</span>
-        <span class="nav-label">Rate Check</span>
+      <button class="nav-tab" data-tab="reports">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M8 16l4-6 4 3 4-5"/></svg>
+        </span>
+        <span class="nav-label">Reports</span>
       </button>
       <button class="nav-tab" data-tab="settings">
-        <span class="nav-icon">⚙️</span>
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </span>
         <span class="nav-label">Settings</span>
       </button>
     </nav>

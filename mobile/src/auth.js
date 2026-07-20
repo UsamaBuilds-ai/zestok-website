@@ -39,7 +39,7 @@ function _notify(state) {
 async function _verifyOffline(pin) {
   const { value: storedHash } = await Preferences.get({ key: 'pinHash' });
   if (!storedHash) {
-    return { ok: false, error: 'offline_no_session' };
+    return { ok: false, error: 'offline_no_session', message: 'First-time setup needs server connection' };
   }
   const match = bcrypt.compareSync(pin, storedHash);
   if (match) {
@@ -74,6 +74,11 @@ export async function verifyPin(pin) {
 
     _notify({ isAuthenticated: true, companyName: result.data.company_name, tenantId: result.data.tenant_id });
     return { ok: true, data: result.data };
+  }
+
+  // Server unreachable — fall back to offline PIN verify
+  if (result.error === 'network_error') {
+    return _verifyOffline(pin);
   }
 
   if (result.status === 429) {
@@ -138,9 +143,40 @@ export async function isBiometricEnabled() {
   return value === 'true';
 }
 
+export async function setBiometricEnabled(enabled) {
+  if (enabled) {
+    const { value: savedPin } = await Preferences.get({ key: 'accessPin' });
+    if (!savedPin) return { ok: false, reason: 'no_pin' };
+    let biometryInfo;
+    try {
+      biometryInfo = await BiometricAuth.checkBiometry();
+    } catch {
+      return { ok: false, reason: 'unavailable' };
+    }
+    if (!biometryInfo.isAvailable) return { ok: false, reason: 'unavailable' };
+    try {
+      await BiometricAuth.authenticate({
+        reason: 'Enable biometric unlock for Zestok',
+        cancelTitle: 'Cancel',
+        allowDeviceCredential: true,
+      });
+      await Preferences.set({ key: BIOMETRIC_ENABLED_KEY, value: 'true' });
+      return { ok: true };
+    } catch {
+      return { ok: false, reason: 'cancelled' };
+    }
+  }
+  await Preferences.remove({ key: BIOMETRIC_ENABLED_KEY });
+  return { ok: true };
+}
+
 export async function handleSessionExpiry() {
   await clearSession();
   return { cleared: true };
+}
+
+export function resetAuth() {
+  _notify({ isAuthenticated: false, companyName: _companyName, tenantId: _tenantId });
 }
 
 export async function checkSessionTimeout() {

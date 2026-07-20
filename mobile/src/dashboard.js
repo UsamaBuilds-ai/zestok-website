@@ -29,9 +29,10 @@ export function formatRate(num) {
 }
 
 function renderMetrics() {
-  const totalItems = _balances.length;
-  const totalBalance = _balances.reduce((sum, item) => sum + item.balance, 0);
-  const stockValue = _balances.reduce((sum, item) => sum + item.value, 0);
+  const activeBalances = _balances.filter(item => item.balance > 0);
+  const totalItems = activeBalances.length;
+  const totalBalance = activeBalances.reduce((sum, item) => sum + item.balance, 0);
+  const stockValue = activeBalances.reduce((sum, item) => sum + item.value, 0);
   const today = new Date().toISOString().slice(0, 10);
   const todayMovement = _entries
     .filter((entry) => entry.date === today)
@@ -186,6 +187,10 @@ export function getBalancesState() {
   return _balances;
 }
 
+export function getEntriesState() {
+  return _entries;
+}
+
 function debounce(fn, ms = 300) {
   return (...args) => {
     clearTimeout(_debounceTimer);
@@ -194,11 +199,12 @@ function debounce(fn, ms = 300) {
 }
 
 export function renderStockTable() {
+  const activeBalances = _balances.filter(item => item.balance > 0);
   const filtered = _searchTerm
-    ? _balances.filter((item) =>
+    ? activeBalances.filter((item) =>
         keyFor(`${item.item} ${item.category}`).includes(keyFor(_searchTerm))
       )
-    : _balances;
+    : activeBalances;
 
   const tbody = document.getElementById('stock-table-body');
 
