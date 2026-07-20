@@ -1,6 +1,8 @@
 # Zestok
 
-Zestok is a modern inventory management application built with Electron, Node.js, Express, and SQLite. It combines a desktop client with a backend API server and is intended for local use as well as self-hosted or cloud deployment.
+**Website:** [https://zestock.vercel.app](https://zestock.vercel.app)
+
+Zestok is a modern inventory management application built with Electron, Node.js, Express, and SQLite. It combines a desktop client with a backend API server and is intended for local use as well as self-hosted or cloud deployment. Track stock levels, manage entries and exits, and monitor your inventory from anywhere at [zestock.vercel.app](https://zestock.vercel.app).
 
 ## Features
 
