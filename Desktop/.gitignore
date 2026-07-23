@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+build/
+Icons/
+src/db/
+src/config.js
+.aider*
+keystore.properties
+RELEASE.md
+rcedit-x64.exe
+backend

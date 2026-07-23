@@ -1,99 +1,71 @@
-# Zestok
+# Zestok — Inventory Management Suite
 
-**Website:** [https://zestock.vercel.app](https://zestock.vercel.app)
+**Zestok** is a modern, self-hosted inventory management system with a **Windows desktop app**, **Android mobile companion**, and a **marketing website**. Track stock, manage entries, generate reports, and keep your data private — no cloud dependency, no subscription.
 
-Zestok is a modern inventory management application built with Electron, Node.js, Express, and SQLite. It combines a desktop client with a backend API server and is intended for local use as well as self-hosted or cloud deployment. Track stock levels, manage entries and exits, and monitor your inventory from anywhere at [zestock.vercel.app](https://zestock.vercel.app).
+## Architecture
 
-## Features
-
-- Electron-based desktop application for stock operations
-- Tenant or company setup flow during initial configuration
-- Local storage for app settings and device-specific configuration
-- REST API backend for inventory workflows
-- PostgreSQL-based data storage and tenant-aware server logic
-- Windows installer build support via Electron Builder
-
-## Project Structure
-
-```text
-.
-├── build/                 # Windows installer resources
-├── Icons/                 # App icons and assets
-├── scripts/               # Helper scripts
-├── server/                # Express API server
-│   └── index.js
-├── src/                   # Electron app source code
-│   ├── db/                # Database migration and pool setup
-│   ├── main.js            # Electron main process
-│   ├── preload.js         # Preload bridge
-│   ├── renderer.js        # Renderer logic
-│   ├── server.js          # Express server implementation
-│   ├── config.js          # API configuration
-│   └── setup.html         # Setup UI
-└── package.json           # Main app scripts and dependencies
+```
+zestok/
+├── Website/        # Marketing & customer portal (HTML/CSS/JS) — deployed to Vercel
+├── Desktop/        # Electron desktop app (Windows .exe)
+│   ├── src/        # Electron main process, renderer, preload
+│   ├── backend/    # Express API server (Node.js + PostgreSQL)
+│   ├── scripts/    # Build scripts
+│   └── build/      # NSIS installer resources
+├── Mobile/         # Capacitor Android app (APK)
+│   ├── android/    # Android native project
+│   ├── src/        # Web app source (Vite + vanilla JS)
+│   └── dist/       # Built web assets
+└── Builds/         # Release binaries (gitignored)
 ```
 
-## Requirements
+## Components
 
-- Node.js 18+
-- npm
-- PostgreSQL database
-- Windows build tools for packaging the desktop installer
+### Website
+Marketing site, pricing, download, admin panel, and customer portal. Fully static HTML/CSS/JS.
 
-## Installation
+### Desktop App (Electron)
+Full-featured inventory management with:
+- Dashboard with real-time metrics
+- Stock entry with auto-complete
+- Reports with CSV/PDF export
+- PIN & TOTP 2FA security
+- Local SQLite database
+- Auto-updater (electron-updater + GitHub Releases)
 
-```bash
-npm install
-```
+### Mobile App (Capacitor / Android)
+Read-only companion app that connects to the desktop server over LAN:
+- Dashboard overview
+- Rate check screen
+- Stock table with search/filter
+- PIN authentication
 
-## Database Setup
+### Backend API (Express + PostgreSQL)
+License management, customer portal API, email delivery via Gmail SMTP, admin panel.
 
-Run the database migration script:
+## Download
 
-```bash
-npm run migrate
-```
+| Platform | Format | Source |
+|----------|--------|--------|
+| Windows | `.exe` (NSIS installer) | [GitHub Releases](https://github.com/UsamaBuilds-ai/zestok/releases) |
+| Android | `.apk` | [GitHub Releases](https://github.com/UsamaBuilds-ai/zestok/releases) |
 
-## Run the Application
+## Tech Stack
 
-Start the backend API server:
+| Layer | Technology |
+|-------|-----------|
+| Website | HTML, CSS, JavaScript |
+| Desktop | Electron, Node.js, Express |
+| Mobile | Capacitor, Vite, vanilla JS |
+| Backend | Node.js, Express, PostgreSQL |
+| Database | SQLite (local) / PostgreSQL (server) |
+| Auth | JWT, bcrypt, speakeasy (TOTP) |
+| Updates | electron-updater + GitHub Releases |
 
-```bash
-npm run server
-```
+## License
 
-Start the Electron desktop app:
+All rights reserved. Purchase required for commercial usage.
 
-```bash
-npm start
-```
+---
 
-## Build for Windows
-
-Create a Windows installer package:
-
-```bash
-npm run build
-```
-
-## Configuration
-
-- Update the API base URL in [src/config.js](src/config.js)
-- Configure backend environment variables before starting the API service
-- Keep secrets, API credentials, and database connection details out of source control
-
-## Security Notes
-
-- Do not commit environment files, API keys, or credentials to Git
-- Store sensitive values in environment variables or secure local OS storage
-- Use HTTPS/TLS and restricted network access in hosted deployments
-- Review file permissions and access control for local data storage
-
-## Notes
-
-This repository contains two runtime layers:
-
-1. Electron client app for the desktop interface
-2. Express server for API and database communication
-
-The project is suitable for inventory tracking, stock entry/exit logging, and deployment in a hosted environment.
+Built by **Usama** &middot; [usamsohail2000@gmail.com](mailto:usamsohail2000@gmail.com)

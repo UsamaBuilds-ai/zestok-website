@@ -1,14 +1,80 @@
-node_modules/
-dist/
+# --- Secrets & Credentials ---
 .env
-.env.local
-.env.*.local
-build/
-Icons/
-src/db/
-src/config.js
-.aider*
+.env.*
+Desktop/.env
+Desktop/backend/.env
+*.jks
+*.keystore
 keystore.properties
-mobile
-RELEASE.md
-rcedit-x64.exe
+**/keystore.properties
+
+# --- Dependencies ---
+node_modules/
+**/node_modules/
+
+# --- Build Outputs ---
+dist/
+**/dist/
+build/
+**/build/
+Desktop/build/
+Desktop/dist/
+Desktop/backend/build/
+Builds/
+*.exe
+*.apk
+
+# --- IDE & Editor ---
+.idea/
+**/.idea/
+.vscode/
+**/.vscode/
+*.swp
+*.swo
+*~
+
+# --- OS Files ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.DS_Store
+
+# --- Logs ---
+*.log
+npm-debug.log*
+
+# --- AI Assistant Files ---
+.aider*
+.aider/
+**/.aider*
+
+# --- Capacitor / Android ---
+Mobile/android/.gradle/
+Mobile/android/build/
+Mobile/android/app/build/
+Mobile/android/capacitor-cordova-android-plugins/
+Mobile/android/.idea/
+Mobile/android/local.properties
+
+# --- Planning & Internal Docs ---
+.planning/
+**/.planning/
+Desktop/.planning/
+Mobile/.planning/
+
+# --- Desktop App Specific ---
+Desktop/Icons/
+Desktop/src/db/
+Desktop/src/config.js
+Desktop/RELEASE.md
+Desktop/rcedit-x64.exe
+Desktop/backend/deploy.ps1
+
+# --- Mobile App Specific ---
+Mobile/android/keystore.properties
+Mobile/android/build-apk.bat
+Mobile/src/config.js
+
+# --- Website ---
+Website/node_modules/
+Website/.git/

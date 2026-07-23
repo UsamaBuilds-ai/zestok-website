@@ -1,0 +1,87 @@
+{
+  "name": "zestok",
+  "version": "1.1.0",
+  "description": "Zestok — modern inventory management desktop app.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "node scripts/build.js",
+    "pack": "electron-builder --dir",
+    "test": "node --test",
+    "migrate": "node src/db/migrate.js"
+  },
+  "keywords": [
+    "electron",
+    "stock",
+    "inventory"
+  ],
+  "author": "Usama",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3",
+    "jimp": "^1.6.1",
+    "png-to-ico": "^3.0.1",
+    "supertest": "^7.2.2"
+  },
+  "build": {
+    "appId": "com.usama.zestok",
+    "productName": "Zestok",
+    "directories": {
+      "output": "dist"
+    },
+    "icon": "Icons/zestok.ico",
+    "files": [
+      "src/**/*",
+      "Icons/**/*",
+      "package.json",
+      "package-lock.json"
+    ],
+    "asarUnpack": [
+      "node_modules/bcrypt/**"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "Icons/zestok.ico",
+      "signAndEditExecutable": false,
+      "artifactName": "Zestok.${ext}"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "UsamaBuilds-ai",
+      "repo": "Stock-Management"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "installerIcon": "Icons/zestok.ico",
+      "uninstallerIcon": "Icons/zestok.ico",
+      "deleteAppDataOnUninstall": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "guid": "com.usama.zestok",
+      "shortcutName": "Zestok",
+      "include": "build/installer.nsh",
+      "runAfterFinish": true,
+      "warningsAsErrors": false
+    }
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "electron-updater": "^6.3.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "icojs": "^1.0.0",
+    "qrcode": "^1.5.4",
+    "speakeasy": "^2.0.0",
+    "pg": "^8.13.0",
+    "sql.js": "^1.14.1"
+  },
+  "allowScripts": {
+    "electron@31.7.7": true
+  }
+}

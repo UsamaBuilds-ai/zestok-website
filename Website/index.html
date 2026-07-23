@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Zestok — Modern Inventory Management. Desktop & Mobile app for stock tracking, reports, and real-time balance." />
+  <meta name="keywords" content="inventory management, stock tracking, windows inventory app, android inventory, self-hosted, stock management, inventory software" />
+  <meta name="author" content="Usama" />
+  <link rel="canonical" href="https://zestok.vercel.app/" />
+  <link rel="icon" type="image/png" href="DashBoard.png" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Zestok — Inventory Management for Desktop & Mobile" />
+  <meta property="og:description" content="Self-hosted inventory management. Track stock, manage entries, and view reports on Windows & Android. One-time payment, lifetime access." />
+  <meta property="og:image" content="https://zestok.vercel.app/DashBoard.png" />
+  <meta property="og:url" content="https://zestok.vercel.app/" />
+  <meta property="og:type" content="product" />
+  <meta property="og:site_name" content="Zestok" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Zestok — Inventory Management for Desktop & Mobile" />
+  <meta name="twitter:description" content="Self-hosted inventory management. Track stock, manage entries, and view reports on Windows & Android." />
+  <meta name="twitter:image" content="https://zestok.vercel.app/DashBoard.png" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "Zestok",
+    "description": "Modern self-hosted inventory management app for Windows desktop and Android mobile.",
+    "url": "https://zestok.vercel.app/",
+    "image": "https://zestok.vercel.app/DashBoard.png",
+    "brand": { "@type": "Brand", "name": "Zestok" },
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Windows Desktop",
+        "price": "60",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      {
+        "@type": "Offer",
+        "name": "Android APK",
+        "price": "40",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      {
+        "@type": "Offer",
+        "name": "Bundle (Both Platforms)",
+        "price": "90",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
+    ]
+  }
+  </script>
+
+  <title>Zestok — Inventory Management for Desktop & Mobile</title>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NV15KD2CVF"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<canvas id="particles-canvas"></canvas>
+
+<nav>
+  <div class="container">
+    <span class="nav-logo">Zestok</span>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#screenshots">Screenshots</a></li>
+      <li><a href="#downloads">Downloads</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="buy.html" class="nav-cta">Buy Now</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="hero" id="hero">
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+  <div class="cloud cloud-4"></div>
+  <div class="cloud cloud-5"></div>
+  <div class="container">
+    <div>
+      <div class="hero-badge"><span></span> v1.1.0 — Premium License</div>
+      <h1>Inventory Management<br /><span>for Desktop &amp; Mobile</span></h1>
+      <p>Zestok is a modern, Self-hosted Inventory Management Application for Windows and Android. Track stock, Record transactions, and Generate Reports — All offline, Private, and Subscription-Free.</p>
+      <div class="hero-actions">
+        <a href="buy.html" class="btn btn-primary">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Buy Windows License
+        </a>
+        <a href="buy.html" class="btn btn-secondary">
+          <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          Buy Android License
+        </a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-mockup">
+        <div class="mockup-bar">
+          <span class="mockup-dot"></span>
+          <span class="mockup-dot"></span>
+          <span class="mockup-dot"></span>
+          <span>Zestok — Dashboard</span>
+        </div>
+        <div class="mockup-content">
+          <div class="mock-grid">
+            <div class="mock-card"><div class="bar wide"></div><div class="bar"></div></div>
+            <div class="mock-card"><div class="bar wide"></div><div class="bar"></div></div>
+            <div class="mock-card"><div class="bar wide"></div><div class="bar"></div></div>
+            <div class="mock-card"><div class="bar wide"></div><div class="bar"></div></div>
+          </div>
+          <div class="mock-table">
+            <div class="mock-row mock-row-header"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+            <div class="mock-row"><div class="bar hl"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+            <div class="mock-row"><div class="bar hl"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+            <div class="mock-row"><div class="bar hl"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features section-dark" id="features">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Features</span>
+      <h2 class="section-title">Everything you need to manage stock</h2>
+      <p class="section-sub">From real-time dashboards to detailed reports — Zestok keeps your inventory in check across devices.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="11" rx="1"/><rect x="3" y="13" width="7" height="8" rx="1"/></svg>
+        </div>
+        <h3>Dashboard</h3>
+        <p>See total items, balance quantity, stock value, and today's movement at a glance. Search and filter your stock table instantly.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <h3>Stock Entry</h3>
+        <p>Record stock-in and stock-out transactions quickly. Auto-complete item names and categories, preview balance before saving.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M8 16l4-6 4 3 4-5"/></svg>
+        </div>
+        <h3>Reports</h3>
+        <p>Filter transactions by type, item, or category. Export to CSV or PDF for your records and audits.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <h3>Mobile Companion</h3>
+        <p>Full dashboard, reports, and settings on your Android phone. Connect to your server via IP and manage stock on the go.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>PIN &amp; 2FA Security</h3>
+        <p>Protect your data with PIN authentication and TOTP-based two-factor authentication via Google Authenticator.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Self-Hosted</h3>
+        <p>Your data stays on your server. No cloud dependency, no subscription. Full control over your inventory records.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="screenshots">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Screenshots</span>
+      <h2 class="section-title">See Zestok in action</h2>
+      <p class="section-sub">Desktop and mobile interfaces designed for efficiency.</p>
+    </div>
+    <div class="screenshots-grid">
+      <div class="screenshot-card">
+        <div class="img-wrap">
+          <img src="ScreenShot/DashBoard.png" alt="Zestok Desktop Dashboard" loading="lazy" />
+        </div>
+        <div class="cap">Dashboard <span>Real-time stock overview</span></div>
+      </div>
+      <div class="screenshot-card">
+        <div class="img-wrap">
+          <img src="ScreenShot/Entry.png" alt="Zestok Stock Entry" loading="lazy" />
+        </div>
+        <div class="cap">Entry <span>Quick stock in/out</span></div>
+      </div>
+      <div class="screenshot-card">
+        <div class="img-wrap">
+          <img src="ScreenShot/Report.png" alt="Zestok Reports" loading="lazy" />
+        </div>
+        <div class="cap">Reports <span>Filter &amp; export</span></div>
+      </div>
+      <div class="screenshot-card">
+        <div class="img-wrap mobile">
+          <img src="ScreenShot/Mobile Dashboard.png" alt="Zestok Mobile Dashboard" loading="lazy" />
+        </div>
+        <div class="cap">Mobile Dashboard <span>On-the-go overview</span></div>
+      </div>
+      <div class="screenshot-card">
+        <div class="img-wrap mobile">
+          <img src="ScreenShot/Mobile Reports.png" alt="Zestok Mobile Reports" loading="lazy" />
+        </div>
+        <div class="cap">Mobile Reports <span>Reports on mobile</span></div>
+      </div>
+      <div class="screenshot-card">
+        <div class="img-wrap mobile">
+          <img src="ScreenShot/Mobile Settings.png" alt="Zestok Mobile Settings" loading="lazy" />
+        </div>
+        <div class="cap">Mobile Settings <span>Configure on the go</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="downloads">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Downloads</span>
+      <h2 class="section-title">Get the latest build</h2>
+      <p class="section-sub">Download the version that fits your workflow. Available for Windows and Android.</p>
+    </div>
+    <div class="downloads-grid">
+      <div class="download-card">
+        <div class="download-icon">
+          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
+        </div>
+        <h3>Zestok for Windows</h3>
+        <div class="download-meta">
+          <span class="download-version">v1.1.0</span>
+          <span class="download-size">84 MB</span>
+          <span class="download-platform">.exe</span>
+        </div>
+        <p class="download-desc">Standalone desktop application with built-in server. Includes dashboard, stock entry, reports, PIN &amp; 2FA security.</p>
+        <a href="downloads/Zestok.exe" class="btn btn-primary download-btn" download>
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download .exe
+        </a>
+        <p class="download-note">Requires Windows 10 or later, 64-bit</p>
+      </div>
+      <div class="download-card">
+        <div class="download-icon">
+          <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <h3>Zestok for Android</h3>
+        <div class="download-meta">
+          <span class="download-version">v1.1.0</span>
+          <span class="download-size">1.9 MB</span>
+          <span class="download-platform">.apk</span>
+        </div>
+        <p class="download-desc">Mobile companion app that connects to your Zestok server. Full dashboard, reports, and settings on the go.</p>
+        <a href="downloads/Zestok.apk" class="btn btn-primary download-btn" download>
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download .apk
+        </a>
+        <p class="download-note">Requires Android 8.0 (Oreo) or later</p>
+      </div>
+    </div>
+    <div class="download-license-note">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+      Licensed product. Downloads include full-feature trial with 40-entry limit. Purchase a license to unlock unlimited entries.
+    </div>
+  </div>
+</section>
+
+<section id="trial">
+  <div class="container">
+    <div class="trial-card">
+      <div class="trial-badge">Free Trial</div>
+      <h2>Try Zestok Before You Buy</h2>
+      <p>Get started with the full-featured trial — limited to <strong>40 stock entries</strong>. Once you hit the limit, purchase a license to unlock unlimited entries and all features.</p>
+      <div class="trial-features">
+        <div class="trial-feature">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Full dashboard &amp; reports during trial
+        </div>
+        <div class="trial-feature">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          No time limit — use free forever with 40 entries
+        </div>
+        <div class="trial-feature">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Upgrade anytime to unlock unlimited entries
+        </div>
+      </div>
+      <a href="#pricing" class="btn btn-primary">See Pricing</a>
+    </div>
+  </div>
+</section>
+
+<section class="pricing section-dark" id="pricing">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Pricing</span>
+      <h2 class="section-title">Get Your License</h2>
+      <p class="section-sub">One-time payment. Lifetime access. No subscriptions.</p>
+    </div>
+    <div class="section-header" style="margin-bottom: 32px;">
+      <span class="trust-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+        100% Secure &middot; Verified Seller &middot; Instant Delivery
+      </span>
+    </div>
+    <div class="pricing-cards">
+      <div class="pricing-card">
+        <div class="pricing-icon">
+          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
+        </div>
+        <h3>Windows Desktop</h3>
+        <p class="pricing-desc">Full-feature app with built-in server</p>
+        <div class="pricing-amount">$60</div>
+        <p class="pricing-note">One-time &middot; Lifetime license</p>
+        <a href="/buy.html" class="btn btn-primary pricing-btn">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Buy with NayaPay
+        </a>
+        <p class="pricing-alt">Pay via NayaPay. License delivered within 2-4 hours.</p>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-icon">
+          <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <h3>Android APK</h3>
+        <p class="pricing-desc">Mobile companion app</p>
+        <div class="pricing-amount">$40</div>
+        <p class="pricing-note">One-time &middot; Lifetime license</p>
+        <a href="/buy.html" class="btn btn-primary pricing-btn">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Buy with NayaPay
+        </a>
+        <p class="pricing-alt">Pay via NayaPay. License delivered within 2-4 hours.</p>
+      </div>
+    </div>
+    <div class="pricing-bundle">
+      <div class="bundle-card">
+        <div class="bundle-badge">Best Value</div>
+        <h3>Bundle — Both Platforms</h3>
+        <p>Get Windows + Android together at a discounted price.</p>
+        <div class="bundle-pricing">
+          <span class="bundle-old">$100</span>
+          <span class="bundle-amount">$90</span>
+        </div>
+        <p class="bundle-save">Save $10!</p>
+        <a href="/buy.html" class="btn btn-primary pricing-btn bundle-btn">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Buy Bundle with NayaPay
+        </a>
+        <p class="pricing-alt bundle-alt">Pay via NayaPay. License delivered within 2-4 hours.</p>
+      </div>
+    </div>
+
+    <p class="payment-guarantee">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+      100% Secure &middot; 14-Day Money-Back Guarantee &middot; License Delivered via Email
+    </p>
+
+    <div class="pricing-contact">
+      <p>Questions? Email: <strong>usamsohail2000@gmail.com</strong></p>
+      <p class="pricing-contact-sub">Buy page: <a href="/buy.html" style="color:#64b5f6">zestok.vercel.app/buy.html</a></p>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">How It Works</span>
+      <h2 class="section-title">Up and running in minutes</h2>
+      <p class="section-sub">No cloud, no subscription — just your server and your data.</p>
+    </div>
+    <div class="how-grid">
+      <div class="how-step">
+        <h4>Install Desktop</h4>
+        <p>Run the Windows installer. Zestok includes everything you need.</p>
+      </div>
+      <div class="how-step">
+        <h4>Start Server</h4>
+        <p>The built-in Express API runs locally. Your data stays on your machine.</p>
+      </div>
+      <div class="how-step">
+        <h4>Secure Access</h4>
+        <p>Set a PIN and optionally enable TOTP 2FA for extra protection.</p>
+      </div>
+      <div class="how-step">
+        <h4>Manage Inventory</h4>
+        <p>Add stock entries, check balances, generate reports, export data.</p>
+      </div>
+      <div class="how-step">
+        <h4>Go Mobile</h4>
+        <p>Install the Android APK, enter your server IP, and manage on the go.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">&times;</button>
+  <div class="lightbox-content">
+    <img id="lightboxImg" src="" alt="" />
+  </div>
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
+<section class="faq section-dark" id="faq">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">FAQ</span>
+      <h2 class="section-title">Frequently asked questions</h2>
+      <p class="section-sub">Everything you need to know about Zestok licensing, setup, and usage.</p>
+    </div>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>How does the trial work?</span>
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-answer">
+          <p>The trial gives you full access to all features with a limit of 40 stock entries. There is no time limit — you can use it indefinitely at no cost. Upgrade to a paid license whenever you need unlimited entries.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>Is it a one-time payment?</span>
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-answer">
+          <p>Yes. All licenses are one-time payments with lifetime access. No subscriptions, no recurring fees. You own the software forever.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>Can I use Zestok offline?</span>
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-answer">
+          <p>Absolutely. The desktop app runs a local server on your machine. No internet connection is required for day-to-day use. The mobile app connects to your desktop server over your local network.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>How do I pay with NayaPay?</span>
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-answer">
+          <p>Go to the <a href="buy.html" style="color:#64b5f6">Buy page</a>, choose your license, send payment via NayaPay app, and submit your transaction ID. We will verify and deliver your license key via email within 2-4 hours.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>How do I get the files after purchase?</span>
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-answer">
+          <p>After we confirm your NayaPay payment, we email your license key and download links. You can also find them in the customer portal (coming soon). Download links are also available on the <a href="#downloads" style="color:#64b5f6">downloads section</a>.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>Is my data secure?</span>
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-answer">
+          <p>All data stays on your local machine — no cloud, no third-party servers. You can optionally enable PIN authentication and TOTP-based two-factor authentication for an extra layer of security.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>What if I need a refund?</span>
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-answer">
+          <p>We offer a 14-day money-back guarantee. If Zestok does not meet your needs, email us within 14 days of purchase and we will issue a full refund.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a href="#features">Features</a>
+      <a href="#screenshots">Screenshots</a>
+      <a href="buy.html">Buy</a>
+      <a href="https://github.com/UsamaBuilds-ai/Stock-Management" target="_blank" rel="noopener">GitHub</a>
+      <a href="admin.html">Admin</a>
+    </div>
+    <p>Built by <strong>Usama</strong></p>
+    <p style="margin-top: 6px; font-size: 0.8rem;">v<span id="footerVersion">1.1.0</span> &middot; MIT License</p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+
+</body>
+</html>

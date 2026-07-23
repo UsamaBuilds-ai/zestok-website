@@ -1,2 +1,0 @@
--keep class com.getcapacitor.** { *; }
--keep class com.zestok.mobile.ServerConfigPlugin { *; }
