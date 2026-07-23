@@ -1,0 +1,28 @@
+{
+  "appId": "com.zestok.mobile",
+  "appName": "Zestok",
+  "webDir": "dist",
+  "server": {
+    "cleartext": true
+  },
+  "android": {
+    "buildOptions": {
+      "androidReleaseType": "APK",
+      "signingType": "apksigner"
+    }
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#1a1a2e"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#1a1a2e"
+    },
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}
