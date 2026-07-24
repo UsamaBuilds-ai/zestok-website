@@ -4,47 +4,165 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Zestok Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', Arial, sans-serif; background: #0b1a2e; color: #e8f2fa; padding: 24px; }
-    .container { max-width: 1200px; margin: 0 auto; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #060f1c;
+      color: #e8f2fa;
+      min-height: 100vh;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; top: -30%; right: -15%;
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(30,136,229,0.08) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: ''; position: fixed; bottom: -25%; left: -10%;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(100,181,246,0.06) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
     h1 { font-size: 24px; margin-bottom: 24px; color: #64b5f6; }
     .tab-bar { display: flex; gap: 8px; margin-bottom: 24px; }
-    .tab-bar button { padding: 10px 20px; border: 1px solid #1a3a5a; background: #0c1f3a; color: #94a3b8; border-radius: 8px; cursor: pointer; }
+    .tab-bar button {
+      padding: 10px 20px; border: 1px solid #1a3a5a;
+      background: rgba(12, 31, 58, 0.6);
+      backdrop-filter: blur(8px);
+      color: #94a3b8; border-radius: 8px; cursor: pointer;
+      font-family: 'Inter', sans-serif; font-weight: 500;
+      transition: all 0.3s;
+    }
+    .tab-bar button:hover {
+      border-color: #64b5f6;
+      transform: perspective(800px) translateZ(5px);
+    }
     .tab-bar button.active { background: #1e88e5; color: #fff; border-color: #1e88e5; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    .card { background: #0c1f3a; border: 1px solid #1a3a5a; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-    .card h3 { color: #64b5f6; margin-bottom: 12px; }
+    .card {
+      background: rgba(12, 31, 58, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(26, 58, 90, 0.5);
+      border-radius: 12px; padding: 20px; margin-bottom: 16px;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      transform-style: preserve-3d;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(100,181,246,0.05), transparent);
+      transition: left 0.6s;
+    }
+    .card:hover::before { left: 100%; }
+    .card:hover {
+      border-color: #64b5f6;
+      transform: perspective(800px) rotateY(-2deg) rotateX(1deg) translateY(-3px) translateZ(8px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(30,136,229,0.05);
+    }
+    .card h3 { color: #64b5f6; margin-bottom: 12px; font-weight: 600; }
     table { width: 100%; border-collapse: collapse; margin-top: 12px; }
     th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #1a3a5a; font-size: 13px; }
-    th { color: #94a3b8; font-weight: 600; }
+    th { color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; font-size: 11px; }
+    tr { transition: background 0.2s; }
+    tbody tr:hover { background: rgba(30, 136, 229, 0.04); }
     .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
     .badge.pending { background: #f59e0b20; color: #f59e0b; border: 1px solid #f59e0b; }
     .badge.confirmed { background: #22c55e20; color: #22c55e; border: 1px solid #22c55e; }
     .badge.active { background: #22c55e20; color: #22c55e; border: 1px solid #22c55e; }
     .badge.inactive { background: #ef444420; color: #ef4444; border: 1px solid #ef4444; }
-    .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; }
+    .btn {
+      padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;
+      font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif;
+      transition: all 0.25s;
+    }
+    .btn:hover { transform: translateY(-1px); }
     .btn-primary { background: #1e88e5; color: #fff; }
-    .btn-primary:hover { background: #1565c0; }
+    .btn-primary:hover { background: #1565c0; box-shadow: 0 4px 16px rgba(30,136,229,0.3); }
     .btn-success { background: #22c55e; color: #fff; }
-    .btn-success:hover { background: #16a34a; }
+    .btn-success:hover { background: #16a34a; box-shadow: 0 4px 16px rgba(34,197,94,0.3); }
     .btn-danger { background: #ef4444; color: #fff; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .login-box { max-width: 400px; margin: 100px auto; background: #0c1f3a; border: 1px solid #1a3a5a; border-radius: 12px; padding: 32px; }
-    .login-box h2 { margin-bottom: 16px; color: #64b5f6; }
-    .login-box input { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #1a3a5a; border-radius: 6px; background: #0b1a2e; color: #e8f2fa; font-size: 14px; }
-    .login-box .btn { width: 100%; }
-    .msg { margin-top: 8px; font-size: 13px; }
+    .login-box {
+      max-width: 420px; margin: 120px auto;
+      background: rgba(12, 31, 58, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(26, 58, 90, 0.5);
+      border-radius: 12px; padding: 36px 32px;
+      transition: all 0.4s;
+      transform-style: preserve-3d;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(30,136,229,0.04);
+    }
+    .login-box:hover {
+      border-color: #64b5f6;
+      transform: perspective(800px) rotateY(-2deg) translateY(-4px) translateZ(10px);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 50px rgba(30,136,229,0.08);
+    }
+    .login-box h2 { margin-bottom: 20px; color: #64b5f6; font-size: 22px; text-align: center; }
+    .login-box input {
+      width: 100%; padding: 12px 16px; margin-bottom: 14px;
+      border: 1px solid #1a3a5a; border-radius: 8px;
+      background: #060f1c; color: #e8f2fa; font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s;
+    }
+    .login-box input:focus {
+      outline: none; border-color: #1e88e5;
+      box-shadow: 0 0 0 3px rgba(30,136,229,0.15);
+      transform: perspective(800px) translateZ(3px);
+    }
+    .login-box .btn { width: 100%; padding: 12px; font-size: 14px; }
+    .msg { margin-top: 10px; font-size: 13px; text-align: center; font-weight: 500; }
     .msg.success { color: #22c55e; }
     .msg.error { color: #ef4444; }
     .empty { text-align: center; padding: 40px; color: #64748b; }
-    .key-display { font-family: monospace; font-size: 14px; letter-spacing: 1px; color: #22c55e; background: #0b1a2e; padding: 6px 12px; border-radius: 4px; display: inline-block; }
-    .copy-btn { background: none; border: 1px solid #1a3a5a; color: #94a3b8; cursor: pointer; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-left: 4px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-    .stat-card { background: #0c1f3a; border: 1px solid #1a3a5a; border-radius: 8px; padding: 16px; text-align: center; }
-    .stat-card strong { display: block; font-size: 28px; margin-top: 4px; color: #64b5f6; }
-    .stat-card span { font-size: 12px; color: #94a3b8; }
+    .key-display { font-family: 'Courier New', monospace; font-size: 14px; letter-spacing: 1px; color: #22c55e; background: #060f1c; padding: 6px 12px; border-radius: 4px; display: inline-block; }
+    .copy-btn { background: none; border: 1px solid #1a3a5a; color: #94a3b8; cursor: pointer; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-left: 4px; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+    .copy-btn:hover { border-color: #64b5f6; color: #64b5f6; transform: perspective(800px) translateZ(3px); }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px;
+    }
+    .stat-card {
+      background: rgba(12, 31, 58, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(26, 58, 90, 0.5);
+      border-radius: 12px; padding: 20px 16px; text-align: center;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      transform-style: preserve-3d;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      position: relative; overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(100,181,246,0.05), transparent);
+      transition: left 0.6s;
+    }
+    .stat-card:hover::before { left: 100%; }
+    .stat-card:hover {
+      border-color: #64b5f6;
+      transform: perspective(800px) rotateY(-2deg) rotateX(1deg) translateY(-4px) translateZ(8px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(30,136,229,0.05);
+    }
+    .stat-card strong { display: block; font-size: 28px; margin-top: 6px; color: #64b5f6; font-weight: 800; }
+    .stat-card span { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+    @media (max-width: 700px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      body { padding: 16px; }
+      .login-box { margin: 80px auto; padding: 28px 24px; }
+    }
   </style>
 </head>
 <body>

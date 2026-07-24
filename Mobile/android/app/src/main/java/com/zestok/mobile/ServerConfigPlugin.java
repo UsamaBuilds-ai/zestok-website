@@ -1,4 +1,4 @@
-﻿package com.zestok.mobile;
+package com.zestok.mobile;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
