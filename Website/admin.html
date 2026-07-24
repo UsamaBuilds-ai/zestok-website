@@ -213,28 +213,74 @@
 
 <script>
 const API = 'https://tender-solace-production-5226.up.railway.app';
-let adminKey = localStorage.getItem('zestokAdminKey') || '';
+let adminJwt = null;
+
+function showLogin() {
+  document.getElementById('loginScreen').style.display = 'block';
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('adminKeyInput').value = '';
+  document.getElementById('adminKeyInput').focus();
+}
+
+function showAdminPanel() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+}
 
 async function api(path, body) {
-  const headers = { 'Content-Type': 'application/json', 'x-admin-key': adminKey };
-  const res = await fetch(API + path, { headers, ...(body ? { method: 'POST', body: JSON.stringify(body) } : {}) });
-  if (res.status === 401) { localStorage.removeItem('zestokAdminKey'); adminKey = ''; document.getElementById('loginScreen').style.display = 'block'; document.getElementById('adminPanel').style.display = 'none'; throw new Error('Unauthorized'); }
-  return res.json();
+  const headers = { 'Content-Type': 'application/json' };
+  if (adminJwt) {
+    headers.Authorization = 'Bearer ' + adminJwt;
+  }
+
+  const res = await fetch(API + path, {
+    headers,
+    ...(body ? { method: 'POST', body: JSON.stringify(body) } : {})
+  });
+
+  let data = {};
+  try { data = await res.json(); } catch (_) {}
+
+  if (res.status === 401 || res.status === 403) {
+    adminJwt = null;
+    showLogin();
+    throw new Error(data.error || 'Unauthorized');
+  }
+
+  if (!res.ok) {
+    throw new Error(data.error || 'Request failed');
+  }
+
+  return data;
 }
 
 async function login() {
   const key = document.getElementById('adminKeyInput').value.trim();
-  if (!key) { document.getElementById('loginMsg').textContent = 'Enter admin key'; return; }
-  adminKey = key;
+  if (!key) {
+    document.getElementById('loginMsg').textContent = 'Enter admin key';
+    return;
+  }
+
   try {
-    const data = await api('/api/admin/payments');
-    localStorage.setItem('zestokAdminKey', key);
+    const res = await fetch(API + '/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error || 'Invalid admin key');
+    }
+
+    adminJwt = data.token;
     document.getElementById('loginMsg').textContent = '';
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminPanel').style.display = 'block';
-    loadData();
+    showAdminPanel();
+    await loadData();
   } catch (e) {
-    document.getElementById('loginMsg').textContent = 'Invalid key or server error';
+    adminJwt = null;
+    document.getElementById('loginMsg').textContent = e.message || 'Invalid key or server error';
+    showLogin();
   }
 }
 
@@ -276,12 +322,18 @@ function renderPayments(payments) {
 
 async function confirmPayment(paymentId) {
   if (!confirm('Confirm payment and generate license key?')) return;
-  const btn = event.target; btn.disabled = true; btn.textContent = 'Processing...';
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
   try {
     const data = await api('/api/admin/confirm-payment', { paymentId });
     alert(`License generated!\nKey: ${data.license.key}\nProduct: ${data.license.productType}\nSent to: ${data.license.customerEmail}`);
     loadData();
-  } catch (e) { alert('Error: ' + e.message); btn.disabled = false; btn.textContent = 'Confirm & Deliver'; }
+  } catch (e) {
+    alert('Error: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = 'Confirm & Deliver';
+  }
 }
 
 function renderLicenses(licenses) {
@@ -300,7 +352,11 @@ function renderLicenses(licenses) {
   `).join('');
 }
 
-function copyKey(key) { navigator.clipboard.writeText(key); event.target.textContent = 'Copied!'; setTimeout(() => event.target.textContent = 'Copy', 2000); }
+function copyKey(key) {
+  navigator.clipboard.writeText(key);
+  event.target.textContent = 'Copied!';
+  setTimeout(() => event.target.textContent = 'Copy', 2000);
+}
 
 document.getElementById('adminLoginBtn').addEventListener('click', login);
 document.getElementById('adminKeyInput').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
@@ -314,7 +370,7 @@ document.querySelectorAll('.tab-bar button').forEach(btn => {
   });
 });
 
-if (adminKey) { document.getElementById('loginScreen').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; loadData(); }
+showLogin();
 </script>
 </body>
 </html>

@@ -31,7 +31,7 @@
     "directories": {
       "output": "dist"
     },
-    "icon": "Icons/zestok.ico",
+    "icon": "Icons/zestok1.ico",
     "files": [
       "src/**/*",
       "Icons/**/*",
@@ -43,7 +43,7 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "Icons/zestok.ico",
+      "icon": "Icons/zestok1.ico",
       "signAndEditExecutable": false,
       "artifactName": "Zestok.${ext}"
     },
@@ -56,8 +56,8 @@
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": false,
-      "installerIcon": "Icons/zestok.ico",
-      "uninstallerIcon": "Icons/zestok.ico",
+      "installerIcon": "Icons/zestok1.ico",
+      "uninstallerIcon": "Icons/zestok1.ico",
       "deleteAppDataOnUninstall": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,

@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
+const jwt = require('jsonwebtoken');
 const { getDb } = require('./db/local');
 
 const app = express();
@@ -372,7 +373,7 @@ app.get('/api/stock', globalAuthLimiter, resolveTenant, async (req, res) => {
 });
 
 // ── Licensing System ──
-const LICENSE_SECRET = process.env.LICENSE_SECRET || 'zestok-license-secret-change-in-prod';
+const LICENSE_SECRET = process.env.LICENSE_SECRET;
 
 const licenseLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -381,6 +382,10 @@ const licenseLimiter = rateLimit({
 });
 
 function generateLicenseKey(productType, customerEmail) {
+  if (!LICENSE_SECRET) {
+    throw new Error('License secret not configured');
+  }
+
   const data = `${productType}|${customerEmail}|${Date.now()}|${crypto.randomUUID()}`;
   const hmac = crypto.createHmac('sha256', LICENSE_SECRET).update(data).digest('hex').toUpperCase();
   const groups = [];
@@ -394,13 +399,70 @@ function validateLicenseKeyFormat(key) {
   return /^ZSTK-[A-F0-9]{5}-[A-F0-9]{5}-[A-F0-9]{5}-[A-F0-9]{5}$/.test(key);
 }
 
+const ADMIN_KEY = process.env.ADMIN_KEY;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!ADMIN_KEY) {
+  console.error('FATAL: ADMIN_KEY environment variable is not set. Set it to a non-empty placeholder value in deployment settings.');
+}
+if (!JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is not set. Set it to a non-empty placeholder value in deployment settings.');
+}
+
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many admin attempts. Try again later.' }
+});
+
 function adminAuth(req, res, next) {
-  const adminKey = req.headers['x-admin-key'];
-  if (adminKey !== (process.env.ADMIN_KEY || 'zestok-admin-123')) {
+  if (!JWT_SECRET) {
+    return res.status(503).json({ error: 'Admin panel not configured' });
+  }
+
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  next();
+
+  const token = authHeader.slice(7).trim();
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    req.admin = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 }
+
+app.post('/api/admin/login', adminLimiter, async (req, res) => {
+  if (!ADMIN_KEY || !JWT_SECRET) {
+    return res.status(503).json({ error: 'Admin panel not configured' });
+  }
+
+  const { key } = req.body || {};
+  if (!key || typeof key !== 'string') {
+    return res.status(400).json({ error: 'Admin key required' });
+  }
+
+  try {
+    const bufProvided = Buffer.from(key);
+    const bufExpected = Buffer.from(ADMIN_KEY);
+    if (bufProvided.length !== bufExpected.length || !crypto.timingSafeEqual(bufProvided, bufExpected)) {
+      return res.status(401).json({ error: 'Invalid admin key' });
+    }
+  } catch {
+    return res.status(401).json({ error: 'Invalid admin key' });
+  }
+
+  const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
+  res.json({ token, expiresIn: '24h' });
+});
 
 app.post('/api/payment/submit', async (req, res) => {
   try {
@@ -420,7 +482,7 @@ app.post('/api/payment/submit', async (req, res) => {
   }
 });
 
-app.get('/api/admin/payments', adminAuth, async (req, res) => {
+app.get('/api/admin/payments', adminLimiter, adminAuth, async (req, res) => {
   try {
     const db = getDb();
     const payments = await db.prepare("SELECT * FROM payments ORDER BY created_at DESC").all();
@@ -430,7 +492,7 @@ app.get('/api/admin/payments', adminAuth, async (req, res) => {
   }
 });
 
-app.post('/api/admin/confirm-payment', adminAuth, async (req, res) => {
+app.post('/api/admin/confirm-payment', adminLimiter, adminAuth, async (req, res) => {
   try {
     const { paymentId } = req.body;
     if (!paymentId) return res.status(400).json({ error: 'paymentId required' });
@@ -562,7 +624,7 @@ app.post('/api/license/deactivate', async (req, res) => {
   }
 });
 
-app.get('/api/admin/licenses', adminAuth, async (req, res) => {
+app.get('/api/admin/licenses', adminLimiter, adminAuth, async (req, res) => {
   try {
     const db = getDb();
     const licenses = await db.prepare("SELECT * FROM licenses ORDER BY created_at DESC").all();
