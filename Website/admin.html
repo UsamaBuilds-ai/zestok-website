@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://tender-solace-production-5226.up.railway.app; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
   <title>Zestok Admin Panel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -176,7 +180,10 @@
 </div>
 
 <div class="container" id="adminPanel" style="display:none">
-  <h1>Zestok Admin Panel</h1>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+    <h1 style="margin:0">Zestok Admin Panel</h1>
+    <button class="btn btn-danger" id="logoutBtn" style="width:auto">Logout</button>
+  </div>
 
   <div class="stats-grid" id="statsGrid">
     <div class="stat-card"><span>Total Licenses</span><strong id="statLicenses">0</strong></div>
@@ -212,29 +219,93 @@
 </div>
 
 <script>
-const API = 'https://tender-solace-production-5226.up.railway.app';
-let adminKey = localStorage.getItem('zestokAdminKey') || '';
+const API = (function() {
+  const stored = sessionStorage.getItem('zestokApiUrl');
+  if (stored) return stored;
+  return 'https://tender-solace-production-5226.up.railway.app';
+})();
+
+const SESSION_TIMEOUT = 30 * 60 * 1000;
+let sessionTimer = null;
+let loginAttempts = 0;
+const MAX_LOGIN_ATTEMPTS = 5;
+let lockoutUntil = 0;
+
+let adminJWT = '';
+
+function resetSessionTimer() {
+  if (sessionTimer) clearTimeout(sessionTimer);
+  sessionTimer = setTimeout(logout, SESSION_TIMEOUT);
+}
+
+function logout() {
+  adminJWT = '';
+  sessionStorage.removeItem('zestokAdminJWT');
+  sessionStorage.removeItem('zestokApiUrl');
+  if (sessionTimer) clearTimeout(sessionTimer);
+  document.getElementById('loginScreen').style.display = 'block';
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('adminKeyInput').value = '';
+  document.getElementById('loginMsg').textContent = '';
+}
 
 async function api(path, body) {
-  const headers = { 'Content-Type': 'application/json', 'x-admin-key': adminKey };
+  const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminJWT };
   const res = await fetch(API + path, { headers, ...(body ? { method: 'POST', body: JSON.stringify(body) } : {}) });
-  if (res.status === 401) { localStorage.removeItem('zestokAdminKey'); adminKey = ''; document.getElementById('loginScreen').style.display = 'block'; document.getElementById('adminPanel').style.display = 'none'; throw new Error('Unauthorized'); }
+  if (res.status === 401) {
+    logout();
+    throw new Error('Unauthorized');
+  }
+  if (res.status === 429) {
+    throw new Error('Too many attempts. Try again later.');
+  }
   return res.json();
 }
 
 async function login() {
+  const now = Date.now();
+  if (now < lockoutUntil) {
+    const mins = Math.ceil((lockoutUntil - now) / 60000);
+    document.getElementById('loginMsg').textContent = `Too many attempts. Try again in ${mins} min.`;
+    return;
+  }
+
   const key = document.getElementById('adminKeyInput').value.trim();
   if (!key) { document.getElementById('loginMsg').textContent = 'Enter admin key'; return; }
-  adminKey = key;
+
   try {
-    const data = await api('/api/admin/payments');
-    localStorage.setItem('zestokAdminKey', key);
+    const data = await fetch(API + '/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key })
+    });
+    if (data.status === 429) {
+      const mins = Math.ceil(15);
+      document.getElementById('loginMsg').textContent = `Too many attempts. Try again later.`;
+      return;
+    }
+    if (data.status !== 200) {
+      throw new Error('Invalid key');
+    }
+    const result = await data.json();
+    adminJWT = result.token;
+    loginAttempts = 0;
+    sessionStorage.setItem('zestokAdminJWT', adminJWT);
     document.getElementById('loginMsg').textContent = '';
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
+    resetSessionTimer();
     loadData();
   } catch (e) {
-    document.getElementById('loginMsg').textContent = 'Invalid key or server error';
+    loginAttempts++;
+    if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+      lockoutUntil = Date.now() + 15 * 60 * 1000;
+      document.getElementById('loginMsg').textContent = 'Too many failed attempts. Locked for 15 min.';
+      loginAttempts = 0;
+    } else {
+      document.getElementById('loginMsg').textContent = `Invalid key (${loginAttempts}/${MAX_LOGIN_ATTEMPTS})`;
+    }
+    adminJWT = '';
   }
 }
 
@@ -247,6 +318,7 @@ async function loadData() {
     renderPayments(paymentsData.payments);
     renderLicenses(licensesData.licenses);
     renderStats(paymentsData.payments, licensesData.licenses);
+    resetSessionTimer();
   } catch (e) { console.error(e); }
 }
 
@@ -263,15 +335,21 @@ function renderPayments(payments) {
   tbody.innerHTML = payments.map(p => `
     <tr>
       <td>${new Date(p.created_at).toLocaleDateString()}</td>
-      <td>${p.customer_name}</td>
-      <td>${p.customer_email}</td>
-      <td>${p.product_type}</td>
+      <td>${escHtml(p.customer_name)}</td>
+      <td>${escHtml(p.customer_email)}</td>
+      <td>${escHtml(p.product_type)}</td>
       <td>$${p.amount}</td>
-      <td style="font-size:11px;color:#94a3b8">${p.nayapay_txn_id}</td>
+      <td style="font-size:11px;color:#94a3b8">${escHtml(p.nayapay_txn_id)}</td>
       <td><span class="badge ${p.status}">${p.status}</span></td>
       <td>${p.status === 'pending' ? `<button class="btn btn-success" onclick="confirmPayment('${p.id}')">Confirm & Deliver</button>` : '-'}</td>
     </tr>
   `).join('');
+}
+
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
 }
 
 async function confirmPayment(paymentId) {
@@ -290,10 +368,10 @@ function renderLicenses(licenses) {
   tbody.innerHTML = licenses.map(l => `
     <tr>
       <td>${new Date(l.created_at).toLocaleDateString()}</td>
-      <td><span class="key-display">${l.license_key}</span> <button class="copy-btn" onclick="copyKey('${l.license_key}')">Copy</button></td>
-      <td>${l.product_type}</td>
-      <td>${l.customer_name}</td>
-      <td>${l.customer_email}</td>
+      <td><span class="key-display">${escHtml(l.license_key)}</span> <button class="copy-btn" onclick="copyKey('${escHtml(l.license_key)}')">Copy</button></td>
+      <td>${escHtml(l.product_type)}</td>
+      <td>${escHtml(l.customer_name)}</td>
+      <td>${escHtml(l.customer_email)}</td>
       <td>${l.activeDevices || 0}/${l.max_activations}</td>
       <td><span class="badge ${l.status}">${l.status}</span></td>
     </tr>
@@ -304,6 +382,11 @@ function copyKey(key) { navigator.clipboard.writeText(key); event.target.textCon
 
 document.getElementById('adminLoginBtn').addEventListener('click', login);
 document.getElementById('adminKeyInput').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+document.getElementById('logoutBtn').addEventListener('click', logout);
+
+document.addEventListener('click', resetSessionTimer);
+document.addEventListener('keydown', resetSessionTimer);
+document.addEventListener('mousemove', resetSessionTimer);
 
 document.querySelectorAll('.tab-bar button').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -311,10 +394,18 @@ document.querySelectorAll('.tab-bar button').forEach(btn => {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('tab' + btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1)).classList.add('active');
+    resetSessionTimer();
   });
 });
 
-if (adminKey) { document.getElementById('loginScreen').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; loadData(); }
+const savedJWT = sessionStorage.getItem('zestokAdminJWT');
+if (savedJWT) {
+  adminJWT = savedJWT;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+  resetSessionTimer();
+  loadData();
+}
 </script>
 </body>
 </html>

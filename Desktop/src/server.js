@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
+const jwt = require('jsonwebtoken');
 const { getDb } = require('./db/local');
 
 const app = express();
@@ -53,6 +54,14 @@ const globalAuthLimiter = rateLimit({
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: { error: 'Too many attempts.' }
+});
+
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Try again later.' }
 });
 
 async function resolveTenant(req, res, next) {
@@ -373,6 +382,7 @@ app.get('/api/stock', globalAuthLimiter, resolveTenant, async (req, res) => {
 
 // ── Licensing System ──
 const LICENSE_SECRET = process.env.LICENSE_SECRET || 'zestok-license-secret-change-in-prod';
+const JWT_SECRET = process.env.JWT_SECRET || 'zestok-jwt-secret-change-in-prod';
 
 const licenseLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -395,12 +405,31 @@ function validateLicenseKeyFormat(key) {
 }
 
 function adminAuth(req, res, next) {
-  const adminKey = req.headers['x-admin-key'];
-  if (adminKey !== (process.env.ADMIN_KEY || 'zestok-admin-123')) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  next();
+  try {
+    const token = authHeader.slice(7);
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.admin = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 }
+
+app.post('/api/admin/login', adminLoginLimiter, async (req, res) => {
+  const { key } = req.body;
+  if (!key) {
+    return res.status(400).json({ error: 'Admin key required' });
+  }
+  if (key !== (process.env.ADMIN_KEY || 'zestok-admin-123')) {
+    return res.status(401).json({ error: 'Invalid admin key' });
+  }
+  const token = jwt.sign({ role: 'admin', iat: Date.now() }, JWT_SECRET, { expiresIn: '24h' });
+  res.json({ token, expiresIn: '24h' });
+});
 
 app.post('/api/payment/submit', async (req, res) => {
   try {
