@@ -131,7 +131,9 @@ autoUpdater.on("update-downloaded", (info) => {
 });
 
 autoUpdater.on("error", (error) => {
-  mainWindow?.webContents.send("update:error", error?.message || "Unknown error");
+  const msg = error?.message || "";
+  if (msg.includes("app-update.yml") && msg.includes("ENOENT")) return;
+  mainWindow?.webContents.send("update:error", msg);
 });
 
 app.on('second-instance', () => {

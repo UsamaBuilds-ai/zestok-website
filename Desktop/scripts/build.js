@@ -45,6 +45,7 @@ async function main() {
   console.log('--- Step 3: Build NSIS installer ---');
   const config = {
     win: { target: 'nsis', artifactName: 'Zestok.${ext}' },
+    publish: { provider: 'github', owner: 'UsamaBuilds-ai', repo: 'zestok' },
     nsis: {
       oneClick: false, perMachine: false, allowToChangeInstallationDirectory: false,
       installerIcon: ICON, uninstallerIcon: ICON, deleteAppDataOnUninstall: true,

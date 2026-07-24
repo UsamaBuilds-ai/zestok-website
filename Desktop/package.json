@@ -50,7 +50,7 @@
     "publish": {
       "provider": "github",
       "owner": "UsamaBuilds-ai",
-      "repo": "Stock-Management"
+      "repo": "zestok"
     },
     "nsis": {
       "oneClick": false,

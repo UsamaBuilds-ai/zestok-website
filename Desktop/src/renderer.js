@@ -570,18 +570,22 @@ const getBalances = () => {
 function updateTrialBanner() {
   const banner = document.getElementById('trialBanner');
   const msg = document.getElementById('trialMessage');
+  const licenseBanner = document.getElementById('licenseBanner');
   if (!banner || !msg) return;
   if (_licensed) {
     banner.classList.add('hidden');
+    if (licenseBanner) licenseBanner.classList.add('hidden');
     return;
   }
   const count = state.entries.length;
   if (count >= TRIAL_LIMIT) {
     banner.classList.add('hidden');
+    if (licenseBanner) licenseBanner.classList.remove('hidden');
     return;
   }
   msg.textContent = `Trial: ${count}/${TRIAL_LIMIT} entries`;
   banner.classList.remove('hidden');
+  if (licenseBanner) licenseBanner.classList.add('hidden');
 }
 
 function updateLockedControls() {
@@ -610,6 +614,7 @@ function hideUpgradeOverlay() {
 
 function wireUpgradeEvents() {
   document.getElementById('upgradeBtn')?.addEventListener('click', showUpgradeOverlay);
+  document.getElementById('topLicenseBtn')?.addEventListener('click', showUpgradeOverlay);
   document.getElementById('upgradeCloseBtn')?.addEventListener('click', hideUpgradeOverlay);
 
   document.getElementById('licenseActivateBtn')?.addEventListener('click', async () => {

@@ -958,6 +958,21 @@ footer {
   font-weight: 700;
 }
 .trial-banner.hidden { display: none; }
+
+/* ── License Banner ── */
+.license-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #8b1a1a, #d22d2d);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+.license-banner.hidden { display: none; }
+
 .upgrade-btn-sm {
   padding: 4px 14px !important;
   font-size: 13px !important;
