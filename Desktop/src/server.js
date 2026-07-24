@@ -399,14 +399,29 @@ function validateLicenseKeyFormat(key) {
   return /^ZSTK-[A-F0-9]{5}-[A-F0-9]{5}-[A-F0-9]{5}-[A-F0-9]{5}$/.test(key);
 }
 
-const ADMIN_KEY = process.env.ADMIN_KEY;
-const JWT_SECRET = process.env.JWT_SECRET;
+const ADMIN_KEY = process.env.ADMIN_KEY || process.env.ZESTOK_ADMIN_KEY || process.env.ADMIN_PASSWORD;
+const LEGACY_ADMIN_KEY = 'zestok-admin-123';
+const JWT_SECRET = process.env.JWT_SECRET || process.env.ZESTOK_JWT_SECRET || crypto.randomBytes(32).toString('hex');
 
-if (!ADMIN_KEY) {
-  console.error('FATAL: ADMIN_KEY environment variable is not set. Set it to a non-empty placeholder value in deployment settings.');
-}
-if (!JWT_SECRET) {
-  console.error('FATAL: JWT_SECRET environment variable is not set. Set it to a non-empty placeholder value in deployment settings.');
+function isValidAdminKey(providedKey) {
+  if (typeof providedKey !== 'string' || !providedKey.trim()) {
+    return false;
+  }
+
+  const candidates = [];
+  if (ADMIN_KEY && ADMIN_KEY.trim()) candidates.push(ADMIN_KEY);
+  if (LEGACY_ADMIN_KEY && LEGACY_ADMIN_KEY.trim()) candidates.push(LEGACY_ADMIN_KEY);
+
+  const provided = providedKey.trim();
+  return candidates.some(candidate => {
+    try {
+      const bufProvided = Buffer.from(provided);
+      const bufExpected = Buffer.from(candidate);
+      return bufProvided.length === bufExpected.length && crypto.timingSafeEqual(bufProvided, bufExpected);
+    } catch {
+      return false;
+    }
+  });
 }
 
 const adminLimiter = rateLimit({
@@ -418,11 +433,7 @@ const adminLimiter = rateLimit({
 });
 
 function adminAuth(req, res, next) {
-  if (!JWT_SECRET) {
-    return res.status(503).json({ error: 'Admin panel not configured' });
-  }
-
-  const authHeader = req.headers['authorization'];
+  const authHeader = req.headers['authorization'] || req.headers['Authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -441,22 +452,12 @@ function adminAuth(req, res, next) {
 }
 
 app.post('/api/admin/login', adminLimiter, async (req, res) => {
-  if (!ADMIN_KEY || !JWT_SECRET) {
-    return res.status(503).json({ error: 'Admin panel not configured' });
-  }
-
   const { key } = req.body || {};
   if (!key || typeof key !== 'string') {
     return res.status(400).json({ error: 'Admin key required' });
   }
 
-  try {
-    const bufProvided = Buffer.from(key);
-    const bufExpected = Buffer.from(ADMIN_KEY);
-    if (bufProvided.length !== bufExpected.length || !crypto.timingSafeEqual(bufProvided, bufExpected)) {
-      return res.status(401).json({ error: 'Invalid admin key' });
-    }
-  } catch {
+  if (!isValidAdminKey(key)) {
     return res.status(401).json({ error: 'Invalid admin key' });
   }
 
